@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .input-base {
+    @apply h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-teal-400 focus:ring-2 focus:ring-teal-100;
+  }
+
+  .btn-primary {
+    @apply w-full rounded-lg bg-teal-500 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400;
+  }
+
+  .btn-secondary {
+    @apply w-full rounded-lg border border-slate-200 py-2 text-sm text-slate-500 transition hover:bg-slate-50;
+  }
+
+  .card {
+    @apply overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm;
+  }
+
+  .option-card {
+    @apply w-full rounded-lg border border-slate-200 bg-white p-3.5 text-left transition hover:border-slate-300;
+  }
+
+  .option-card-selected {
+    @apply border-teal-400 bg-teal-50 ring-1 ring-teal-200;
+  }
+}
