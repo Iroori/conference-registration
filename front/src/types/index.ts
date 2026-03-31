@@ -19,7 +19,8 @@ export interface LoginRequest {
 }
 
 export interface AuthUser {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   email: string;
   nameKr: string;
   nameEn: string;
