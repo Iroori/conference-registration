@@ -90,7 +90,8 @@ public class AuthService {
                 req.country(),
                 req.phone(),
                 req.birthDate(),
-                memberType
+                memberType,
+                Boolean.TRUE.equals(req.isPresenter())
         );
         userRepository.save(user);
         sendVerificationCode(req.email());

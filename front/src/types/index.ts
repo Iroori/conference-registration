@@ -11,6 +11,7 @@ export interface SignupRequest {
   country: string;
   phone: string;
   birthDate: string; // ISO: "1990-03-15"
+  isPresenter?: boolean;
 }
 
 export interface LoginRequest {
@@ -28,6 +29,7 @@ export interface AuthUser {
   position: string;
   memberType: MemberType;
   isYoungEngineer: boolean;
+  isPresenter: boolean;
 }
 
 export interface IasbseCheckResponse {
@@ -82,12 +84,78 @@ export interface ConferenceOption {
   available?: boolean;
 }
 
+// ─── Registration Tiers ──────────────────────────────────────────────────────
+export type RegistrationTierKey = 'PRE_REGISTRATION' | 'EARLY_BIRD' | 'REGULAR';
+
+export interface RegistrationTierConfig {
+  label: string;
+  subtitle: string;
+  deadline: string;
+  deadlineDate: Date;
+  color: 'teal' | 'amber' | 'slate';
+  optionIds: Record<MemberType, string>;
+}
+
+export const REG_TIER_CONFIG: Record<RegistrationTierKey, RegistrationTierConfig> = {
+  PRE_REGISTRATION: {
+    label: 'Pre-Registration',
+    subtitle: 'Best rates — limited availability',
+    deadline: 'April 30, 2026',
+    deadlineDate: new Date('2026-04-30'),
+    color: 'teal',
+    optionIds: {
+      MEMBER: 'OPT-REG-PRE-MEMBER',
+      NON_MEMBER: 'OPT-REG-PRE-NM',
+      NON_MEMBER_PLUS: 'OPT-REG-PRE-NMP',
+    },
+  },
+  EARLY_BIRD: {
+    label: 'Early Bird',
+    subtitle: 'Standard advance registration',
+    deadline: 'July 31, 2026',
+    deadlineDate: new Date('2026-07-31'),
+    color: 'amber',
+    optionIds: {
+      MEMBER: 'OPT-REG-EARLY-MEMBER',
+      NON_MEMBER: 'OPT-REG-EARLY-NM',
+      NON_MEMBER_PLUS: 'OPT-REG-EARLY-NMP',
+    },
+  },
+  REGULAR: {
+    label: 'Regular Registration',
+    subtitle: 'On-site & late registration',
+    deadline: 'October 31, 2026',
+    deadlineDate: new Date('2026-10-31'),
+    color: 'slate',
+    optionIds: {
+      MEMBER: 'OPT-REG-MEMBER',
+      NON_MEMBER: 'OPT-REG-NONMEMBER',
+      NON_MEMBER_PLUS: 'OPT-REG-NONMEMBER-PLUS',
+    },
+  },
+};
+
+/** Option IDs shown in the Additional Programs step */
+export const ADDITIONAL_OPTION_IDS = [
+  'OPT-WELCOME',
+  'OPT-CONGRESS-DINNER',
+  'OPT-TECH-TOUR',
+  'OPT-YEP',
+  'OPT-ACCOMPANYING',
+  'OPT-WORKSHOP',
+] as const;
+
+/** Invitation letter option ID (ADMIN category, free) */
+export const INVITATION_OPTION_ID = 'OPT-VISA';
+
 // ─── Payment ─────────────────────────────────────────────────────────────────
 export type PaymentMethod = 'CARD' | 'KAKAO_PAY' | 'BANK_TRANSFER' | 'PAYPAL';
 export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'FAILED';
 
 export interface PaymentRequest {
   selectedOptionIds: string[];
+  /** optionId → quantity; defaults to 1 if absent */
+  quantities?: Record<string, number>;
   paymentMethod: PaymentMethod;
 }
 
@@ -127,4 +195,10 @@ export interface PricingSummary {
 }
 
 // ─── Page State ──────────────────────────────────────────────────────────────
-export type RegistrationStep = 'OPTIONS' | 'PAYMENT' | 'COMPLETE';
+export type RegistrationStep =
+  | 'REG_TYPE'
+  | 'ADD_OPTIONS'
+  | 'INVITATION'
+  | 'SUMMARY'
+  | 'PAYMENT'
+  | 'COMPLETE';

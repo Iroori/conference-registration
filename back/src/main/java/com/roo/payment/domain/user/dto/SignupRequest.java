@@ -31,5 +31,7 @@ public record SignupRequest(
         String phone,
 
         @NotNull @Past
-        LocalDate birthDate
+        LocalDate birthDate,
+
+        Boolean isPresenter
 ) {}

@@ -49,66 +49,157 @@ public class DataInitializer implements ApplicationRunner {
         if (optionRepository.count() > 0) return;
 
         optionRepository.saveAll(List.of(
+
+                // ── Pre-Registration (by April 30, 2026) ──────────────────────────────
+                new ConferenceOption(
+                        "OPT-REG-PRE-MEMBER",
+                        OptionCategory.REGISTRATION,
+                        "사전등록 (IASBSE 회원)",
+                        "Pre-Registration — IABSE Member",
+                        "Full conference access · Proceedings PDF included · Deadline: April 30, 2026",
+                        500_000L, false, true, false,
+                        MemberType.MEMBER, null
+                ),
+                new ConferenceOption(
+                        "OPT-REG-PRE-NM",
+                        OptionCategory.REGISTRATION,
+                        "사전등록 (비회원 - Young Engineer)",
+                        "Pre-Registration — Young Engineer (Under 36)",
+                        "Full conference access · Proceedings PDF included · Deadline: April 30, 2026",
+                        350_000L, false, true, false,
+                        MemberType.NON_MEMBER, null
+                ),
+                new ConferenceOption(
+                        "OPT-REG-PRE-NMP",
+                        OptionCategory.REGISTRATION,
+                        "사전등록 (비회원 - 일반)",
+                        "Pre-Registration — Non-Member Plus",
+                        "Full conference access · Proceedings PDF included · Deadline: April 30, 2026",
+                        700_000L, false, true, false,
+                        MemberType.NON_MEMBER_PLUS, null
+                ),
+
+                // ── Early Bird (May 1 – July 31, 2026) ───────────────────────────────
+                new ConferenceOption(
+                        "OPT-REG-EARLY-MEMBER",
+                        OptionCategory.REGISTRATION,
+                        "얼리버드 등록 (IASBSE 회원)",
+                        "Early Bird Registration — IABSE Member",
+                        "Full conference access · Proceedings PDF included · Deadline: July 31, 2026",
+                        600_000L, false, true, false,
+                        MemberType.MEMBER, null
+                ),
+                new ConferenceOption(
+                        "OPT-REG-EARLY-NM",
+                        OptionCategory.REGISTRATION,
+                        "얼리버드 등록 (비회원 - Young Engineer)",
+                        "Early Bird Registration — Young Engineer (Under 36)",
+                        "Full conference access · Proceedings PDF included · Deadline: July 31, 2026",
+                        450_000L, false, true, false,
+                        MemberType.NON_MEMBER, null
+                ),
+                new ConferenceOption(
+                        "OPT-REG-EARLY-NMP",
+                        OptionCategory.REGISTRATION,
+                        "얼리버드 등록 (비회원 - 일반)",
+                        "Early Bird Registration — Non-Member Plus",
+                        "Full conference access · Proceedings PDF included · Deadline: July 31, 2026",
+                        850_000L, false, true, false,
+                        MemberType.NON_MEMBER_PLUS, null
+                ),
+
+                // ── Regular Registration (August 1, 2026 onwards) ────────────────────
                 new ConferenceOption(
                         "OPT-REG-MEMBER",
                         OptionCategory.REGISTRATION,
-                        "컨퍼런스 등록 (IASBSE 회원)",
-                        "Conference Registration (IASBSE Member)",
-                        "전일정 포함 · 논문집 PDF 제공",
-                        150_000L, false, true, false,
+                        "일반등록 (IASBSE 회원)",
+                        "Regular Registration — IABSE Member",
+                        "Full conference access · Proceedings PDF included",
+                        700_000L, false, true, false,
                         MemberType.MEMBER, null
                 ),
                 new ConferenceOption(
                         "OPT-REG-NONMEMBER",
                         OptionCategory.REGISTRATION,
-                        "컨퍼런스 등록 (비회원 - Young Engineer)",
-                        "Conference Registration (Non-Member, Young Engineer)",
-                        "전일정 포함 · 만 35세 이하",
-                        250_000L, false, true, false,
+                        "일반등록 (비회원 - Young Engineer)",
+                        "Regular Registration — Young Engineer (Under 36)",
+                        "Full conference access · Proceedings PDF included",
+                        550_000L, false, true, false,
                         MemberType.NON_MEMBER, null
                 ),
                 new ConferenceOption(
                         "OPT-REG-NONMEMBER-PLUS",
                         OptionCategory.REGISTRATION,
-                        "컨퍼런스 등록 (비회원 - 일반)",
-                        "Conference Registration (Non-Member)",
-                        "전일정 포함 · 현장 등록",
-                        320_000L, false, true, false,
+                        "일반등록 (비회원 - 일반)",
+                        "Regular Registration — Non-Member Plus",
+                        "Full conference access · Proceedings PDF included",
+                        950_000L, false, true, false,
                         MemberType.NON_MEMBER_PLUS, null
                 ),
+
+                // ── Social Events / Additional Programs ───────────────────────────────
                 new ConferenceOption(
-                        "OPT-GALA",
+                        "OPT-WELCOME",
                         OptionCategory.PROGRAM,
-                        "갈라 디너",
-                        "Gala Dinner",
-                        "Day 2 저녁 · 공식 만찬 · 드레스코드: 비즈니스 캐주얼",
+                        "환영 리셉션",
+                        "Welcome Reception",
+                        "Day 1 evening · Welcome drinks & networking · Business casual",
                         80_000L, false, false, false,
-                        null, null
+                        null, 200
                 ),
                 new ConferenceOption(
-                        "OPT-TOUR",
+                        "OPT-CONGRESS-DINNER",
                         OptionCategory.PROGRAM,
-                        "투어 프로그램",
-                        "Tour Program",
-                        "Day 3 오후 · 도시 문화 투어 · 버스 이동 포함",
-                        50_000L, false, false, false,
+                        "콩그레스 디너",
+                        "Congress Dinner",
+                        "Day 2 evening · Official gala dinner · Dress code: Business formal",
+                        120_000L, false, false, false,
+                        null, 150
+                ),
+                new ConferenceOption(
+                        "OPT-TECH-TOUR",
+                        OptionCategory.PROGRAM,
+                        "기술 투어 프로그램",
+                        "Technical Tour Program",
+                        "Day 3 afternoon · Site visits to infrastructure projects · Transportation included",
+                        60_000L, false, false, false,
                         null, 40
                 ),
                 new ConferenceOption(
                         "OPT-YEP",
                         OptionCategory.PROGRAM,
                         "영 엔지니어 프로그램",
-                        "Young Engineer Program",
-                        "만 35세 이하 · 멘토링 + 네트워킹 세션",
+                        "Young Engineers Program",
+                        "Dedicated sessions for engineers under 36 · Mentoring & networking · Open to YE registrants",
                         30_000L, false, false, false,
                         MemberType.NON_MEMBER, null
                 ),
                 new ConferenceOption(
+                        "OPT-ACCOMPANYING",
+                        OptionCategory.PROGRAM,
+                        "동반자 프로그램",
+                        "Accompanying Person Program",
+                        "Full social program access for accompanying persons (not technical sessions)",
+                        150_000L, false, false, false,
+                        null, null
+                ),
+                new ConferenceOption(
+                        "OPT-WORKSHOP",
+                        OptionCategory.PROGRAM,
+                        "워크숍",
+                        "Workshop",
+                        "Pre-conference workshop · Hands-on technical sessions · Day 0",
+                        50_000L, false, false, false,
+                        null, 60
+                ),
+
+                // ── Administrative Services ───────────────────────────────────────────
+                new ConferenceOption(
                         "OPT-VISA",
                         OptionCategory.ADMIN,
-                        "비자 초청장 요청",
-                        "Visa Invitation Letter",
-                        "여권 정보 입력 필요 · 5영업일 이내 발급",
+                        "초청장 (비자용)",
+                        "Official Invitation Letter (Visa)",
+                        "Official letter for visa application · Issued within 5 business days",
                         0L, true, false, false,
                         null, null
                 ),
@@ -117,7 +208,7 @@ public class DataInitializer implements ApplicationRunner {
                         OptionCategory.ADMIN,
                         "논문집 인쇄본",
                         "Printed Proceedings",
-                        "현장 수령 · USB 동봉",
+                        "Collected on-site · USB drive included",
                         20_000L, false, false, false,
                         null, null
                 )

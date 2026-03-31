@@ -49,22 +49,29 @@ public class PaymentService {
         User user = userRepository.findByEmailAndActiveTrue(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        // 선택한 옵션 조회 및 검증
-        List<ConferenceOption> options = optionRepository.findAllById(request.selectedOptionIds());
-        if (options.size() != request.selectedOptionIds().size()) {
+        // 고유 optionId 조회 및 검증
+        List<String> uniqueIds = request.selectedOptionIds().stream().distinct().toList();
+        List<ConferenceOption> options = optionRepository.findAllById(uniqueIds);
+        if (options.size() != uniqueIds.size()) {
             throw new BusinessException(ErrorCode.OPTION_NOT_FOUND);
         }
 
-        // 정원 초과 검증
+        Map<String, Integer> quantities = request.quantities() != null ? request.quantities() : Map.of();
+
+        // 정원 초과 검증 (수량 반영)
         for (ConferenceOption option : options) {
-            if (!option.hasCapacity()) {
+            int qty = quantities.getOrDefault(option.getId(), 1);
+            if (option.getMaxCapacity() != null
+                    && option.getCurrentCount() + qty > option.getMaxCapacity()) {
                 throw new BusinessException(ErrorCode.OPTION_CAPACITY_EXCEEDED,
-                        option.getNameKr() + "의 정원이 초과되었습니다.");
+                        option.getNameEn() + " has exceeded the available capacity.");
             }
         }
 
-        // 가격 계산
-        long subtotal = options.stream().mapToLong(ConferenceOption::getPrice).sum();
+        // 가격 계산 (수량 반영)
+        long subtotal = options.stream()
+                .mapToLong(o -> o.getPrice() * quantities.getOrDefault(o.getId(), 1))
+                .sum();
         long tax = Math.round(subtotal * 0.1);
 
         // 등록번호 생성
@@ -80,8 +87,11 @@ public class PaymentService {
                 options
         );
 
-        // 정원 차감
-        options.forEach(ConferenceOption::increaseCount);
+        // 정원 차감 (수량 반영)
+        options.forEach(o -> {
+            int qty = quantities.getOrDefault(o.getId(), 1);
+            for (int i = 0; i < qty; i++) o.increaseCount();
+        });
 
         // 결제 완료 처리 (PG 연동 후 콜백으로 변경 예정)
         payment.complete();
