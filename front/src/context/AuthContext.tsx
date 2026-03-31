@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import type { AuthUser } from '../types';
+import { apiLogout } from '../lib/api';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -21,13 +22,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const login = useCallback((authUser: AuthUser) => {
-    localStorage.setItem('token', authUser.token);
+    localStorage.setItem('accessToken', authUser.accessToken);
+    localStorage.setItem('refreshToken', authUser.refreshToken);
     localStorage.setItem('user', JSON.stringify(authUser));
     setUser(authUser);
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      // 서버에서 refresh token 폐기 (실패해도 로컬 로그아웃은 진행)
+      apiLogout(refreshToken).catch(() => {});
+    }
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     setUser(null);
   }, []);

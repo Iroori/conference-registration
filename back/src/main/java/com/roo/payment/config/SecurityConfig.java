@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,14 +27,11 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserDetailsService userDetailsService;
     private final AppProperties appProperties;
 
     public SecurityConfig(JwtTokenProvider jwtTokenProvider,
-                          UserDetailsService userDetailsService,
                           AppProperties appProperties) {
         this.jwtTokenProvider = jwtTokenProvider;
-        this.userDetailsService = userDetailsService;
         this.appProperties = appProperties;
     }
 
@@ -50,17 +46,33 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/iasbse/check").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/options").permitAll()
-                        // 관리자 엔드포인트 (헤더 키로 검증)
+                        // 관리자 엔드포인트 — X-Admin-Key 헤더는 컨트롤러 레이어에서 검증
                         .requestMatchers("/api/iasbse/admin/**").permitAll()
-                        // H2 콘솔 + 개발 도우미 (dev 환경, devMode=false 시 컨트롤러가 403 반환)
+                        // H2 콘솔 + 개발 도우미 (dev-mode=false 시 컨트롤러가 403 반환)
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/dev/**").permitAll()
                         // 그 외 인증 필요
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtAuthFilter(jwtTokenProvider, userDetailsService),
+                .addFilterBefore(new JwtAuthFilter(jwtTokenProvider),
                         UsernamePasswordAuthenticationFilter.class)
-                .headers(headers -> headers.frameOptions(fo -> fo.sameOrigin())); // H2 콘솔용
+                // ── 보안 응답 헤더 ────────────────────────────────────────────────
+                .headers(headers -> headers
+                        .httpStrictTransportSecurity(hsts -> hsts
+                                .includeSubDomains(true)
+                                .maxAgeInSeconds(31_536_000))
+                        .frameOptions(fo -> fo.deny())
+                        .contentTypeOptions(cto -> {})
+                        .xssProtection(xss -> {})
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "default-src 'self'; " +
+                                "script-src 'self'; " +
+                                "style-src 'self' 'unsafe-inline'; " +
+                                "img-src 'self' data:; " +
+                                "connect-src 'self'; " +
+                                "frame-ancestors 'none';"
+                        ))
+                );
 
         return http.build();
     }

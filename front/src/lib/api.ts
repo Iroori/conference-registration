@@ -31,6 +31,15 @@ export const apiVerifyEmail = async (req: EmailVerifyRequest): Promise<void> => 
   await apiClient.post('/auth/verify-email', req);
 };
 
+export const apiRefreshToken = async (refreshToken: string): Promise<AuthUser> => {
+  const res = await apiClient.post<{ data: AuthUser }>('/auth/refresh', { refreshToken });
+  return res.data.data;
+};
+
+export const apiLogout = async (refreshToken: string): Promise<void> => {
+  await apiClient.post('/auth/logout', { refreshToken });
+};
+
 // ─── IASBSE ──────────────────────────────────────────────────────────────────
 export const apiCheckIasbse = async (email: string): Promise<IasbseCheckResponse> => {
   const res = await apiClient.get<{ data: IasbseCheckResponse }>(
