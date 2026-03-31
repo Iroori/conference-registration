@@ -12,7 +12,8 @@ public record AuthResponse(
         String affiliation,
         String position,
         MemberType memberType,
-        boolean isYoungEngineer
+        boolean isYoungEngineer,
+        boolean isPresenter
 ) {
     public static AuthResponse of(String accessToken, String refreshToken, User user) {
         return new AuthResponse(
@@ -24,7 +25,8 @@ public record AuthResponse(
                 user.getAffiliation(),
                 user.getPosition(),
                 user.getMemberType(),
-                user.isYoungEngineer()
+                user.isYoungEngineer(),
+                user.isPresenter()
         );
     }
 }

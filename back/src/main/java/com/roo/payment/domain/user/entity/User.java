@@ -53,11 +53,20 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private boolean active = true;
 
+    @Column(nullable = false)
+    private boolean presenter = false;
+
     protected User() {}
 
     public User(String email, String password, String nameKr, String nameEn,
                 String affiliation, String position, String country, String phone,
                 LocalDate birthDate, MemberType memberType) {
+        this(email, password, nameKr, nameEn, affiliation, position, country, phone, birthDate, memberType, false);
+    }
+
+    public User(String email, String password, String nameKr, String nameEn,
+                String affiliation, String position, String country, String phone,
+                LocalDate birthDate, MemberType memberType, boolean presenter) {
         this.email = email.toLowerCase().trim();
         this.password = password;
         this.nameKr = nameKr;
@@ -68,6 +77,7 @@ public class User extends BaseEntity {
         this.phone = phone;
         this.birthDate = birthDate;
         this.memberType = memberType;
+        this.presenter = presenter;
     }
 
     /**
@@ -101,4 +111,5 @@ public class User extends BaseEntity {
     public MemberType getMemberType() { return memberType; }
     public boolean isEmailVerified() { return emailVerified; }
     public boolean isActive() { return active; }
+    public boolean isPresenter() { return presenter; }
 }

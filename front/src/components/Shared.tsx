@@ -16,7 +16,7 @@ export const ErrorBanner = ({ message, onRetry }: ErrorBannerProps) => (
     </div>
     {onRetry && (
       <button onClick={onRetry} className="text-xs font-medium text-red-600 underline hover:text-red-800">
-        재시도
+        Retry
       </button>
     )}
   </div>
@@ -41,10 +41,10 @@ export const LoadingSpinner = ({ label, size = 'md' }: LoadingSpinnerProps) => (
 );
 
 const STATUS_MAP: Record<PaymentStatus, { label: string; classes: string }> = {
-  COMPLETED: { label: '결제완료', classes: 'bg-teal-50 text-teal-700 border-teal-200' },
-  PENDING:   { label: '승인 대기', classes: 'bg-amber-50 text-amber-700 border-amber-200' },
-  CANCELLED: { label: '취소됨', classes: 'bg-red-50 text-red-700 border-red-200' },
-  FAILED:    { label: '실패', classes: 'bg-slate-100 text-slate-500 border-slate-200' },
+  COMPLETED: { label: 'Completed',  classes: 'bg-teal-50 text-teal-700 border-teal-200' },
+  PENDING:   { label: 'Pending',    classes: 'bg-amber-50 text-amber-700 border-amber-200' },
+  CANCELLED: { label: 'Cancelled',  classes: 'bg-red-50 text-red-700 border-red-200' },
+  FAILED:    { label: 'Failed',     classes: 'bg-slate-100 text-slate-500 border-slate-200' },
 };
 
 export const StatusPill = ({ status }: { status: PaymentStatus }) => {
@@ -57,8 +57,8 @@ export const StatusPill = ({ status }: { status: PaymentStatus }) => {
 };
 
 const MEMBER_TYPE_MAP: Record<MemberType, { label: string; classes: string }> = {
-  MEMBER:           { label: 'MEMBER', classes: 'bg-teal-50 text-teal-700 border-teal-200' },
-  NON_MEMBER:       { label: 'NON-MEMBER', classes: 'bg-slate-100 text-slate-600 border-slate-200' },
+  MEMBER:           { label: 'MEMBER',          classes: 'bg-teal-50 text-teal-700 border-teal-200' },
+  NON_MEMBER:       { label: 'YOUNG ENGINEER',  classes: 'bg-slate-100 text-slate-600 border-slate-200' },
   NON_MEMBER_PLUS:  { label: 'NON-MEMBER PLUS', classes: 'bg-violet-50 text-violet-700 border-violet-200' },
 };
 
@@ -80,16 +80,12 @@ export const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 interface StepProgressProps {
   currentStep: number;
-  totalSteps?: number;
+  stepLabels: string[];
 }
 
-const STEPS_3 = ['옵션 선택', '결제', '완료'];
-
-export const StepProgress = ({ currentStep, totalSteps = 3 }: StepProgressProps) => {
-  const steps = totalSteps === 3 ? STEPS_3 : STEPS_3.slice(0, totalSteps);
-  return (
+export const StepProgress = ({ currentStep, stepLabels }: StepProgressProps) => (
   <div className="flex items-center gap-1">
-    {steps.map((label, i) => {
+    {stepLabels.map((label, i) => {
       const stepNum = i + 1;
       const isDone = stepNum < currentStep;
       const isCur = stepNum === currentStep;
@@ -109,14 +105,15 @@ export const StepProgress = ({ currentStep, totalSteps = 3 }: StepProgressProps)
                 </svg>
               ) : stepNum}
             </div>
-            <span className={`text-xs ${isCur || isDone ? 'text-teal-100' : 'text-slate-500'}`}>{label}</span>
+            <span className={`hidden text-xs sm:inline ${isCur || isDone ? 'text-teal-100' : 'text-slate-500'}`}>
+              {label}
+            </span>
           </div>
-          {i < steps.length - 1 && (
-            <div className={`mx-1 h-px w-5 ${isDone ? 'bg-teal-400' : 'bg-slate-600'}`} />
+          {i < stepLabels.length - 1 && (
+            <div className={`mx-1 h-px w-4 ${isDone ? 'bg-teal-400' : 'bg-slate-600'}`} />
           )}
         </React.Fragment>
       );
     })}
   </div>
-  );
-};
+);
