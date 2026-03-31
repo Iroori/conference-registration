@@ -1,42 +1,27 @@
 import { useState } from 'react';
-import { Step1Verify } from '../components/Step1Verify';
+import { useNavigate } from 'react-router-dom';
 import { Step2Options } from '../components/Step2Options';
 import { Step3Payment, Step4Complete } from '../components/Step3Payment';
 import { PaymentHistoryTab, CancelTab } from '../components/PaymentHistory';
 import { StepProgress } from '../components/Shared';
-import type {
-  MemberType,
-  PersonalInfo,
-  MemberVerifyResponse,
-  PaymentResult,
-  RegistrationStep,
-} from '../types';
+import { useAuth } from '../context/AuthContext';
+import type { PaymentResponse, RegistrationStep } from '../types';
 
 type NavTab = 'REGISTER' | 'HISTORY';
 type HistorySubTab = 'HISTORY' | 'CANCEL';
 
 export const RegistrationPage = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
   const [navTab, setNavTab] = useState<NavTab>('REGISTER');
   const [historySubTab, setHistorySubTab] = useState<HistorySubTab>('HISTORY');
-  const [currentStep, setCurrentStep] = useState<RegistrationStep>('VERIFY');
-
-  const [memberType, setMemberType] = useState<MemberType>('NON_MEMBER');
-  const [memberId, setMemberId] = useState('');
-  const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
-    nameKr: '', nameEn: '', affiliation: '', position: '', country: '대한민국', phone: '',
-  });
+  const [currentStep, setCurrentStep] = useState<RegistrationStep>('OPTIONS');
   const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>([]);
-  const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
+  const [paymentResult, setPaymentResult] = useState<PaymentResponse | null>(null);
 
   const STEP_INDEX: Record<RegistrationStep, number> = {
-    VERIFY: 1, OPTIONS: 2, PAYMENT: 3, COMPLETE: 4,
-  };
-
-  const handleVerified = (data: MemberVerifyResponse, info: PersonalInfo) => {
-    setMemberType(data.memberType);
-    setMemberId(data.member?.id ?? '');
-    setPersonalInfo(info);
-    setCurrentStep('OPTIONS');
+    OPTIONS: 1, PAYMENT: 2, COMPLETE: 3,
   };
 
   const handleOptionsNext = (optionIds: string[]) => {
@@ -44,19 +29,23 @@ export const RegistrationPage = () => {
     setCurrentStep('PAYMENT');
   };
 
-  const handlePaymentComplete = (result: PaymentResult) => {
+  const handlePaymentComplete = (result: PaymentResponse) => {
     setPaymentResult(result);
     setCurrentStep('COMPLETE');
   };
 
   const resetRegistration = () => {
-    setCurrentStep('VERIFY');
-    setMemberType('NON_MEMBER');
-    setMemberId('');
-    setPersonalInfo({ nameKr: '', nameEn: '', affiliation: '', position: '', country: '대한민국', phone: '' });
+    setCurrentStep('OPTIONS');
     setSelectedOptionIds([]);
     setPaymentResult(null);
   };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -67,54 +56,70 @@ export const RegistrationPage = () => {
             <p className="text-xs font-semibold uppercase tracking-widest text-teal-500">KSSC 2026</p>
             <h1 className="mt-0.5 text-xl font-semibold text-slate-800">Annual Conference</h1>
           </div>
-          <div className="flex gap-1 rounded-xl border border-slate-200 bg-white p-1">
-            {(['REGISTER', 'HISTORY'] as NavTab[]).map(tab => (
-              <button
-                key={tab}
-                onClick={() => setNavTab(tab)}
-                className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${
-                  navTab === tab
-                    ? 'bg-slate-800 text-white'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                {tab === 'REGISTER' ? '참가 등록' : '결제 관리'}
-              </button>
-            ))}
+          <div className="flex items-center gap-3">
+            {/* 유저 정보 + 회원유형 */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-sm text-slate-600">{user.nameKr}</span>
+              <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${
+                user.memberType === 'MEMBER'
+                  ? 'bg-teal-100 text-teal-700'
+                  : user.memberType === 'NON_MEMBER'
+                  ? 'bg-amber-100 text-amber-700'
+                  : 'bg-slate-100 text-slate-600'
+              }`}>
+                {user.memberType === 'MEMBER'
+                  ? 'MEMBER'
+                  : user.memberType === 'NON_MEMBER'
+                  ? 'NON-MEMBER (YE)'
+                  : 'NON-MEMBER PLUS'}
+              </span>
+            </div>
+            <div className="flex gap-1 rounded-xl border border-slate-200 bg-white p-1">
+              {(['REGISTER', 'HISTORY'] as NavTab[]).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setNavTab(tab)}
+                  className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${
+                    navTab === tab
+                      ? 'bg-slate-800 text-white'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  {tab === 'REGISTER' ? '참가 등록' : '결제 관리'}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={handleLogout}
+              className="text-xs text-slate-400 hover:text-slate-600 transition"
+            >
+              로그아웃
+            </button>
           </div>
         </div>
 
         {/* Registration Flow */}
         {navTab === 'REGISTER' && (
           <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-            {/* Header */}
             <div className="flex items-center justify-between bg-slate-800 px-6 py-3.5">
               <span className="flex items-center gap-2 text-sm font-medium text-white">
                 <span className="text-teal-400">·</span>
                 {currentStep === 'COMPLETE' ? '등록 완료' : '참가 등록'}
               </span>
               {currentStep !== 'COMPLETE' && (
-                <StepProgress currentStep={STEP_INDEX[currentStep]} />
+                <StepProgress currentStep={STEP_INDEX[currentStep]} totalSteps={3} />
               )}
             </div>
 
-            {/* Step Content */}
-            {currentStep === 'VERIFY' && (
-              <Step1Verify onVerified={handleVerified} />
-            )}
             {currentStep === 'OPTIONS' && (
               <Step2Options
-                memberType={memberType}
-                personalInfo={personalInfo}
+                memberType={user.memberType}
                 onNext={handleOptionsNext}
-                onBack={() => setCurrentStep('VERIFY')}
               />
             )}
             {currentStep === 'PAYMENT' && (
               <Step3Payment
-                memberType={memberType}
-                memberId={memberId}
-                personalInfo={personalInfo}
+                memberType={user.memberType}
                 selectedOptionIds={selectedOptionIds}
                 onComplete={handlePaymentComplete}
                 onBack={() => setCurrentStep('OPTIONS')}
@@ -142,7 +147,7 @@ export const RegistrationPage = () => {
             </div>
             <div className="p-6">
               <div className="mb-5 flex gap-2">
-                {(['HISTORY', 'CANCEL'] as HistorySubTab[]).map(sub => (
+                {(['HISTORY', 'CANCEL'] as HistorySubTab[]).map((sub) => (
                   <button
                     key={sub}
                     onClick={() => setHistorySubTab(sub)}

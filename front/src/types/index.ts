@@ -1,11 +1,45 @@
+// ─── Auth ───────────────────────────────────────────────────────────────────
 export type MemberType = 'MEMBER' | 'NON_MEMBER' | 'NON_MEMBER_PLUS';
 
-export type PaymentRegion = 'DOMESTIC' | 'OVERSEAS';
+export interface SignupRequest {
+  email: string;
+  password: string;
+  nameKr: string;
+  nameEn: string;
+  affiliation: string;
+  position: string;
+  country: string;
+  phone: string;
+  birthDate: string; // ISO: "1990-03-15"
+}
 
-export type PaymentMethod = 'CARD' | 'KAKAO_PAY' | 'BANK_TRANSFER' | 'PAYPAL';
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
 
-export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'FAILED';
+export interface AuthUser {
+  token: string;
+  email: string;
+  nameKr: string;
+  nameEn: string;
+  affiliation: string;
+  position: string;
+  memberType: MemberType;
+  isYoungEngineer: boolean;
+}
 
+export interface IasbseCheckResponse {
+  isIasbseMember: boolean;
+  message: string;
+}
+
+export interface EmailVerifyRequest {
+  email: string;
+  code: string;
+}
+
+// ─── Member (결제 흐름 내 사용) ─────────────────────────────────────────────
 export interface Member {
   id: string;
   email: string;
@@ -19,41 +53,6 @@ export interface Member {
   isVerified: boolean;
 }
 
-export interface MemberVerifyRequest {
-  email: string;
-}
-
-export interface MemberVerifyResponse {
-  found: boolean;
-  member: Member | null;
-  memberType: MemberType;
-}
-
-export interface ConferenceOption {
-  id: string;
-  category: 'REGISTRATION' | 'PROGRAM' | 'ADMIN';
-  nameKr: string;
-  nameEn: string;
-  description: string;
-  price: number;
-  isFree: boolean;
-  isRequired: boolean;
-  requiresUpload?: boolean;
-  memberOnly?: boolean;
-  maxCapacity?: number;
-}
-
-export interface OptionPricing {
-  memberId: string;
-  memberType: MemberType;
-  options: ConferenceOption[];
-  basePrice: number;
-  discount: number;
-  subtotal: number;
-  tax: number;
-  total: number;
-}
-
 export interface PersonalInfo {
   nameKr: string;
   nameEn: string;
@@ -63,39 +62,49 @@ export interface PersonalInfo {
   phone: string;
 }
 
+// ─── Conference Options ──────────────────────────────────────────────────────
+export type OptionCategory = 'REGISTRATION' | 'PROGRAM' | 'ADMIN';
+
+export interface ConferenceOption {
+  id: string;
+  category: OptionCategory;
+  nameKr: string;
+  nameEn: string;
+  description: string;
+  price: number;
+  isFree: boolean;
+  isRequired: boolean;
+  requiresUpload?: boolean;
+  allowedMemberType?: MemberType | null;
+  maxCapacity?: number | null;
+  currentCount?: number;
+  available?: boolean;
+}
+
+// ─── Payment ─────────────────────────────────────────────────────────────────
+export type PaymentMethod = 'CARD' | 'KAKAO_PAY' | 'BANK_TRANSFER' | 'PAYPAL';
+export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'FAILED';
+
 export interface PaymentRequest {
-  memberId: string;
-  memberType: MemberType;
-  personalInfo: PersonalInfo;
   selectedOptionIds: string[];
-  paymentRegion: PaymentRegion;
   paymentMethod: PaymentMethod;
-  totalAmount: number;
 }
 
-export interface PaymentResult {
-  paymentId: string;
+export interface PaymentResponse {
+  id: number;
   registrationNumber: string;
-  status: PaymentStatus;
-  member: Member;
-  selectedOptions: ConferenceOption[];
-  totalAmount: number;
-  paidAt: string;
-  emailSent: boolean;
-}
-
-export interface PaymentRecord {
-  paymentId: string;
-  registrationNumber: string;
+  email: string;
   nameKr: string;
   nameEn: string;
   affiliation: string;
   memberType: MemberType;
-  selectedOptions: string[];
-  totalAmount: number;
   status: PaymentStatus;
-  paidAt: string;
   paymentMethod: PaymentMethod;
+  subtotal: number;
+  tax: number;
+  totalAmount: number;
+  paidAt: string | null;
+  selectedOptions: ConferenceOption[];
 }
 
 export interface CancelRequest {
@@ -109,4 +118,12 @@ export interface CancelResult {
   message: string;
 }
 
-export type RegistrationStep = 'VERIFY' | 'OPTIONS' | 'PAYMENT' | 'COMPLETE';
+// ─── Pricing (프론트엔드 계산용) ─────────────────────────────────────────────
+export interface PricingSummary {
+  subtotal: number;
+  tax: number;
+  total: number;
+}
+
+// ─── Page State ──────────────────────────────────────────────────────────────
+export type RegistrationStep = 'OPTIONS' | 'PAYMENT' | 'COMPLETE';

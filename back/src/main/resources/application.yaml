@@ -1,3 +1,108 @@
 spring:
   application:
-    name: payment-service
+    name: conference-registration
+
+  profiles:
+    active: dev
+
+---
+# ===== 개발 환경 (H2 인메모리) =====
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:h2:mem:conference_db;MODE=MSSQLServer;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:noreply@kssc2026.org}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:kssc2026-conference-registration-secret-key-very-long-string-for-security}
+    expiration-ms: 86400000
+    refresh-expiration-ms: 604800000
+  email-verification:
+    expiration-minutes: 10
+  cors:
+    allowed-origins: http://localhost:5173,http://localhost:3000
+  admin:
+    secret-key: ${ADMIN_SECRET:admin-secret-2026}
+
+---
+# ===== 운영 환경 (SQL Server) =====
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:sqlserver://${DB_HOST:localhost}:${DB_PORT:1433};databaseName=${DB_NAME:conference_db};encrypt=true;trustServerCertificate=false
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+server:
+  port: ${SERVER_PORT:8080}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: 86400000
+    refresh-expiration-ms: 604800000
+  email-verification:
+    expiration-minutes: 10
+  cors:
+    allowed-origins: ${CORS_ORIGINS:https://kssc2026.org}
+  admin:
+    secret-key: ${ADMIN_SECRET}
