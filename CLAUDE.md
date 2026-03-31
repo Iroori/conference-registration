@@ -154,10 +154,26 @@ throw new BusinessException(ErrorCode.USER_NOT_FOUND);
 - JWT payload에 `issuer=kssc2026`, `tokenType=access` 클레임 포함 (이미 설정됨)
 
 ### 4-3. 비밀번호 규칙
-- 저장 시 반드시 `BCryptPasswordEncoder` 사용
+
+**전송 방식 (2026-03-31 변경)**
+- 클라이언트: 평문 비밀번호를 `crypto.subtle.digest('SHA-256')`으로 해싱 → 64자 hex 문자열 전송
+- 서버: 수신한 SHA-256 hex를 `BCryptPasswordEncoder`로 다시 해싱하여 DB 저장/비교
+- 결과: 네트워크(Network 탭)에 평문 비밀번호가 절대 노출되지 않음
+
+```
+클라이언트        →  SHA-256("Test1234!")  →  서버(BCrypt)  →  DB
+"Test1234!"  hash→  "a665a459..."(64자)  encode→  "$2a$10$..."
+```
+
+**백엔드 검증**
+- `SignupRequest.password`: `@Size(min=64, max=64)` — SHA-256 hex 길이 검증
+- `@StrongPassword`는 SHA-256 해시에 적용 불가 (hex 문자=소문자+숫자뿐) → **프론트엔드에서만 강도 검증**
+- 프론트엔드 강도 규칙: 대문자 1자 이상, 소문자 1자 이상, 숫자 1자 이상, 특수문자 1자 이상
+
+**기타**
 - 평문 비밀번호는 로그, 응답, DB에 **절대 기록 금지**
-- 회원가입 `password` 필드에 반드시 `@StrongPassword` 애노테이션 적용
-  - 대문자 1자 이상, 소문자 1자 이상, 숫자 1자 이상, 특수문자 1자 이상
+- 운영 환경에서 반드시 HTTPS 적용 (SHA-256 해시 재전송 공격 방지)
+- 개발용 테스트 계정 초기화: `DataInitializer.sha256()` 헬퍼로 `BCrypt(SHA256("Test1234!"))` 저장
 
 ### 4-4. 로그 보안 규칙
 - 감사 이벤트는 `SecurityAuditService.log()` 사용 (이메일 자동 마스킹)
@@ -347,7 +363,35 @@ docs: 문서 수정
 
 ---
 
-## 11. 금지 사항 (하지 말아야 할 것)
+## 11. 세션 작업 이력 (Progress Log)
+
+작업 이력은 세션 단위로 `docs/progress/` 폴더에 Markdown 파일로 기록합니다.
+
+```
+docs/
+└── progress/
+    └── YYYY-MM-DD_짧은-설명.md   # 예: 2026-03-31_registration-payment-redesign.md
+```
+
+### 파일 포함 내용
+- 작업 브랜치 / 커밋 해시 / PR 링크
+- 세션 요구사항 (작업 전 원문)
+- 구현 결과 (완료 / 미완료)
+- 변경 파일 목록 (신규 / 수정)
+- 아키텍처 결정 사항 (ADR)
+- 테스트 계정 정보 및 옵션 ID 참조
+
+### 누적 이력
+
+| 날짜 | 파일 | 주요 내용 |
+|------|------|----------|
+| 2026-03-31 | [registration-payment-redesign.md](docs/progress/2026-03-31_registration-payment-redesign.md) | 회원가입 개선(국가·발표자·개인정보동의) + 결제 플로우 전면 재설계(3티어×3유형) + 영어 UI 전환 + 비밀번호 평문 전송 차단(SHA-256) |
+
+> 새 세션에서 기능을 추가·변경할 때마다 해당 날짜의 progress 파일을 생성하거나 업데이트합니다.
+
+---
+
+## 12. 금지 사항 (하지 말아야 할 것)
 
 | 금지 | 대안 |
 |------|------|
