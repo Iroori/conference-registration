@@ -33,17 +33,15 @@ spring:
         format_sql: true
 
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USERNAME:noreply@kssc2026.org}
-    password: ${MAIL_PASSWORD:}
+    host: localhost
+    port: 25
+    test-connection: false          # 시작 시 SMTP 연결 테스트 건너뜀
     properties:
       mail:
         smtp:
-          auth: true
+          auth: false
           starttls:
-            enable: true
-            required: true
+            enable: false
 
 server:
   port: 8080
@@ -59,6 +57,7 @@ app:
     allowed-origins: http://localhost:5173,http://localhost:3000
   admin:
     secret-key: ${ADMIN_SECRET:admin-secret-2026}
+  dev-mode: true                    # 개발 모드: 이메일 콘솔 출력 + /api/dev 엔드포인트 활성화
 
 ---
 # ===== 운영 환경 (SQL Server) =====

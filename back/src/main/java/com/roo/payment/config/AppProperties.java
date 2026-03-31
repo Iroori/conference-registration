@@ -11,11 +11,14 @@ public class AppProperties {
     private EmailVerification emailVerification = new EmailVerification();
     private Cors cors = new Cors();
     private Admin admin = new Admin();
+    private boolean devMode = false;
 
     public Jwt getJwt() { return jwt; }
     public EmailVerification getEmailVerification() { return emailVerification; }
     public Cors getCors() { return cors; }
     public Admin getAdmin() { return admin; }
+    public boolean isDevMode() { return devMode; }
+    public void setDevMode(boolean devMode) { this.devMode = devMode; }
 
     public static class Jwt {
         private String secret;
