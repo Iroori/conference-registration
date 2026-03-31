@@ -14,6 +14,9 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -222,10 +225,24 @@ public class DataInitializer implements ApplicationRunner {
     //  young@test.com    / Test1234!  →  NON_MEMBER    (Young Engineer, 1995년생 → 만 30세)
     //  senior@test.com   / Test1234!  →  NON_MEMBER_PLUS (일반 비회원, 1978년생 → 만 47세)
     // ─────────────────────────────────────────────────────────────────────────
+    /** SHA-256 hex of a plaintext password — mirrors the client-side hashing in api.ts */
+    private String sha256(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder(64);
+            for (byte b : hash) hex.append(String.format("%02x", b));
+            return hex.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 unavailable", e);
+        }
+    }
+
     private void seedTestAccounts() {
         if (userRepository.count() > 0) return;
 
-        String pw = passwordEncoder.encode("Test1234!");
+        // Store BCrypt(SHA-256("Test1234!")) to match the client-side hashing scheme
+        String pw = passwordEncoder.encode(sha256("Test1234!"));
 
         // 1) IASBSE 회원 등록 (member@test.com)
         iasbseMemberRepository.save(

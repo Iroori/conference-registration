@@ -1,6 +1,5 @@
 package com.roo.payment.domain.user.dto;
 
-import com.roo.payment.security.validator.StrongPassword;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
@@ -9,7 +8,8 @@ public record SignupRequest(
         @NotBlank @Email
         String email,
 
-        @NotBlank @Size(min = 8, max = 100) @StrongPassword
+        // Received as a SHA-256 hex digest (64 chars) — password strength is enforced client-side
+        @NotBlank @Size(min = 64, max = 64)
         String password,
 
         @NotBlank @Size(max = 100)

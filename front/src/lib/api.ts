@@ -13,13 +13,29 @@ import type {
   CancelResult,
 } from '../types';
 
+// ─── Password hashing ────────────────────────────────────────────────────────
+// SHA-256 the password client-side so the plaintext never travels over the wire.
+// The server receives the hex digest and BCrypts it for storage / comparison.
+async function hashPassword(plaintext: string): Promise<string> {
+  const data = new TextEncoder().encode(plaintext);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 // ─── Auth ────────────────────────────────────────────────────────────────────
 export const apiSignup = async (req: SignupRequest): Promise<void> => {
-  await apiClient.post('/auth/signup', req);
+  const hashedPw = await hashPassword(req.password);
+  await apiClient.post('/auth/signup', { ...req, password: hashedPw });
 };
 
 export const apiLogin = async (req: LoginRequest): Promise<AuthUser> => {
-  const res = await apiClient.post<{ data: AuthUser }>('/auth/login', req);
+  const hashedPw = await hashPassword(req.password);
+  const res = await apiClient.post<{ data: AuthUser }>('/auth/login', {
+    ...req,
+    password: hashedPw,
+  });
   return res.data.data;
 };
 
