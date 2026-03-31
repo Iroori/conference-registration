@@ -1,5 +1,6 @@
 package com.roo.payment.domain.user.service;
 
+import com.roo.payment.config.AppProperties;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -11,19 +12,26 @@ import jakarta.mail.internet.MimeMessage;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final AppProperties appProperties;
 
-    public EmailService(JavaMailSender mailSender) {
+    public EmailService(JavaMailSender mailSender, AppProperties appProperties) {
         this.mailSender = mailSender;
+        this.appProperties = appProperties;
     }
 
     /**
      * 이메일 인증 코드 발송
+     * dev 모드: 콘솔에 코드 출력 (이메일 미발송)
      */
     @Async
     public void sendVerificationCode(String to, String code, int expirationMinutes) {
-        String subject = "[KSSC 2026] 이메일 인증 코드";
-        String body = buildVerificationHtml(code, expirationMinutes);
-        sendHtmlMail(to, subject, body);
+        if (appProperties.isDevMode()) {
+            printDevBanner("이메일 인증 코드", to,
+                    "코드: " + code + "  (유효 " + expirationMinutes + "분)");
+            return;
+        }
+        sendHtmlMail(to, "[KSSC 2026] 이메일 인증 코드",
+                buildVerificationHtml(code, expirationMinutes));
     }
 
     /**
@@ -32,9 +40,13 @@ public class EmailService {
     @Async
     public void sendPaymentConfirmation(String to, String nameKr, String registrationNumber,
                                         long totalAmount, String paidAt) {
-        String subject = "[KSSC 2026] 참가 등록 결제 완료 안내";
-        String body = buildPaymentConfirmationHtml(nameKr, registrationNumber, totalAmount, paidAt);
-        sendHtmlMail(to, subject, body);
+        if (appProperties.isDevMode()) {
+            printDevBanner("결제 완료 알림", to,
+                    "등록번호: " + registrationNumber + " | 금액: ₩" + String.format("%,d", totalAmount));
+            return;
+        }
+        sendHtmlMail(to, "[KSSC 2026] 참가 등록 결제 완료 안내",
+                buildPaymentConfirmationHtml(nameKr, registrationNumber, totalAmount, paidAt));
     }
 
     /**
@@ -43,9 +55,25 @@ public class EmailService {
     @Async
     public void sendCancellationConfirmation(String to, String nameKr,
                                               String registrationNumber, long refundAmount) {
-        String subject = "[KSSC 2026] 결제 취소 처리 완료 안내";
-        String body = buildCancellationHtml(nameKr, registrationNumber, refundAmount);
-        sendHtmlMail(to, subject, body);
+        if (appProperties.isDevMode()) {
+            printDevBanner("결제 취소 알림", to,
+                    "등록번호: " + registrationNumber + " | 환불금액: ₩" + String.format("%,d", refundAmount));
+            return;
+        }
+        sendHtmlMail(to, "[KSSC 2026] 결제 취소 처리 완료 안내",
+                buildCancellationHtml(nameKr, registrationNumber, refundAmount));
+    }
+
+    // ─── private ─────────────────────────────────────────────────────────────
+
+    private void printDevBanner(String type, String to, String detail) {
+        System.out.println("""
+                ╔══════════════════════════════════════════════╗
+                ║  [DEV] %s
+                ║  수신: %s
+                ║  %s
+                ╚══════════════════════════════════════════════╝
+                """.formatted(type, to, detail));
     }
 
     private void sendHtmlMail(String to, String subject, String htmlBody) {
@@ -58,16 +86,13 @@ public class EmailService {
             helper.setText(htmlBody, true);
             mailSender.send(message);
         } catch (Exception e) {
-            // 이메일 발송 실패 시 로그만 기록 (트랜잭션 롤백 방지)
-            System.err.println("Email send failed to " + to + ": " + e.getMessage());
+            System.err.println("[WARN] Email send failed to " + to + ": " + e.getMessage());
         }
     }
 
     private String buildVerificationHtml(String code, int expirationMinutes) {
         return """
-                <!DOCTYPE html>
-                <html lang="ko">
-                <head><meta charset="UTF-8"></head>
+                <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"></head>
                 <body style="font-family:'Segoe UI',sans-serif;background:#f8fafc;padding:40px 0">
                   <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
                     <div style="background:#1e293b;padding:24px 32px">
@@ -82,17 +107,14 @@ public class EmailService {
                       <p style="color:#94a3b8;font-size:13px;margin:0">이 코드는 %d분 후 만료됩니다.</p>
                     </div>
                   </div>
-                </body>
-                </html>
+                </body></html>
                 """.formatted(code, expirationMinutes);
     }
 
     private String buildPaymentConfirmationHtml(String nameKr, String registrationNumber,
-                                                  long totalAmount, String paidAt) {
+                                                long totalAmount, String paidAt) {
         return """
-                <!DOCTYPE html>
-                <html lang="ko">
-                <head><meta charset="UTF-8"></head>
+                <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"></head>
                 <body style="font-family:'Segoe UI',sans-serif;background:#f8fafc;padding:40px 0">
                   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
                     <div style="background:#1e293b;padding:24px 32px">
@@ -114,16 +136,13 @@ public class EmailService {
                       <p style="color:#94a3b8;font-size:12px;margin:0">문의: registration@kssc2026.org</p>
                     </div>
                   </div>
-                </body>
-                </html>
+                </body></html>
                 """.formatted(nameKr, registrationNumber, totalAmount, paidAt);
     }
 
     private String buildCancellationHtml(String nameKr, String registrationNumber, long refundAmount) {
         return """
-                <!DOCTYPE html>
-                <html lang="ko">
-                <head><meta charset="UTF-8"></head>
+                <!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"></head>
                 <body style="font-family:'Segoe UI',sans-serif;background:#f8fafc;padding:40px 0">
                   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
                     <div style="background:#1e293b;padding:24px 32px">
@@ -139,8 +158,7 @@ public class EmailService {
                       <p style="color:#94a3b8;font-size:12px;margin:0">환불은 3~5 영업일 이내 처리됩니다.</p>
                     </div>
                   </div>
-                </body>
-                </html>
+                </body></html>
                 """.formatted(nameKr, registrationNumber, refundAmount);
     }
 }

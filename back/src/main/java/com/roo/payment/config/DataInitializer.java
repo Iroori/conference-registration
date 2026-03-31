@@ -11,7 +11,6 @@ import com.roo.payment.domain.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +18,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Component
-@Profile("dev")   // 개발 환경(H2)에서만 테스트 데이터 생성
 public class DataInitializer implements ApplicationRunner {
 
     private final ConferenceOptionRepository optionRepository;

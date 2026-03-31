@@ -52,8 +52,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/options").permitAll()
                         // 관리자 엔드포인트 (헤더 키로 검증)
                         .requestMatchers("/api/iasbse/admin/**").permitAll()
-                        // H2 콘솔 (dev 환경)
+                        // H2 콘솔 + 개발 도우미 (dev 환경, devMode=false 시 컨트롤러가 403 반환)
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/api/dev/**").permitAll()
                         // 그 외 인증 필요
                         .anyRequest().authenticated()
                 )
