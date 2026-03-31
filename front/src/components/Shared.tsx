@@ -80,13 +80,16 @@ export const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 interface StepProgressProps {
   currentStep: number;
+  totalSteps?: number;
 }
 
-const STEPS = ['회원 확인', '옵션 선택', '결제'];
+const STEPS_3 = ['옵션 선택', '결제', '완료'];
 
-export const StepProgress = ({ currentStep }: StepProgressProps) => (
+export const StepProgress = ({ currentStep, totalSteps = 3 }: StepProgressProps) => {
+  const steps = totalSteps === 3 ? STEPS_3 : STEPS_3.slice(0, totalSteps);
+  return (
   <div className="flex items-center gap-1">
-    {STEPS.map((label, i) => {
+    {steps.map((label, i) => {
       const stepNum = i + 1;
       const isDone = stepNum < currentStep;
       const isCur = stepNum === currentStep;
@@ -108,11 +111,12 @@ export const StepProgress = ({ currentStep }: StepProgressProps) => (
             </div>
             <span className={`text-xs ${isCur || isDone ? 'text-teal-100' : 'text-slate-500'}`}>{label}</span>
           </div>
-          {i < STEPS.length - 1 && (
+          {i < steps.length - 1 && (
             <div className={`mx-1 h-px w-5 ${isDone ? 'bg-teal-400' : 'bg-slate-600'}`} />
           )}
         </React.Fragment>
       );
     })}
   </div>
-);
+  );
+};
