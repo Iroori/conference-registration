@@ -1,0 +1,71 @@
+package com.roo.payment.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+
+import java.util.Properties;
+
+/**
+ * Gmail SMTP JavaMailSender 빈 설정.
+ *
+ * prod 프로파일: application.yaml의 spring.mail.* 값을 환경변수로 주입
+ * dev  프로파일: app.dev-mode=true 시 EmailService가 콘솔 출력으로 대체하므로
+ *               실제 SMTP 연결 없이 동작함 (test-connection: false)
+ *
+ * Google Workspace 앱 비밀번호(App Password) 사용 전제:
+ *   1. Google 계정 → 보안 → 2단계 인증 활성화
+ *   2. 앱 비밀번호 생성 (16자리) → MAIL_PASSWORD 환경변수에 설정
+ */
+@Configuration
+public class EmailConfig {
+
+    @Value("${spring.mail.host:smtp.gmail.com}")
+    private String host;
+
+    @Value("${spring.mail.port:587}")
+    private int port;
+
+    @Value("${spring.mail.username:}")
+    private String username;
+
+    @Value("${spring.mail.password:}")
+    private String password;
+
+    @Value("${spring.mail.properties.mail.smtp.auth:true}")
+    private boolean smtpAuth;
+
+    @Value("${spring.mail.properties.mail.smtp.starttls.enable:true}")
+    private boolean starttlsEnable;
+
+    @Bean
+    public JavaMailSender javaMailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(host);
+        mailSender.setPort(port);
+        mailSender.setUsername(username);
+        mailSender.setPassword(password);  // Google App Password (16자리)
+        mailSender.setDefaultEncoding("UTF-8");
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", String.valueOf(smtpAuth));
+        props.put("mail.smtp.starttls.enable", String.valueOf(starttlsEnable));
+        props.put("mail.smtp.starttls.required", "true");
+        props.put("mail.smtp.connectiontimeout", "5000");
+        props.put("mail.smtp.timeout", "5000");
+        props.put("mail.smtp.writetimeout", "5000");
+        props.put("mail.debug", "false");   // SMTP 디버그 로그 (운영: false)
+
+        // ── Redis 연동 시 참고 ───────────────────────────────────────────
+        // Spring Data Redis를 추가하면 VerificationCodeStore를
+        // ConcurrentHashMap → RedisTemplate 기반으로 교체 가능.
+        // pom.xml: spring-boot-starter-data-redis
+        // application.yaml: spring.data.redis.host / port / password
+        // ─────────────────────────────────────────────────────────────────
+
+        return mailSender;
+    }
+}
