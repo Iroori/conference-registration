@@ -33,15 +33,23 @@ spring:
         format_sql: true
 
   mail:
-    host: localhost
-    port: 25
-    test-connection: false          # 시작 시 SMTP 연결 테스트 건너뜀
+    # ── 로컬 개발: app.dev-mode=true 이면 실제 메일 미발송, 콘솔 로그 출력 ──
+    # ── Gmail SMTP 실제 발송 테스트 시 아래 값을 환경변수로 주입 ────────────
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}          # Google Workspace 계정 (예: noreply@kssc2026.org)
+    password: ${MAIL_PASSWORD:}          # Google 앱 비밀번호 16자리 (일반 계정 비밀번호 X)
+    test-connection: false               # 시작 시 SMTP 연결 테스트 건너뜀 (dev용)
     properties:
       mail:
         smtp:
-          auth: false
+          auth: true
           starttls:
-            enable: false
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 server:
   port: 8080

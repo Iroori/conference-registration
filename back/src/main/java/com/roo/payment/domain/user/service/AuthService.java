@@ -5,11 +5,9 @@ import com.roo.payment.common.exception.ErrorCode;
 import com.roo.payment.config.AppProperties;
 import com.roo.payment.domain.iasbse.service.IasbseMemberService;
 import com.roo.payment.domain.user.dto.*;
-import com.roo.payment.domain.user.entity.EmailVerification;
 import com.roo.payment.domain.user.entity.MemberType;
 import com.roo.payment.domain.user.entity.RefreshToken;
 import com.roo.payment.domain.user.entity.User;
-import com.roo.payment.domain.user.repository.EmailVerificationRepository;
 import com.roo.payment.domain.user.repository.RefreshTokenRepository;
 import com.roo.payment.domain.user.repository.UserRepository;
 import com.roo.payment.security.JwtTokenProvider;
@@ -22,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -30,20 +27,17 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class AuthService {
 
-    private final UserRepository              userRepository;
-    private final EmailVerificationRepository verificationRepository;
-    private final RefreshTokenRepository      refreshTokenRepository;
-    private final IasbseMemberService         iasbseMemberService;
-    private final PasswordEncoder             passwordEncoder;
-    private final JwtTokenProvider            jwtTokenProvider;
-    private final AuthenticationManager       authenticationManager;
-    private final EmailService                emailService;
-    private final AppProperties               appProperties;
-    private final SecurityAuditService        auditService;
-    private final SecureRandom                random = new SecureRandom();
+    private final UserRepository         userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final IasbseMemberService    iasbseMemberService;
+    private final PasswordEncoder        passwordEncoder;
+    private final JwtTokenProvider       jwtTokenProvider;
+    private final AuthenticationManager  authenticationManager;
+    private final EmailService           emailService;
+    private final AppProperties          appProperties;
+    private final SecurityAuditService   auditService;
 
     public AuthService(UserRepository userRepository,
-                       EmailVerificationRepository verificationRepository,
                        RefreshTokenRepository refreshTokenRepository,
                        IasbseMemberService iasbseMemberService,
                        PasswordEncoder passwordEncoder,
@@ -52,16 +46,15 @@ public class AuthService {
                        EmailService emailService,
                        AppProperties appProperties,
                        SecurityAuditService auditService) {
-        this.userRepository       = userRepository;
-        this.verificationRepository = verificationRepository;
+        this.userRepository        = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
-        this.iasbseMemberService  = iasbseMemberService;
-        this.passwordEncoder      = passwordEncoder;
-        this.jwtTokenProvider     = jwtTokenProvider;
+        this.iasbseMemberService   = iasbseMemberService;
+        this.passwordEncoder       = passwordEncoder;
+        this.jwtTokenProvider      = jwtTokenProvider;
         this.authenticationManager = authenticationManager;
-        this.emailService         = emailService;
-        this.appProperties        = appProperties;
-        this.auditService         = auditService;
+        this.emailService          = emailService;
+        this.appProperties         = appProperties;
+        this.auditService          = auditService;
     }
 
     // ─── Signup ──────────────────────────────────────────────────────────────
@@ -94,20 +87,23 @@ public class AuthService {
                 Boolean.TRUE.equals(req.isPresenter())
         );
         userRepository.save(user);
-        sendVerificationCode(req.email());
+        emailService.sendAndStoreCode(req.email());  // 인증 코드 발송 (인메모리 저장)
         auditService.log("SIGNUP", req.email(), memberType.name());
     }
 
     // ─── Email Verification ──────────────────────────────────────────────────
 
+    /**
+     * 인증 코드 재발송 (EmailService의 인메모리 저장소에 덮어쓰기)
+     */
     @Transactional
     public void sendVerificationCode(String email) {
-        String code = generateCode();
-        int expirationMinutes = appProperties.getEmailVerification().getExpirationMinutes();
-        verificationRepository.save(new EmailVerification(email, code, expirationMinutes));
-        emailService.sendVerificationCode(email, code, expirationMinutes);
+        emailService.sendAndStoreCode(email);
     }
 
+    /**
+     * 인증 코드 확인 → 유효 시 User.emailVerified = true 처리
+     */
     @Transactional
     public void verifyEmail(EmailVerifyRequest req) {
         User user = userRepository.findByEmailAndActiveTrue(req.email())
@@ -117,18 +113,9 @@ public class AuthService {
             throw new BusinessException(ErrorCode.EMAIL_ALREADY_VERIFIED);
         }
 
-        EmailVerification verification = verificationRepository
-                .findTopByEmailAndUsedFalseOrderByIdDesc(req.email())
-                .orElseThrow(() -> new BusinessException(ErrorCode.VERIFICATION_CODE_INVALID));
+        // 코드 검증 (만료/불일치 시 BusinessException 발생)
+        emailService.verifyCode(req.email(), req.code());
 
-        if (verification.isExpired()) {
-            throw new BusinessException(ErrorCode.VERIFICATION_CODE_EXPIRED);
-        }
-        if (!verification.isValid(req.code())) {
-            throw new BusinessException(ErrorCode.VERIFICATION_CODE_INVALID);
-        }
-
-        verification.markUsed();
         user.verifyEmail();
         auditService.log("EMAIL_VERIFIED", req.email());
     }
@@ -139,17 +126,14 @@ public class AuthService {
     public AuthResponse login(LoginRequest req) {
         String email = req.email().toLowerCase();
 
-        // Spring Security 인증 (password 검증 + enabled 확인)
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, req.password())
             );
         } catch (DisabledException e) {
-            // emailVerified=false → 이메일 미인증
             auditService.log("LOGIN_FAILED_UNVERIFIED", email);
             throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
         } catch (AuthenticationException e) {
-            // 비밀번호 불일치, 계정 없음 등 → 동일한 오류 메시지로 통일 (사용자 열거 방지)
             auditService.log("LOGIN_FAILED", email);
             throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
         }
@@ -179,7 +163,6 @@ public class AuthService {
         User user = userRepository.findByEmailAndActiveTrue(stored.getUserEmail())
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        // Refresh Token Rotation — 기존 토큰 삭제 후 새 토큰 발급
         refreshTokenRepository.delete(stored);
         String newAccessToken  = jwtTokenProvider.generateToken(user.getEmail(), user.getMemberType().name());
         String newRefreshToken = issueRefreshToken(user.getEmail());
@@ -208,9 +191,5 @@ public class AuthService {
                 Instant.now().plusMillis(refreshExpirationMs));
         refreshTokenRepository.save(rt);
         return tokenValue;
-    }
-
-    private String generateCode() {
-        return String.format("%06d", random.nextInt(1_000_000));
     }
 }

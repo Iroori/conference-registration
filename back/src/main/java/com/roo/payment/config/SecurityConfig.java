@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 허용
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/email/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/iasbse/check").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/options").permitAll()
                         // 관리자 엔드포인트 — X-Admin-Key 헤더는 컨트롤러 레이어에서 검증
