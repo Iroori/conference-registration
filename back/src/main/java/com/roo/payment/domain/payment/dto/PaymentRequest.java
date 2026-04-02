@@ -8,12 +8,14 @@ import java.util.List;
 import java.util.Map;
 
 public record PaymentRequest(
-        @NotEmpty
-        List<String> selectedOptionIds,
+                @NotEmpty List<String> selectedOptionIds,
 
-        /** optionId → quantity. If absent for an option, defaults to 1. */
-        Map<String, Integer> quantities,
+                /** optionId → quantity. If absent for an option, defaults to 1. */
+                Map<String, Integer> quantities,
 
-        @NotNull
-        PaymentMethod paymentMethod
-) {}
+                @NotNull PaymentMethod paymentMethod,
+
+                String tid,
+
+                String replycode) {
+}

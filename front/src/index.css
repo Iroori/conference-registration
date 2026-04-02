@@ -39,3 +39,11 @@
     @apply border-teal-400 bg-teal-50 ring-1 ring-teal-200;
   }
 }
+
+/* 페이게이트 결제 UI 내부 인풋 요소 글씨색 강제 지정 */
+#PGIOscreen input,
+#PGIOscreen select,
+#PGIOscreen textarea {
+  color: #1f2937 !important;
+  background-color: #ffffff !important;
+}

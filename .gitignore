@@ -1,0 +1,52 @@
+# ======= OS / General =======
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# ======= IDEs / Editors =======
+.idea/
+.vscode/
+*.swp
+*.iml
+*.iws
+.settings/
+.project
+.classpath
+
+# ======= Frontend (Node.js / Vite / React) =======
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/coverage/
+
+# ======= Backend (Java / Spring Boot / Maven) =======
+**/target/
+**/build/
+**/bin/
+**/out/
+!mvnw
+!mvnw.cmd
+.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.ear
+
+# ======= Environment Variables & Secrets =======
+# 로컬 개발 및 보안과 관련된 설정 파일들은 깃(Git) 커밋 금지
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+application-prod.yml
+application-prod.properties

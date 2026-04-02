@@ -157,6 +157,8 @@ export interface PaymentRequest {
   /** optionId → quantity; defaults to 1 if absent */
   quantities?: Record<string, number>;
   paymentMethod: PaymentMethod;
+  tid?: string;
+  replycode?: string;
 }
 
 export interface PaymentResponse {

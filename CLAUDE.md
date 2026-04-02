@@ -404,4 +404,5 @@ docs/
 | `axios` 직접 호출 (프론트) | `apiClient` 인스턴스 사용 |
 | `@Transactional` 클래스 기본값 없이 쓰기 메서드만 선언 | 클래스에 `readOnly=true` 기본값 설정 |
 | 운영 환경 설정값 하드코딩 | 환경변수 `${ENV_VAR}` 주입 |
+| 결제(PG) 및 외부 연동 파라미터 단일 하드코딩 | 로컬(데모)과 실서버가 구분되도록 환경변수(`.env`, `import.meta.env`)로 분리 |
 | main 브랜치 직접 push/merge | PR을 통한 병합 |

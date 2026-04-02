@@ -31,9 +31,9 @@ public class PaymentService {
     private final EmailService emailService;
 
     public PaymentService(PaymentRepository paymentRepository,
-                          ConferenceOptionRepository optionRepository,
-                          UserRepository userRepository,
-                          EmailService emailService) {
+            ConferenceOptionRepository optionRepository,
+            UserRepository userRepository,
+            EmailService emailService) {
         this.paymentRepository = paymentRepository;
         this.optionRepository = optionRepository;
         this.userRepository = userRepository;
@@ -48,6 +48,29 @@ public class PaymentService {
     public PaymentResponse createPayment(String email, PaymentRequest request) {
         User user = userRepository.findByEmailAndActiveTrue(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        // PG 거래검증 (PG 결제가 있는 경우)
+        if (request.tid() != null && !request.tid().isEmpty()) {
+            if (!"0000".equals(request.replycode()) && !"NPS016".equals(request.replycode())
+                    && !"NPS000".equals(request.replycode())) {
+                throw new BusinessException(ErrorCode.PAYGATE_VERIFICATION_FAILED, "Invalid payment replycode");
+            }
+            try {
+                java.net.URL url = new java.net.URL("https://service.paygate.net/admin/settle/verifyReceived.jsp?tid="
+                        + request.tid() + "&verifyNum=100");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(5000);
+                if (conn.getResponseCode() != 200) {
+                    throw new BusinessException(ErrorCode.PAYGATE_VERIFICATION_FAILED,
+                            "PG Transaction Verification Failed");
+                }
+            } catch (BusinessException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new BusinessException(ErrorCode.PAYGATE_VERIFICATION_FAILED, "PG API Communication Error");
+            }
+        }
 
         // 고유 optionId 조회 및 검증
         List<String> uniqueIds = request.selectedOptionIds().stream().distinct().toList();
@@ -84,13 +107,13 @@ public class PaymentService {
                 request.paymentMethod(),
                 subtotal,
                 tax,
-                options
-        );
+                options);
 
         // 정원 차감 (수량 반영)
         options.forEach(o -> {
             int qty = quantities.getOrDefault(o.getId(), 1);
-            for (int i = 0; i < qty; i++) o.increaseCount();
+            for (int i = 0; i < qty; i++)
+                o.increaseCount();
         });
 
         // 결제 완료 처리 (PG 연동 후 콜백으로 변경 예정)
@@ -103,8 +126,7 @@ public class PaymentService {
                 user.getNameKr(),
                 regNumber,
                 payment.getTotalAmount(),
-                payment.getPaidAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        );
+                payment.getPaidAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
 
         return PaymentResponse.from(payment);
     }
@@ -155,14 +177,12 @@ public class PaymentService {
                 user.getEmail(),
                 user.getNameKr(),
                 request.registrationNumber(),
-                payment.getTotalAmount()
-        );
+                payment.getTotalAmount());
 
         return Map.of(
                 "success", true,
                 "refundAmount", payment.getTotalAmount(),
-                "message", "취소 요청이 정상적으로 접수되었습니다. 환불은 3~5 영업일 이내 처리됩니다."
-        );
+                "message", "취소 요청이 정상적으로 접수되었습니다. 환불은 3~5 영업일 이내 처리됩니다.");
     }
 
     private String generateRegistrationNumber() {

@@ -26,6 +26,7 @@ public enum ErrorCode {
     PAYMENT_ALREADY_CANCELLED(HttpStatus.BAD_REQUEST, "이미 취소된 결제입니다."),
     PAYMENT_CANCEL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "취소할 수 없는 결제 상태입니다."),
     INVALID_REGISTRATION_NUMBER(HttpStatus.BAD_REQUEST, "유효하지 않은 등록 번호입니다."),
+    PAYGATE_VERIFICATION_FAILED(HttpStatus.BAD_REQUEST, "결제 상태 검증에 실패했습니다."),
 
     // Option
     OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "선택한 옵션을 찾을 수 없습니다."),
@@ -44,6 +45,11 @@ public enum ErrorCode {
         this.message = message;
     }
 
-    public HttpStatus getStatus() { return status; }
-    public String getMessage() { return message; }
+    public HttpStatus getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 }
