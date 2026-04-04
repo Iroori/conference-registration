@@ -3,9 +3,12 @@
   "configurations": [
     {
       "name": "Frontend (Vite Dev Server)",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "cwd": "front",
+      "runtimeExecutable": "/Users/roor2i/.nvm/versions/node/v20.20.0/bin/node",
+      "runtimeArgs": ["/Users/roor2i/Desktop/conference-registration/.claude/worktrees/jolly-diffie/front/node_modules/.bin/vite"],
+      "env": {
+        "PATH": "/Users/roor2i/.nvm/versions/node/v20.20.0/bin:/usr/local/bin:/usr/bin:/bin"
+      },
+      "cwd": "/Users/roor2i/Desktop/conference-registration/.claude/worktrees/jolly-diffie/front",
       "port": 5173
     },
     {

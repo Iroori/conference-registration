@@ -27,6 +27,7 @@ export interface AuthUser {
   nameEn: string;
   affiliation: string;
   position: string;
+  country: string;
   memberType: MemberType;
   isYoungEngineer: boolean;
   isPresenter: boolean;

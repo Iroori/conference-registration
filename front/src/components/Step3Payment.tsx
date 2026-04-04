@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useCreatePayment } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, SectionLabel, MemberTypePill, formatKRW } from './Shared';
-import type { MemberType, PaymentMethod, PaymentResponse } from '../types';
+import type { MemberType, PaymentResponse } from '../types';
 
 interface Step3PaymentProps {
   memberType: MemberType;
@@ -13,27 +13,13 @@ interface Step3PaymentProps {
   onBack: () => void;
 }
 
-type PaymentRegion = 'DOMESTIC' | 'OVERSEAS';
+// 한국 국가명 목록 (SignupPage: 'South Korea', Step1Verify: '대한민국')
+const KOREAN_COUNTRY_VALUES = ['South Korea', '대한민국', 'Korea', 'KR'];
 
-const REGION_OPTIONS = [
-  {
-    id: 'DOMESTIC' as PaymentRegion,
-    label: 'Domestic Payment',
-    desc: 'Card · Bank Transfer · KakaoPay · Instant approval',
-  },
-  {
-    id: 'OVERSEAS' as PaymentRegion,
-    label: 'International Payment',
-    desc: 'Visa · Mastercard · PayPal · Processing may take time',
-  },
-];
-
-const METHOD_OPTIONS: { id: PaymentMethod; label: string; desc: string; region: PaymentRegion[] }[] = [
-  { id: 'CARD', label: 'Credit / Debit Card', desc: 'Domestic cards accepted', region: ['DOMESTIC'] },
-  { id: 'KAKAO_PAY', label: 'KakaoPay', desc: 'QR code or app link', region: ['DOMESTIC'] },
-  { id: 'BANK_TRANSFER', label: 'Bank Transfer', desc: 'Real-time transfer', region: ['DOMESTIC'] },
-  { id: 'PAYPAL', label: 'PayPal / International Card', desc: 'USD · EUR supported', region: ['OVERSEAS'] },
-];
+function isKoreanUser(country: string | undefined): boolean {
+  if (!country) return false;
+  return KOREAN_COUNTRY_VALUES.includes(country);
+}
 
 export const Step3Payment = ({
   memberType,
@@ -44,8 +30,13 @@ export const Step3Payment = ({
   onBack,
 }: Step3PaymentProps) => {
   const { user } = useAuth();
-  const [region, setRegion] = useState<PaymentRegion>('DOMESTIC');
-  const [method, setMethod] = useState<PaymentMethod>('CARD');
+
+  const domestic = isKoreanUser(user?.country);
+  const mid = domestic
+    ? (import.meta.env.VITE_PAYGATE_MID_DOMESTIC || 'paygatekr')
+    : (import.meta.env.VITE_PAYGATE_MID_OVERSEAS || 'paygateoverseaskr');
+  const goodcurrency = domestic ? 'WON' : 'USD';
+  const unitprice = domestic ? totalAmount : (Math.ceil(totalAmount / 1300) || 1);
 
   const { mutate: createPayment, isPending, error } = useCreatePayment();
 
@@ -62,7 +53,7 @@ export const Step3Payment = ({
           {
             selectedOptionIds,
             quantities: Object.keys(quantities).length > 0 ? quantities : undefined,
-            paymentMethod: method,
+            paymentMethod: 'CARD',
             tid: (form.elements.namedItem('tid') as HTMLInputElement)?.value,
             replycode: replycode
           },
@@ -72,7 +63,7 @@ export const Step3Payment = ({
         alert(`Payment failed: [${replycode}] ${replyMsg}`);
       }
     };
-  }, [createPayment, selectedOptionIds, quantities, method, onComplete]);
+  }, [createPayment, selectedOptionIds, quantities, onComplete]);
 
   const handlePay = () => {
     if (typeof (window as any).doTransaction === 'function') {
@@ -85,7 +76,6 @@ export const Step3Payment = ({
     }
   };
 
-  const availableMethods = METHOD_OPTIONS.filter((m) => m.region.includes(region));
   const errMsg = error
     ? ((error as { response?: { data?: { message?: string } } })?.response?.data?.message
       ?? 'An error occurred during payment processing.')
@@ -107,6 +97,7 @@ export const Step3Payment = ({
                   ['Name', user.nameEn],
                   ['Affiliation', user.affiliation],
                   ['Email', user.email],
+                  ['Country', user.country],
                 ].map(([label, val]) => (
                   <div key={label} className="flex justify-between">
                     <span className="text-slate-400">{label}</span>
@@ -117,50 +108,24 @@ export const Step3Payment = ({
             </div>
           )}
 
-          {/* Payment region */}
-          <div className="mb-5">
-            <SectionLabel>Payment Region</SectionLabel>
-            <div className="grid grid-cols-2 gap-2">
-              {REGION_OPTIONS.map((r) => (
-                <button
-                  key={r.id}
-                  onClick={() => {
-                    setRegion(r.id);
-                    setMethod(r.id === 'DOMESTIC' ? 'CARD' : 'PAYPAL');
-                  }}
-                  className={`rounded-lg border p-3 text-left transition ${region === r.id
-                    ? 'border-teal-400 bg-teal-50 ring-1 ring-teal-200'
-                    : 'border-slate-200 bg-white hover:border-slate-300'
-                    }`}
-                >
-                  <p className={`text-xs font-semibold ${region === r.id ? 'text-teal-700' : 'text-slate-600'}`}>
-                    {r.label}
-                  </p>
-                  <p className="mt-0.5 text-[10px] text-slate-400">{r.desc}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Payment method */}
-          <div className="mb-4">
-            <SectionLabel>Payment Method</SectionLabel>
-            <div className="grid grid-cols-2 gap-2">
-              {availableMethods.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => setMethod(m.id)}
-                  className={`rounded-lg border p-3 text-left transition ${method === m.id
-                    ? 'border-teal-400 bg-teal-50 ring-1 ring-teal-200'
-                    : 'border-slate-200 bg-white hover:border-slate-300'
-                    }`}
-                >
-                  <p className={`text-xs font-semibold ${method === m.id ? 'text-teal-700' : 'text-slate-600'}`}>
-                    {m.label}
-                  </p>
-                  <p className="mt-0.5 text-[10px] text-slate-400">{m.desc}</p>
-                </button>
-              ))}
+          {/* Payment method info */}
+          <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+              Payment Method
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-teal-100">
+                <svg className="h-4 w-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                  <line x1="1" y1="10" x2="23" y2="10" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-700">Credit / Debit Card</p>
+                <p className="text-xs text-slate-400">
+                  {domestic ? 'Domestic card payment (KRW)' : 'International card payment (USD)'}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -188,6 +153,11 @@ export const Step3Payment = ({
               <span className="text-sm font-semibold text-slate-700">Total (incl. VAT)</span>
               <span className="text-xl font-bold text-teal-600">{formatKRW(totalAmount)}</span>
             </div>
+            {!domestic && (
+              <p className="mt-1 text-right text-xs text-slate-400">
+                ≈ USD {unitprice.toLocaleString()}
+              </p>
+            )}
           </div>
 
           <button
@@ -221,11 +191,11 @@ export const Step3Payment = ({
 
       <div id="PGIOscreen" className="mt-4 w-full flex justify-center"></div>
       <form name="PGIOForm" style={{ display: 'none' }}>
-        <input type="hidden" name="mid" value={import.meta.env.VITE_PAYGATE_MID || 'paygatekr'} />
-        <input type="hidden" name="paymethod" value={import.meta.env.VITE_PAYGATE_METHOD || '9'} />
+        <input type="hidden" name="mid" value={mid} />
+        <input type="hidden" name="paymethod" value={import.meta.env.VITE_PAYGATE_METHOD || 'card'} />
         <input type="hidden" name="goodname" value="KSSC 2026 Registration" />
-        <input type="hidden" name="unitprice" value={region === 'DOMESTIC' ? totalAmount : Math.ceil(totalAmount / 1300) || 1} />
-        <input type="hidden" name="goodcurrency" value={region === 'DOMESTIC' ? 'WON' : 'USD'} />
+        <input type="hidden" name="unitprice" value={unitprice} />
+        <input type="hidden" name="goodcurrency" value={goodcurrency} />
         <input type="hidden" name="langcode" value="KR" />
         <input type="hidden" name="cardquota" value="00" />
         <input type="hidden" name="replycode" value="" />

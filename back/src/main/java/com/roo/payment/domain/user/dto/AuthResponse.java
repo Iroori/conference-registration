@@ -11,6 +11,7 @@ public record AuthResponse(
         String nameEn,
         String affiliation,
         String position,
+        String country,
         MemberType memberType,
         boolean isYoungEngineer,
         boolean isPresenter
@@ -24,6 +25,7 @@ public record AuthResponse(
                 user.getNameEn(),
                 user.getAffiliation(),
                 user.getPosition(),
+                user.getCountry(),
                 user.getMemberType(),
                 user.isYoungEngineer(),
                 user.isPresenter()
