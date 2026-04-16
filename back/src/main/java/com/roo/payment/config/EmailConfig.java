@@ -9,15 +9,20 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 /**
- * Gmail SMTP JavaMailSender 빈 설정.
+ * AWS SES SMTP JavaMailSender 빈 설정.
  *
  * prod 프로파일: application.yaml의 spring.mail.* 값을 환경변수로 주입
  * dev  프로파일: app.dev-mode=true 시 EmailService가 콘솔 출력으로 대체하므로
  *               실제 SMTP 연결 없이 동작함 (test-connection: false)
  *
- * Google Workspace 앱 비밀번호(App Password) 사용 전제:
- *   1. Google 계정 → 보안 → 2단계 인증 활성화
- *   2. 앱 비밀번호 생성 (16자리) → MAIL_PASSWORD 환경변수에 설정
+ * AWS SES SMTP 자격증명 발급:
+ *   1. AWS SES 콘솔 → SMTP settings → Create SMTP credentials
+ *   2. 생성된 SMTP Username / Password를 MAIL_USERNAME / MAIL_PASSWORD 환경변수에 설정
+ *   ※ SES SMTP 자격증명은 IAM Access Key / Secret Key와 별개입니다.
+ *
+ * SES 도메인 인증 (Route 53 연동 시 자동):
+ *   - SES 콘솔 → Verified identities → Add domain → Route 53 자동 DNS 설정
+ *   - Sandbox 해제 후 임의 수신자에게 발송 가능 (기본은 검증된 이메일만 수신 가능)
  */
 @Configuration
 public class EmailConfig {
