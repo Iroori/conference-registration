@@ -10,7 +10,7 @@ import { PaymentHistoryTab, CancelTab } from '../components/PaymentHistory';
 import { StepProgress } from '../components/Shared';
 import { useAuth } from '../context/AuthContext';
 import type { PaymentResponse, RegistrationStep, RegistrationTierKey } from '../types';
-import { REG_TIER_CONFIG, ADDITIONAL_OPTION_IDS, INVITATION_OPTION_ID } from '../types';
+import { ADDITIONAL_OPTION_IDS, INVITATION_OPTION_ID } from '../types';
 
 type NavTab = 'REGISTER' | 'HISTORY';
 type HistorySubTab = 'HISTORY' | 'CANCEL';
