@@ -6,27 +6,22 @@ spring:
     active: dev
 
 ---
-# ===== 개발 환경 (H2 인메모리) =====
+# ===== 개발 환경 (서버 MSSQL 연결) =====
 spring:
   config:
     activate:
       on-profile: dev
 
   datasource:
-    url: jdbc:h2:mem:conference_db;MODE=MSSQLServer;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: jdbc:sqlserver://52.79.209.95:1433;databaseName=kssc2026_dev;encrypt=true;trustServerCertificate=true
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    username: kssc_dev
+    password: Kssc2026!Dev#User
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -34,11 +29,12 @@ spring:
 
   mail:
     # ── 로컬 개발: app.dev-mode=true 이면 실제 메일 미발송, 콘솔 로그 출력 ──
-    # ── Gmail SMTP 실제 발송 테스트 시 아래 값을 환경변수로 주입 ────────────
-    host: ${MAIL_HOST:smtp.gmail.com}
+    # ── AWS SES SMTP 실제 발송 테스트 시 아래 값을 환경변수로 주입 ──────────
+    # ── SES SMTP 자격증명은 AWS Access Key와 별개로 SES 콘솔에서 발급 ────────
+    host: ${MAIL_HOST:email-smtp.ap-northeast-2.amazonaws.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}          # Google Workspace 계정 (예: noreply@kssc2026.org)
-    password: ${MAIL_PASSWORD:}          # Google 앱 비밀번호 16자리 (일반 계정 비밀번호 X)
+    username: ${MAIL_USERNAME:}          # SES SMTP 자격증명 사용자명 (IAM Access Key 아님)
+    password: ${MAIL_PASSWORD:}          # SES SMTP 자격증명 비밀번호
     test-connection: false               # 시작 시 SMTP 연결 테스트 건너뜀 (dev용)
     properties:
       mail:
@@ -75,7 +71,7 @@ spring:
       on-profile: prod
 
   datasource:
-    url: jdbc:sqlserver://${DB_HOST:localhost}:${DB_PORT:1433};databaseName=${DB_NAME:conference_db};encrypt=true;trustServerCertificate=false
+    url: jdbc:sqlserver://${DB_HOST:localhost}:${DB_PORT:1433};databaseName=${DB_NAME:kssc2026};encrypt=true;trustServerCertificate=true
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -83,14 +79,14 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update          # 초기 배포: update → 스키마 생성 후 validate로 복원
     show-sql: false
 
   mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
+    host: ${MAIL_HOST:email-smtp.ap-northeast-2.amazonaws.com}  # AWS SES SMTP 엔드포인트
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: ${MAIL_USERNAME}    # SES SMTP 자격증명 사용자명
+    password: ${MAIL_PASSWORD}    # SES SMTP 자격증명 비밀번호
     properties:
       mail:
         smtp:
@@ -110,6 +106,7 @@ app:
   email-verification:
     expiration-minutes: 10
   cors:
-    allowed-origins: ${CORS_ORIGINS:https://kssc2026.org}
+    allowed-origins: ${CORS_ORIGINS:https://iabse-inc2026-registration.com}
   admin:
     secret-key: ${ADMIN_SECRET}
+  dev-mode: false
