@@ -3,7 +3,12 @@ name: Deploy to AWS Lightsail
 on:
   push:
     branches: [main]
-  workflow_dispatch:  # 수동 실행 가능
+  workflow_dispatch:
+
+env:
+  SERVER_HOST: ${{ secrets.LIGHTSAIL_HOST }}
+  SERVER_USER: ubuntu
+  SSH_KEY_PATH: ~/.ssh/lightsail.pem
 
 jobs:
   deploy:
@@ -41,41 +46,40 @@ jobs:
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/lightsail.pem
-          chmod 600 ~/.ssh/lightsail.pem
-          ssh-keyscan -H ${{ secrets.LIGHTSAIL_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > $SSH_KEY_PATH
+          chmod 600 $SSH_KEY_PATH
+          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts 2>/dev/null
 
       # ── 파일 전송 ──
       - name: Upload Backend JAR
         run: |
-          scp -i ~/.ssh/lightsail.pem \
+          scp -i $SSH_KEY_PATH \
             back/target/*.jar \
-            ubuntu@${{ secrets.LIGHTSAIL_HOST }}:/opt/kssc2026/app.jar.new
+            $SERVER_USER@$SERVER_HOST:/opt/kssc2026/app.jar.new
 
       - name: Upload Frontend Build
         run: |
-          rsync -avz --delete -e "ssh -i ~/.ssh/lightsail.pem" \
+          rsync -avz --delete -e "ssh -i $SSH_KEY_PATH" \
             front/dist/ \
-            ubuntu@${{ secrets.LIGHTSAIL_HOST }}:/var/www/kssc2026/
+            $SERVER_USER@$SERVER_HOST:/var/www/kssc2026/
 
       # ── 서비스 재시작 ──
       - name: Restart Application
         run: |
-          ssh -i ~/.ssh/lightsail.pem ubuntu@${{ secrets.LIGHTSAIL_HOST }} << 'EOF'
-            # JAR 교체
-            sudo systemctl stop kssc2026
+          ssh -i $SSH_KEY_PATH $SERVER_USER@$SERVER_HOST << 'EOF'
+            sudo systemctl stop kssc2026 2>/dev/null || true
             mv /opt/kssc2026/app.jar.new /opt/kssc2026/app.jar
             sudo systemctl start kssc2026
 
-            # 헬스체크 (최대 30초 대기)
             echo "Waiting for application to start..."
-            for i in $(seq 1 30); do
+            for i in $(seq 1 60); do
               if curl -sf http://localhost:8080/api/health > /dev/null 2>&1; then
                 echo "Application started successfully!"
                 exit 0
               fi
-              sleep 1
+              sleep 2
             done
-            echo "Warning: Health check timeout (app may still be starting)"
-            sudo systemctl status kssc2026 --no-pager
+            echo "Warning: Health check timeout"
+            sudo journalctl -u kssc2026 --no-pager -n 30
+            exit 1
           EOF
