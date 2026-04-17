@@ -1,0 +1,22 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Frontend (Vite Dev Server)",
+      "runtimeExecutable": "/Users/roor2i/.nvm/versions/node/v20.20.0/bin/node",
+      "runtimeArgs": ["/Users/roor2i/Desktop/conference-registration/.claude/worktrees/jolly-diffie/front/node_modules/.bin/vite"],
+      "env": {
+        "PATH": "/Users/roor2i/.nvm/versions/node/v20.20.0/bin:/usr/local/bin:/usr/bin:/bin"
+      },
+      "cwd": "/Users/roor2i/Desktop/conference-registration/.claude/worktrees/jolly-diffie/front",
+      "port": 5173
+    },
+    {
+      "name": "Backend (Spring Boot)",
+      "runtimeExecutable": "./mvnw",
+      "runtimeArgs": ["spring-boot:run"],
+      "cwd": "back",
+      "port": 8080
+    }
+  ]
+}

@@ -22,7 +22,7 @@ public class Payment extends BaseEntity {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 30)
-    private String registrationNumber;    // KSSC-2026-XXXXX
+    private String registrationNumber; // KSSC-2026-XXXXX
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -55,19 +55,20 @@ public class Payment extends BaseEntity {
     @Column(length = 500)
     private String cancelReason;
 
+    /** PayGate 거래 ID (TID) — 취소/환불 API 호출에 사용 */
+    @Column(length = 100)
+    private String tid;
+
     @ManyToMany
-    @JoinTable(
-            name = "payment_options",
-            joinColumns = @JoinColumn(name = "payment_id"),
-            inverseJoinColumns = @JoinColumn(name = "option_id")
-    )
+    @JoinTable(name = "payment_options", joinColumns = @JoinColumn(name = "payment_id"), inverseJoinColumns = @JoinColumn(name = "option_id"))
     private List<ConferenceOption> selectedOptions = new ArrayList<>();
 
-    protected Payment() {}
+    protected Payment() {
+    }
 
     public Payment(String registrationNumber, User user, MemberType memberType,
-                   PaymentMethod paymentMethod, long subtotal, long tax,
-                   List<ConferenceOption> selectedOptions) {
+            PaymentMethod paymentMethod, long subtotal, long tax,
+            List<ConferenceOption> selectedOptions) {
         this.registrationNumber = registrationNumber;
         this.user = user;
         this.memberType = memberType;
@@ -84,6 +85,11 @@ public class Payment extends BaseEntity {
         this.paidAt = LocalDateTime.now();
     }
 
+    /** PayGate TID 저장 — 결제 완료 시 호출 */
+    public void storeTid(String tid) {
+        this.tid = tid;
+    }
+
     public void cancel(String reason) {
         this.status = PaymentStatus.CANCELLED;
         this.cancelledAt = LocalDateTime.now();
@@ -94,17 +100,59 @@ public class Payment extends BaseEntity {
         this.status = PaymentStatus.FAILED;
     }
 
-    public Long getId() { return id; }
-    public String getRegistrationNumber() { return registrationNumber; }
-    public User getUser() { return user; }
-    public MemberType getMemberType() { return memberType; }
-    public PaymentStatus getStatus() { return status; }
-    public PaymentMethod getPaymentMethod() { return paymentMethod; }
-    public long getSubtotal() { return subtotal; }
-    public long getTax() { return tax; }
-    public long getTotalAmount() { return totalAmount; }
-    public LocalDateTime getPaidAt() { return paidAt; }
-    public LocalDateTime getCancelledAt() { return cancelledAt; }
-    public String getCancelReason() { return cancelReason; }
-    public List<ConferenceOption> getSelectedOptions() { return selectedOptions; }
+    public Long getId() {
+        return id;
+    }
+
+    public String getRegistrationNumber() {
+        return registrationNumber;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public MemberType getMemberType() {
+        return memberType;
+    }
+
+    public PaymentStatus getStatus() {
+        return status;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public long getSubtotal() {
+        return subtotal;
+    }
+
+    public long getTax() {
+        return tax;
+    }
+
+    public long getTotalAmount() {
+        return totalAmount;
+    }
+
+    public String getTid() {
+        return tid;
+    }
+
+    public LocalDateTime getPaidAt() {
+        return paidAt;
+    }
+
+    public LocalDateTime getCancelledAt() {
+        return cancelledAt;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public List<ConferenceOption> getSelectedOptions() {
+        return selectedOptions;
+    }
 }

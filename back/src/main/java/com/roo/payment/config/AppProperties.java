@@ -120,10 +120,15 @@ public class AppProperties {
     /**
      * PayGate 결제사 연동 설정
      * app.paygate.verify-url — 검증 API URL (%s 에 tid 대입)
+     * app.paygate.cancel-url — 취소(Pay) API URL
+     * app.paygate.event-date — 행사 개시일 (ISO-8601 YYYY-MM-DD) 예: 2026-09-16
      * 주의: USD/KRW 환율 변환은 해외 MID에서 PayGate가 자체 처리 — 서버 수동 환산 불필요
      */
     public static class Paygate {
         private String verifyUrl = "https://service.paygate.net/admin/settle/verifyReceived.jsp?tid=%s&verifyNum=100";
+        private String cancelUrl = "https://service.paygate.net/service/cancelAPI.json";
+        /** 행사 개시일 — 취소 시 부분 환불 기준일 */
+        private String eventDate = "2026-09-16";
 
         public String getVerifyUrl() {
             return verifyUrl;
@@ -131,6 +136,22 @@ public class AppProperties {
 
         public void setVerifyUrl(String verifyUrl) {
             this.verifyUrl = verifyUrl;
+        }
+
+        public String getCancelUrl() {
+            return cancelUrl;
+        }
+
+        public void setCancelUrl(String cancelUrl) {
+            this.cancelUrl = cancelUrl;
+        }
+
+        public String getEventDate() {
+            return eventDate;
+        }
+
+        public void setEventDate(String eventDate) {
+            this.eventDate = eventDate;
         }
     }
 

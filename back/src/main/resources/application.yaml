@@ -71,6 +71,10 @@ app:
     regular:
       start-date: ${REG_REGULAR_START:2026-09-01}
       end-date:   ${REG_REGULAR_END:2026-10-31}
+  paygate:
+    verify-url: https://service.paygate.net/admin/settle/verifyReceived.jsp?tid=%s&verifyNum=100
+    cancel-url:  https://service.paygate.net/service/cancelAPI.json
+    event-date:  ${PAYGATE_EVENT_DATE:2026-09-16}     # IABSE Congress Incheon 2026 opening day
   dev-mode: true                    # 개발 모드: 이메일 콘솔 출력 + /api/dev 엔드포인트 활성화
 
 ---
@@ -129,4 +133,8 @@ app:
     regular:
       start-date: ${REG_REGULAR_START:2026-09-01}
       end-date:   ${REG_REGULAR_END:2026-10-31}
+  paygate:
+    verify-url: ${PAYGATE_VERIFY_URL:https://service.paygate.net/admin/settle/verifyReceived.jsp?tid=%s&verifyNum=100}
+    cancel-url:  ${PAYGATE_CANCEL_URL:https://service.paygate.net/service/cancelAPI.json}
+    event-date:  ${PAYGATE_EVENT_DATE:2026-09-16}     # IABSE Congress Incheon 2026 opening day
   dev-mode: false
