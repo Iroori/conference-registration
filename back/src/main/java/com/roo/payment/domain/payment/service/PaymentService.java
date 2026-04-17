@@ -124,6 +124,11 @@ public class PaymentService {
                 o.increaseCount();
         });
 
+        // PayGate TID 저장 — 환불 API 호출 시 사용
+        if (request.tid() != null && !request.tid().isBlank()) {
+            payment.storeTid(request.tid());
+        }
+
         payment.complete();
         paymentRepository.save(payment);
 
@@ -266,14 +271,12 @@ public class PaymentService {
     // ─────────────────────────────────────────────────────────────────────────
 
     private void callPaygateCancelApi(String tid, long refundAmount, boolean isPartial) {
-        // mid 환경변수에서 읽기 (애플리케이션 yaml 미설정 시 null)
-        String mid = System.getenv("VITE_PAYGATE_MID_DOMESTIC") != null
-                ? System.getenv("VITE_PAYGATE_MID_DOMESTIC")
-                : System.getenv("PAYGATE_MID_DOMESTIC");
+        // MID는 AppProperties(application.yaml: app.paygate.mid-domestic)에서 읽기
+        String mid = appProperties.getPaygate().getMidDomestic();
 
         if (mid == null || mid.isBlank()) {
             log.warn(
-                    "[PAYMENT] PAYGATE_MID_DOMESTIC env not set — skipping cancel API call (manual refund required). tid={}",
+                    "[PAYMENT] app.paygate.mid-domestic not configured — skipping cancel API call (manual refund required). tid={}",
                     tid);
             return;
         }
