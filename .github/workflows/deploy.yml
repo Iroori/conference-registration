@@ -38,6 +38,10 @@ jobs:
 
       - name: Build Frontend (Vite)
         working-directory: front
+        env:
+          VITE_PAYGATE_MID_DOMESTIC: ${{ secrets.VITE_PAYGATE_MID_DOMESTIC }}
+          VITE_PAYGATE_MID_OVERSEAS: ${{ secrets.VITE_PAYGATE_MID_OVERSEAS }}
+          VITE_PAYGATE_METHOD: ${{ secrets.VITE_PAYGATE_METHOD }}
         run: |
           npm ci
           npm run build
