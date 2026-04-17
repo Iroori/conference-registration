@@ -96,26 +96,26 @@ REG_REGULAR_END=2026-10-31
 ## 다음 세션에서 할 일 (PDF 요구사항 잔여분)
 
 ### 1순위 — 즉시 가능
-- [ ] **git commit & push** — 위 모든 로컬 변경사항 PR 생성 후 main 배포
-- [ ] **서버 .env에 기간 ENV 변수 추가** (`REG_PRE_START` 등)
-- [ ] **운영 DB 관리자 계정 INSERT** (DataInitializer는 이미 데이터 있으면 스킵)
+- [x] **git commit & push** — 위 모든 로컬 변경사항 PR 생성 후 main 배포
+- [x] **서버 .env에 기간 ENV 변수 추가** (`REG_PRE_START` 등)
+- [x] **운영 DB 관리자 계정 INSERT** (DataInitializer는 이미 데이터 있으면 스킵)
 
 ### 2순위 — 코드 변경 필요 (로그인/회원가입 UI)
-- [ ] `LoginPage.tsx` 전체 영문화 (이메일/비밀번호/버튼/에러 메시지)
-- [ ] 로그인/등록 페이지 상단 로고 이미지 삽입 (`front/public/logo.png` 수령 후)
+- [x] `LoginPage.tsx` 전체 영문화 (이메일/비밀번호/버튼/에러 메시지)
+- [x] 로그인/등록 페이지 상단 로고 이미지 삽입 (`front/public/logo.png` 수령 후)
 
 ### 3순위 — 회원가입 동의 문구 교체
-- [ ] 기존 테이블 형식 → IABSE 표준 문구 (`By registering for the IABSE Congress Incheon 2026...`)
-- [ ] 체크박스 1개 → 라디오 2개 (`I give consent` / `I do not consent`)
+- [x] 기존 테이블 형식 → IABSE 표준 문구 (`By registering for the IABSE Congress Incheon 2026...`)
+- [x] 체크박스 1개 → 라디오 2개 (`I give consent` / `I do not consent`)
 
 ### 4순위 — 비자레터 + 숙박정보 (StepInvitationLetter)
-- [ ] 비자레터 안내 문구 IABSE 표준으로 교체
-- [ ] 라디오 전환 (`Yes, I need...` / `No, I do not need one`)
-- [ ] 숙박정보 카드 추가 (링크: https://iabse2026.mice.link/)
+- [x] 비자레터 안내 문구 IABSE 표준으로 교체
+- [x] 라디오 전환 (`Yes, I need...` / `No, I do not need one`)
+- [x] 숙박정보 카드 추가 (링크: https://iabse2026.mice.link/)
 
 ### 5순위 — Summary + 완료 페이지
-- [ ] `StepSummary.tsx`: `REGISTRANT` → `Personal Details`
-- [ ] 결제 완료 후 Thank-You 페이지 신규 추가
+- [x] `StepSummary.tsx`: `REGISTRANT` → `Personal Details`
+- [x] 결제 완료 후 Thank-You 페이지 신규 추가
 
 ### 6순위 — 미정 항목 확정 후
 - [ ] Early Bird / Regular 실제 가격 확정 → DataInitializer 업데이트
