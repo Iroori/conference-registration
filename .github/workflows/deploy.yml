@@ -9,6 +9,7 @@ env:
   SERVER_HOST: ${{ secrets.LIGHTSAIL_HOST }}
   SERVER_USER: ubuntu
   SSH_KEY_PATH: ~/.ssh/lightsail.pem
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   deploy:

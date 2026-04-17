@@ -386,12 +386,117 @@ docs/
 | 날짜 | 파일 | 주요 내용 |
 |------|------|----------|
 | 2026-03-31 | [registration-payment-redesign.md](docs/progress/2026-03-31_registration-payment-redesign.md) | 회원가입 개선(국가·발표자·개인정보동의) + 결제 플로우 전면 재설계(3티어×3유형) + 영어 UI 전환 + 비밀번호 평문 전송 차단(SHA-256) |
+| 2026-04-16 | [aws-deployment.md](docs/progress/2026-04-16_aws-deployment.md) | AWS Lightsail 인프라 구성 + MSSQL + SES + GitHub Actions CI/CD + 도메인/SSL 설정 |
 
 > 새 세션에서 기능을 추가·변경할 때마다 해당 날짜의 progress 파일을 생성하거나 업데이트합니다.
 
 ---
 
-## 12. 금지 사항 (하지 말아야 할 것)
+## 12. 운영 서버 정보 (AWS 배포)
+
+> **보안 주의**: 비밀번호·키는 이 파일에 기록하지 않습니다. 실제 값은 서버 `/opt/kssc2026/.env` 및 GitHub Secrets에서 관리합니다.
+
+### 12-1. 인프라 현황
+
+| 항목 | 값 |
+|------|---|
+| 클라우드 | AWS Lightsail (ap-northeast-2, 서울) |
+| 인스턴스명 | `kssc2026-server` (Ubuntu 22.04 / 4GB RAM / 80GB) |
+| 고정 IP | `52.79.209.95` |
+| 도메인 | `iabse-inc2026-registration.com` (Route 53) |
+| HTTPS | Let's Encrypt (만료 2026-07-15, 자동갱신) |
+| DB | SQL Server 2022 Express — `kssc2026` (prod) / `kssc2026_dev` (dev) |
+| 이메일 | AWS SES (DKIM 인증 완료, Sandbox 해제 신청 완료) |
+
+### 12-2. SSH 접속
+
+```bash
+# SSH 키 위치 (Windows)
+C:\Users\vivobook\.ssh\kssc2026-lightsail.pem
+
+# 접속 명령
+ssh -i ~/.ssh/kssc2026-lightsail.pem ubuntu@52.79.209.95
+```
+
+### 12-3. 서버 디렉토리 구조
+
+```
+/opt/kssc2026/
+├── app.jar        # Spring Boot 실행 JAR
+└── .env           # 운영 환경변수 (chmod 600)
+
+/var/www/kssc2026/ # React 빌드 결과물 (Nginx 서빙)
+/etc/nginx/sites-available/kssc2026  # Nginx 설정
+/etc/systemd/system/kssc2026.service # systemd 서비스
+```
+
+### 12-4. 서버 관리 명령
+
+```bash
+# 서비스 상태 확인
+sudo systemctl status kssc2026
+
+# 서비스 재시작
+sudo systemctl restart kssc2026
+
+# 실시간 로그
+sudo journalctl -u kssc2026 -f
+
+# Nginx 재로드
+sudo systemctl reload nginx
+
+# DB 접속 (SQL Server)
+export PATH="$PATH:/opt/mssql-tools18/bin"
+sqlcmd -S localhost -U kssc_app -P '<비밀번호>' -C -d kssc2026
+```
+
+### 12-5. 배포 방법
+
+**자동 배포 (GitHub Actions):**
+```
+main 브랜치에 push → 자동 빌드 + 서버 배포 + 헬스체크
+```
+
+**수동 배포 (긴급 시):**
+```bash
+# 1. 백엔드 빌드
+cd back && ./mvnw clean package -DskipTests -q
+
+# 2. 프론트엔드 빌드
+cd front && npm run build
+
+# 3. JAR 업로드 + 서비스 재시작
+scp -i ~/.ssh/kssc2026-lightsail.pem back/target/*.jar ubuntu@52.79.209.95:/opt/kssc2026/app.jar
+ssh -i ~/.ssh/kssc2026-lightsail.pem ubuntu@52.79.209.95 "sudo systemctl restart kssc2026"
+
+# 4. 프론트엔드 업로드
+scp -r front/dist/. ubuntu@52.79.209.95:/var/www/kssc2026/
+
+# 5. 헬스체크
+curl https://iabse-inc2026-registration.com/api/health
+```
+
+### 12-6. GitHub Secrets 목록
+
+| Secret 이름 | 용도 |
+|-------------|------|
+| `LIGHTSAIL_HOST` | 서버 IP (`52.79.209.95`) |
+| `LIGHTSAIL_SSH_KEY` | SSH Private Key (PEM 전체) |
+| `VITE_PAYGATE_MID_DOMESTIC` | 국내 결제 MID |
+| `VITE_PAYGATE_MID_OVERSEAS` | 국외 결제 MID |
+| `VITE_PAYGATE_METHOD` | 결제수단 코드 |
+
+### 12-7. 서버 환경변수 (.env 항목)
+
+```
+JWT_SECRET, DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, DB_PASSWORD
+MAIL_HOST, MAIL_USERNAME, MAIL_PASSWORD
+ADMIN_SECRET, CORS_ORIGINS
+```
+
+---
+
+## 13. 금지 사항 (하지 말아야 할 것)
 
 | 금지 | 대안 |
 |------|------|
