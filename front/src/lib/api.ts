@@ -98,3 +98,16 @@ export const apiCancelPayment = async (req: CancelRequest): Promise<CancelResult
   const d = res.data.data;
   return { success: d.success, refundAmount: d.refundAmount, message: d.message };
 };
+
+export const apiReportPaymentFailure = async (payload: {
+  replycode: string;
+  replyMsg: string;
+  tid?: string;
+}): Promise<void> => {
+  // 실패 이벤트 전송 자체가 실패해도 UX 차단하지 않음 — 콘솔 경고만 출력
+  try {
+    await apiClient.post('/payments/failure', payload);
+  } catch {
+    console.warn('[Payment] Failed to report payment failure to server');
+  }
+};

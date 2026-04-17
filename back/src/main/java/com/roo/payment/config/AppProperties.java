@@ -12,51 +12,126 @@ public class AppProperties {
     private Cors cors = new Cors();
     private Admin admin = new Admin();
     private Registration registration = new Registration();
+    private Paygate paygate = new Paygate();
     private boolean devMode = false;
 
-    public Jwt getJwt() { return jwt; }
-    public EmailVerification getEmailVerification() { return emailVerification; }
-    public Cors getCors() { return cors; }
-    public Admin getAdmin() { return admin; }
-    public Registration getRegistration() { return registration; }
-    public boolean isDevMode() { return devMode; }
-    public void setDevMode(boolean devMode) { this.devMode = devMode; }
+    public Jwt getJwt() {
+        return jwt;
+    }
+
+    public EmailVerification getEmailVerification() {
+        return emailVerification;
+    }
+
+    public Cors getCors() {
+        return cors;
+    }
+
+    public Admin getAdmin() {
+        return admin;
+    }
+
+    public Registration getRegistration() {
+        return registration;
+    }
+
+    public Paygate getPaygate() {
+        return paygate;
+    }
+
+    public boolean isDevMode() {
+        return devMode;
+    }
+
+    public void setDevMode(boolean devMode) {
+        this.devMode = devMode;
+    }
 
     public static class Jwt {
         private String secret;
         private long expirationMs;
         private long refreshExpirationMs;
 
-        public String getSecret() { return secret; }
-        public void setSecret(String secret) { this.secret = secret; }
-        public long getExpirationMs() { return expirationMs; }
-        public void setExpirationMs(long expirationMs) { this.expirationMs = expirationMs; }
-        public long getRefreshExpirationMs() { return refreshExpirationMs; }
-        public void setRefreshExpirationMs(long refreshExpirationMs) { this.refreshExpirationMs = refreshExpirationMs; }
+        public String getSecret() {
+            return secret;
+        }
+
+        public void setSecret(String secret) {
+            this.secret = secret;
+        }
+
+        public long getExpirationMs() {
+            return expirationMs;
+        }
+
+        public void setExpirationMs(long expirationMs) {
+            this.expirationMs = expirationMs;
+        }
+
+        public long getRefreshExpirationMs() {
+            return refreshExpirationMs;
+        }
+
+        public void setRefreshExpirationMs(long refreshExpirationMs) {
+            this.refreshExpirationMs = refreshExpirationMs;
+        }
     }
 
     public static class EmailVerification {
         private int expirationMinutes;
 
-        public int getExpirationMinutes() { return expirationMinutes; }
-        public void setExpirationMinutes(int expirationMinutes) { this.expirationMinutes = expirationMinutes; }
+        public int getExpirationMinutes() {
+            return expirationMinutes;
+        }
+
+        public void setExpirationMinutes(int expirationMinutes) {
+            this.expirationMinutes = expirationMinutes;
+        }
     }
 
     public static class Cors {
         private String allowedOrigins;
 
-        public String getAllowedOrigins() { return allowedOrigins; }
-        public void setAllowedOrigins(String allowedOrigins) { this.allowedOrigins = allowedOrigins; }
+        public String getAllowedOrigins() {
+            return allowedOrigins;
+        }
+
+        public void setAllowedOrigins(String allowedOrigins) {
+            this.allowedOrigins = allowedOrigins;
+        }
+
         public String[] getAllowedOriginsArray() {
-            return allowedOrigins != null ? allowedOrigins.split(",") : new String[]{};
+            return allowedOrigins != null ? allowedOrigins.split(",") : new String[] {};
         }
     }
 
     public static class Admin {
         private String secretKey;
 
-        public String getSecretKey() { return secretKey; }
-        public void setSecretKey(String secretKey) { this.secretKey = secretKey; }
+        public String getSecretKey() {
+            return secretKey;
+        }
+
+        public void setSecretKey(String secretKey) {
+            this.secretKey = secretKey;
+        }
+    }
+
+    /**
+     * PayGate 결제사 연동 설정
+     * app.paygate.verify-url — 검증 API URL (%s 에 tid 대입)
+     * 주의: USD/KRW 환율 변환은 해외 MID에서 PayGate가 자체 처리 — 서버 수동 환산 불필요
+     */
+    public static class Paygate {
+        private String verifyUrl = "https://service.paygate.net/admin/settle/verifyReceived.jsp?tid=%s&verifyNum=100";
+
+        public String getVerifyUrl() {
+            return verifyUrl;
+        }
+
+        public void setVerifyUrl(String verifyUrl) {
+            this.verifyUrl = verifyUrl;
+        }
     }
 
     /**
@@ -65,21 +140,40 @@ public class AppProperties {
      */
     public static class Registration {
         private Tier preRegistration = new Tier();
-        private Tier earlyBird       = new Tier();
-        private Tier regular         = new Tier();
+        private Tier earlyBird = new Tier();
+        private Tier regular = new Tier();
 
-        public Tier getPreRegistration() { return preRegistration; }
-        public Tier getEarlyBird()       { return earlyBird; }
-        public Tier getRegular()         { return regular; }
+        public Tier getPreRegistration() {
+            return preRegistration;
+        }
+
+        public Tier getEarlyBird() {
+            return earlyBird;
+        }
+
+        public Tier getRegular() {
+            return regular;
+        }
 
         public static class Tier {
-            private String startDate;   // ISO-8601 (YYYY-MM-DD) — nullable (Pre-Registration 외엔 선택)
-            private String endDate;     // ISO-8601 (YYYY-MM-DD)
+            private String startDate; // ISO-8601 (YYYY-MM-DD) — nullable (Pre-Registration 외엔 선택)
+            private String endDate; // ISO-8601 (YYYY-MM-DD)
 
-            public String getStartDate() { return startDate; }
-            public void setStartDate(String startDate) { this.startDate = startDate; }
-            public String getEndDate() { return endDate; }
-            public void setEndDate(String endDate) { this.endDate = endDate; }
+            public String getStartDate() {
+                return startDate;
+            }
+
+            public void setStartDate(String startDate) {
+                this.startDate = startDate;
+            }
+
+            public String getEndDate() {
+                return endDate;
+            }
+
+            public void setEndDate(String endDate) {
+                this.endDate = endDate;
+            }
         }
     }
 }

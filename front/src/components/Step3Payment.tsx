@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useCreatePayment } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, SectionLabel, MemberTypePill, formatKRW } from './Shared';
+import { apiReportPaymentFailure } from '../lib/api';
 import type { MemberType, PaymentResponse } from '../types';
 
 interface Step3PaymentProps {
@@ -30,13 +31,15 @@ export const Step3Payment = ({
   onBack,
 }: Step3PaymentProps) => {
   const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const domestic = isKoreanUser(user?.country);
   const mid = domestic
     ? (import.meta.env.VITE_PAYGATE_MID_DOMESTIC || 'paygatekr')
     : (import.meta.env.VITE_PAYGATE_MID_OVERSEAS || 'paygateoverseaskr');
-  const goodcurrency = domestic ? 'WON' : 'USD';
-  const unitprice = domestic ? totalAmount : (Math.ceil(totalAmount / 1300) || 1);
+  // 통화 및 금액: 해외 MID의 통화·환율 변환은 PayGate가 자체 처리 — 항상 KRW(WON) 원화 금액 전달
+  const goodcurrency = 'WON';
+  const unitprice = totalAmount;
 
   const { mutate: createPayment, isPending, error } = useCreatePayment();
 
@@ -60,15 +63,23 @@ export const Step3Payment = ({
           { onSuccess: (result) => onComplete(result) }
         );
       } else {
+        // 서버로 실패 이벤트 전송 (추적용)
+        apiReportPaymentFailure({
+          replycode,
+          replyMsg,
+          tid: (form.elements.namedItem('tid') as HTMLInputElement)?.value || undefined,
+        });
         alert(`Payment failed: [${replycode}] ${replyMsg}`);
       }
     };
   }, [createPayment, selectedOptionIds, quantities, onComplete]);
 
   const handlePay = () => {
+    if (isSubmitting) return; // 중복 클릭 방지
     if (typeof (window as any).doTransaction === 'function') {
       const form = document.forms.namedItem('PGIOForm');
       if (form) {
+        setIsSubmitting(true);
         (window as any).doTransaction(form);
       }
     } else {

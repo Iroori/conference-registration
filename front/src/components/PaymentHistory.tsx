@@ -44,9 +44,8 @@ export const PaymentHistoryTab = () => {
         {data.map((record, i) => (
           <div
             key={record.id}
-            className={`grid grid-cols-[1fr_1fr_90px_110px_90px] items-center px-4 py-3.5 text-sm ${
-              i > 0 ? 'border-t border-slate-100' : ''
-            } hover:bg-slate-50/50 transition`}
+            className={`grid grid-cols-[1fr_1fr_90px_110px_90px] items-center px-4 py-3.5 text-sm ${i > 0 ? 'border-t border-slate-100' : ''
+              } hover:bg-slate-50/50 transition`}
           >
             <div>
               <p className="font-mono text-xs font-semibold text-teal-700">
@@ -61,13 +60,12 @@ export const PaymentHistoryTab = () => {
               {record.selectedOptions.map((o) => o.nameEn).join(', ')}
             </p>
             <p
-              className={`text-right text-sm font-semibold ${
-                record.status === 'COMPLETED'
+              className={`text-right text-sm font-semibold ${record.status === 'COMPLETED'
                   ? 'text-teal-600'
                   : record.status === 'CANCELLED'
-                  ? 'text-red-400 line-through'
-                  : 'text-slate-700'
-              }`}
+                    ? 'text-red-400 line-through'
+                    : 'text-slate-700'
+                }`}
             >
               {formatKRW(record.totalAmount)}
             </p>
@@ -101,7 +99,7 @@ export const CancelTab = () => {
 
   const errMsg = error
     ? ((error as { response?: { data?: { message?: string } } })?.response?.data?.message
-        ?? 'An error occurred during cancellation.')
+      ?? 'An error occurred during cancellation.')
     : null;
 
   if (isDone) {
@@ -135,11 +133,15 @@ export const CancelTab = () => {
     <div className="max-w-xl">
       <SectionLabel>Payment Cancellation Request</SectionLabel>
 
-      <div className="mb-5 rounded-lg border border-orange-100 bg-orange-50 p-3.5">
-        <p className="text-xs leading-relaxed text-orange-700">
-          Cancellation Policy: Full refund up to 30 days before the event ·
-          50% refund up to 7 days before · No refund thereafter.
-        </p>
+      <div className="mb-5 rounded-lg border border-orange-100 bg-orange-50 p-4">
+        <p className="text-xs font-semibold text-orange-800 mb-2">Cancellation &amp; Refund Policy</p>
+        <ul className="space-y-1 text-xs leading-relaxed text-orange-700 list-disc ml-4">
+          <li>Full refund if cancellation is submitted <strong>more than 30 days</strong> before the Congress opening date.</li>
+          <li>50% refund if cancellation is submitted <strong>8–30 days</strong> before the Congress opening date.</li>
+          <li><strong>No refund</strong> for cancellations submitted <strong>7 days or fewer</strong> before the Congress opening date.</li>
+          <li>Refunds will be processed within <strong>3–5 business days</strong> via the original payment method.</li>
+          <li>Cancellations must be submitted through this portal. Email cancellation requests will not be accepted.</li>
+        </ul>
       </div>
 
       <div className="mb-4">
@@ -148,7 +150,7 @@ export const CancelTab = () => {
           type="text"
           value={regNum}
           onChange={(e) => setRegNum(e.target.value)}
-          placeholder="KSSC-2026-XXXXX"
+          placeholder="IABSE-2026-XXXXX"
           className="h-10 w-full rounded-lg border border-slate-200 px-3 font-mono text-sm text-slate-800 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100 placeholder:text-slate-300"
         />
       </div>

@@ -23,10 +23,13 @@ public enum ErrorCode {
 
     // Payment
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 내역을 찾을 수 없습니다."),
+    PAYMENT_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 완료된 결제 내역이 존재합니다."),
     PAYMENT_ALREADY_CANCELLED(HttpStatus.BAD_REQUEST, "이미 취소된 결제입니다."),
     PAYMENT_CANCEL_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "취소할 수 없는 결제 상태입니다."),
     INVALID_REGISTRATION_NUMBER(HttpStatus.BAD_REQUEST, "유효하지 않은 등록 번호입니다."),
     PAYGATE_VERIFICATION_FAILED(HttpStatus.BAD_REQUEST, "결제 상태 검증에 실패했습니다."),
+    PAYGATE_BODY_INVALID(HttpStatus.BAD_REQUEST, "PG사 검증 응답이 유효하지 않습니다."),
+    PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "결제 금액이 서버 계산 금액과 일치하지 않습니다."),
 
     // Option
     OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "선택한 옵션을 찾을 수 없습니다."),
