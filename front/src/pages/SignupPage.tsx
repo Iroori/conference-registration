@@ -271,8 +271,8 @@ export const SignupPage = () => {
                   value={form.passwordConfirm}
                   onChange={set('passwordConfirm')}
                   className={`input-base ${form.passwordConfirm && form.password !== form.passwordConfirm
-                      ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
-                      : ''
+                    ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
+                    : ''
                     }`}
                   placeholder="Re-enter password"
                   required
@@ -299,7 +299,7 @@ export const SignupPage = () => {
                     value={form.nameKr}
                     onChange={set('nameKr')}
                     className="input-base"
-                    placeholder="홍길동"
+                    placeholder="Hong Gil-dong"
                     required
                   />
                 </div>

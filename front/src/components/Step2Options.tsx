@@ -17,9 +17,9 @@ const REGISTRATION_OPTION_IDS: Record<MemberType, string> = {
 };
 
 const CATEGORY_LABELS: Record<ConferenceOption['category'], string> = {
-  REGISTRATION: '참가 패키지',
-  PROGRAM: '추가 프로그램',
-  ADMIN: '행정 서비스',
+  REGISTRATION: 'Registration Package',
+  PROGRAM: 'Additional Programs',
+  ADMIN: 'Administrative Services',
 };
 
 const CATEGORY_ORDER: ConferenceOption['category'][] = ['REGISTRATION', 'PROGRAM', 'ADMIN'];
@@ -50,7 +50,7 @@ export const Step2Options = ({ memberType, onNext }: Step2OptionsProps) => {
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <LoadingSpinner label="옵션을 불러오는 중..." />
+        <LoadingSpinner label="Loading options…" />
       </div>
     );
   }
@@ -58,7 +58,7 @@ export const Step2Options = ({ memberType, onNext }: Step2OptionsProps) => {
   if (error) {
     return (
       <div className="p-6">
-        <ErrorBanner message="옵션을 불러오지 못했습니다." onRetry={() => refetch()} />
+        <ErrorBanner message="Failed to load options." onRetry={() => refetch()} />
       </div>
     );
   }
@@ -88,20 +88,18 @@ export const Step2Options = ({ memberType, onNext }: Step2OptionsProps) => {
                       key={opt.id}
                       onClick={() => !isSoldOut && toggleOption(opt.id, opt.isRequired)}
                       disabled={isSoldOut}
-                      className={`w-full rounded-lg border p-3.5 text-left transition ${
-                        isSelected
-                          ? 'border-teal-400 bg-teal-50 ring-1 ring-teal-200'
-                          : isSoldOut
+                      className={`w-full rounded-lg border p-3.5 text-left transition ${isSelected
+                        ? 'border-teal-400 bg-teal-50 ring-1 ring-teal-200'
+                        : isSoldOut
                           ? 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed'
                           : 'border-slate-200 bg-white hover:border-slate-300'
-                      } ${opt.isRequired && !isSoldOut ? 'cursor-default' : ''}`}
+                        } ${opt.isRequired && !isSoldOut ? 'cursor-default' : ''}`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition ${
-                              isSelected ? 'border-teal-500 bg-teal-500' : 'border-slate-300'
-                            }`}
+                            className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition ${isSelected ? 'border-teal-500 bg-teal-500' : 'border-slate-300'
+                              }`}
                           >
                             {isSelected && (
                               <svg
@@ -117,17 +115,17 @@ export const Step2Options = ({ memberType, onNext }: Step2OptionsProps) => {
                           </div>
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <p className="text-sm font-medium text-slate-800">{opt.nameKr}</p>
+                              <p className="text-sm font-medium text-slate-800">{opt.nameEn}</p>
                               {opt.isRequired && (
                                 <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
-                                  필수
+                                  Required
                                 </span>
                               )}
                               {opt.maxCapacity != null && (
                                 <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-600">
                                   {isSoldOut
-                                    ? '마감'
-                                    : `정원 ${opt.maxCapacity - (opt.currentCount ?? 0)}/${opt.maxCapacity}`}
+                                    ? 'Sold Out'
+                                    : `Seats: ${opt.maxCapacity - (opt.currentCount ?? 0)}/${opt.maxCapacity}`}
                                 </span>
                               )}
                             </div>
@@ -135,7 +133,7 @@ export const Step2Options = ({ memberType, onNext }: Step2OptionsProps) => {
                           </div>
                         </div>
                         <p className={`flex-shrink-0 text-sm font-semibold ${isSelected ? 'text-teal-600' : 'text-slate-600'}`}>
-                          {opt.isFree ? '무료' : formatKRW(opt.price)}
+                          {opt.isFree ? 'Free' : formatKRW(opt.price)}
                         </p>
                       </div>
                     </button>
@@ -149,7 +147,7 @@ export const Step2Options = ({ memberType, onNext }: Step2OptionsProps) => {
 
       {/* Right Sidebar - 결제 요약 */}
       <div className="bg-teal-50/40 p-6">
-        <SectionLabel>결제 요약</SectionLabel>
+        <SectionLabel>Order Summary</SectionLabel>
 
         {user && (
           <div className="mb-5 flex items-center gap-3 rounded-lg border border-teal-100 bg-white p-3">
@@ -168,19 +166,19 @@ export const Step2Options = ({ memberType, onNext }: Step2OptionsProps) => {
           <div className="mb-5 space-y-2">
             {pricing.selected.map((opt) => (
               <div key={opt.id} className="flex justify-between text-xs text-slate-500">
-                <span className="truncate pr-2">{opt.nameKr}</span>
+                <span className="truncate pr-2">{opt.nameEn}</span>
                 <span className="flex-shrink-0 font-medium text-slate-700">
-                  {opt.isFree ? '무료' : formatKRW(opt.price)}
+                  {opt.isFree ? 'Free' : formatKRW(opt.price)}
                 </span>
               </div>
             ))}
             <div className="flex justify-between text-xs text-slate-400">
-              <span>부가세 (10%)</span>
+              <span>VAT (10%)</span>
               <span>{formatKRW(pricing.tax)}</span>
             </div>
             <div className="border-t border-slate-200 pt-2">
               <div className="flex justify-between">
-                <span className="text-sm font-semibold text-slate-800">합계</span>
+                <span className="text-sm font-semibold text-slate-800">Total</span>
                 <span className="text-base font-bold text-teal-600">{formatKRW(pricing.total)}</span>
               </div>
             </div>
@@ -192,7 +190,7 @@ export const Step2Options = ({ memberType, onNext }: Step2OptionsProps) => {
           disabled={selectedIds.length === 0}
           className="btn-primary"
         >
-          결제 단계로
+          Proceed to Payment
         </button>
       </div>
     </div>
