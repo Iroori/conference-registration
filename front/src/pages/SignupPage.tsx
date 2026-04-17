@@ -50,7 +50,7 @@ export const SignupPage = () => {
     isPresenter: false,
   });
   const [error, setError] = useState('');
-  const [privacyAgreed, setPrivacyAgreed] = useState(false);
+  const [privacyAgreed, setPrivacyAgreed] = useState<boolean | null>(null);
 
   const emailCheckTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [iasbseResult, setIasbseResult] = useState<IasbseCheckResponse | null>(null);
@@ -120,8 +120,8 @@ export const SignupPage = () => {
       setError('Please enter your date of birth.');
       return;
     }
-    if (!privacyAgreed) {
-      setError('You must agree to the Personal Data Collection & Use policy to proceed.');
+    if (privacyAgreed !== true) {
+      setError('You must agree to the Data Processing Consent to proceed.');
       return;
     }
 
@@ -229,9 +229,8 @@ export const SignupPage = () => {
                 <p className="mt-1.5 text-xs text-slate-400">Checking IABSE membership…</p>
               )}
               {iasbseResult && !checkingIasbse && (
-                <div className={`mt-1.5 flex items-center gap-1.5 text-xs ${
-                  iasbseResult.isIasbseMember ? 'text-teal-600' : 'text-amber-600'
-                }`}>
+                <div className={`mt-1.5 flex items-center gap-1.5 text-xs ${iasbseResult.isIasbseMember ? 'text-teal-600' : 'text-amber-600'
+                  }`}>
                   <span>{iasbseResult.isIasbseMember ? '✓' : '!'}</span>
                   <span>{iasbseResult.message}</span>
                   {iasbseResult.isIasbseMember ? (
@@ -271,11 +270,10 @@ export const SignupPage = () => {
                   type="password"
                   value={form.passwordConfirm}
                   onChange={set('passwordConfirm')}
-                  className={`input-base ${
-                    form.passwordConfirm && form.password !== form.passwordConfirm
+                  className={`input-base ${form.passwordConfirm && form.password !== form.passwordConfirm
                       ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
                       : ''
-                  }`}
+                    }`}
                   placeholder="Re-enter password"
                   required
                 />
@@ -416,8 +414,8 @@ export const SignupPage = () => {
               <p className="text-xs font-semibold text-slate-600 mb-2">Registration Rate Guide</p>
               <div className="space-y-1.5">
                 {[
-                  { badge: 'MEMBER',          color: 'teal',   desc: 'IABSE registered member' },
-                  { badge: 'YOUNG ENGINEER',  color: 'amber',  desc: 'Non-member · Under 36 years old' },
+                  { badge: 'MEMBER', color: 'teal', desc: 'IABSE registered member' },
+                  { badge: 'YOUNG ENGINEER', color: 'amber', desc: 'Non-member · Under 36 years old' },
                   { badge: 'NON-MEMBER PLUS', color: 'violet', desc: 'Non-member · 36 years or older' },
                 ].map(({ badge, color, desc }) => (
                   <div key={badge} className="flex items-center gap-2">
@@ -433,91 +431,38 @@ export const SignupPage = () => {
             {/* ── Privacy & Data Collection Consent ── */}
             <div className="border border-slate-200 rounded-lg overflow-hidden">
               <div className="bg-slate-800 px-4 py-2.5">
-                <p className="text-xs font-semibold text-white">Personal Data Collection &amp; Use</p>
+                <p className="text-xs font-semibold text-white">Data Processing Consent</p>
               </div>
               <div className="p-4">
-                {/* Consent items table */}
-                <div className="overflow-x-auto mb-4">
-                  <table className="w-full text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50">
-                        <th className="border border-slate-200 px-3 py-2 text-left font-semibold text-slate-600">
-                          Item
-                        </th>
-                        <th className="border border-slate-200 px-3 py-2 text-left font-semibold text-slate-600">
-                          Purpose
-                        </th>
-                        <th className="border border-slate-200 px-3 py-2 text-left font-semibold text-slate-600">
-                          Retention Period
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-slate-500">
-                      <tr>
-                        <td className="border border-slate-200 px-3 py-2">
-                          Name, Email, Affiliation
-                        </td>
-                        <td className="border border-slate-200 px-3 py-2">
-                          {/* Content to be filled */}
-                        </td>
-                        <td className="border border-slate-200 px-3 py-2">
-                          {/* Content to be filled */}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="border border-slate-200 px-3 py-2">
-                          Date of Birth
-                        </td>
-                        <td className="border border-slate-200 px-3 py-2">
-                          {/* Content to be filled */}
-                        </td>
-                        <td className="border border-slate-200 px-3 py-2">
-                          {/* Content to be filled */}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="border border-slate-200 px-3 py-2">
-                          Payment Information
-                        </td>
-                        <td className="border border-slate-200 px-3 py-2">
-                          {/* Content to be filled */}
-                        </td>
-                        <td className="border border-slate-200 px-3 py-2">
-                          {/* Content to be filled */}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="border border-slate-200 px-3 py-2">
-                          Contact Information
-                        </td>
-                        <td className="border border-slate-200 px-3 py-2">
-                          {/* Content to be filled */}
-                        </td>
-                        <td className="border border-slate-200 px-3 py-2">
-                          {/* Content to be filled */}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <p className="text-[11px] text-slate-400 mb-3">
-                  {/* Privacy policy body content to be added */}
-                  You have the right to refuse consent; however, registration may not be
-                  completed without providing the required information.
+                <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                  By registering for the IABSE Congress Incheon 2026, you (the delegate) agree that your personal data will be processed for registration and handling purposes, as well as to provide you with information related to the congress. All personal data will be processed in accordance with applicable data protection legislation and will not be disclosed to a third party without the delegate's written consent. Please tick the box below to provide your consent. Please note that if you do not agree to the terms, you will not be able to complete your registration.
                 </p>
-                {/* Consent checkbox */}
-                <label className="flex items-center gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={privacyAgreed}
-                    onChange={(e) => setPrivacyAgreed(e.target.checked)}
-                    className="h-4 w-4 rounded border-slate-300 text-teal-500 focus:ring-teal-400"
-                  />
-                  <span className="text-xs font-medium text-slate-700">
-                    I agree to the collection and use of my personal data as described above.{' '}
-                    <span className="text-red-400">*</span>
-                  </span>
-                </label>
+                <div className="flex flex-col gap-2">
+                  <label className="flex items-center gap-2.5 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="privacyConsent"
+                      checked={privacyAgreed === true}
+                      onChange={() => setPrivacyAgreed(true)}
+                      className="h-4 w-4 border-slate-300 text-teal-500 focus:ring-teal-400"
+                    />
+                    <span className="text-xs font-medium text-slate-700">
+                      I give consent
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2.5 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="privacyConsent"
+                      checked={privacyAgreed === false}
+                      onChange={() => setPrivacyAgreed(false)}
+                      className="h-4 w-4 border-slate-300 text-teal-500 focus:ring-teal-400"
+                    />
+                    <span className="text-xs font-medium text-slate-700">
+                      I do not consent
+                    </span>
+                  </label>
+                </div>
               </div>
             </div>
 

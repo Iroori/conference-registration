@@ -24,16 +24,16 @@ export const StepInvitationLetter = ({
             <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
           </svg>
           <div className="text-xs text-blue-700 leading-relaxed">
-            <p className="font-semibold mb-1">About the Official Invitation Letter</p>
-            <p>
-              An official invitation letter may be required for visa application or travel
-              authorization purposes. This is a formal letter from the organizing committee
-              confirming your participation in IABSE 2026.
+            <p className="font-semibold mb-1">Letter of Invitation</p>
+            <p className="mb-2">
+              Invitation Letter for Visa Application: If you require an official Letter of Invitation to apply for a visa to enter the Republic of Korea, please indicate this during the registration process.
             </p>
-            <p className="mt-1.5">
-              The letter is provided free of charge and will be issued within
-              <span className="font-semibold"> 5 business days</span> after registration payment is confirmed.
-            </p>
+            <p className="font-medium mb-1">Please note that:</p>
+            <ul className="list-disc ml-4 space-y-0.5">
+              <li>The letter will only be issued to <strong>fully registered and paid</strong> delegates.</li>
+              <li>The letter of invitation does not guarantee the granting of a visa.</li>
+              <li>Participants are responsible for their own visa application process and costs.</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -46,17 +46,15 @@ export const StepInvitationLetter = ({
         {/* Yes */}
         <button
           onClick={() => onSelect(true)}
-          className={`rounded-xl border p-5 text-left transition ${
-            needsLetter === true
-              ? 'border-teal-400 bg-teal-50 ring-1 ring-teal-200'
-              : 'border-slate-200 bg-white hover:border-slate-300'
-          }`}
+          className={`rounded-xl border p-5 text-left transition ${needsLetter === true
+            ? 'border-teal-400 bg-teal-50 ring-1 ring-teal-200'
+            : 'border-slate-200 bg-white hover:border-slate-300'
+            }`}
         >
           <div className="flex items-center gap-3 mb-2">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                needsLetter === true ? 'bg-teal-100' : 'bg-slate-100'
-              }`}
+              className={`flex h-8 w-8 items-center justify-center rounded-full ${needsLetter === true ? 'bg-teal-100' : 'bg-slate-100'
+                }`}
             >
               <svg
                 className={`h-4 w-4 ${needsLetter === true ? 'text-teal-600' : 'text-slate-400'}`}
@@ -66,7 +64,7 @@ export const StepInvitationLetter = ({
               </svg>
             </div>
             <p className={`text-sm font-semibold ${needsLetter === true ? 'text-teal-700' : 'text-slate-700'}`}>
-              Yes, I need one
+              Yes, I need an invitation letter
             </p>
           </div>
           <p className="text-xs text-slate-400 leading-relaxed">
@@ -79,17 +77,15 @@ export const StepInvitationLetter = ({
         {/* No */}
         <button
           onClick={() => onSelect(false)}
-          className={`rounded-xl border p-5 text-left transition ${
-            needsLetter === false
-              ? 'border-slate-400 bg-slate-50 ring-1 ring-slate-200'
-              : 'border-slate-200 bg-white hover:border-slate-300'
-          }`}
+          className={`rounded-xl border p-5 text-left transition ${needsLetter === false
+            ? 'border-slate-400 bg-slate-50 ring-1 ring-slate-200'
+            : 'border-slate-200 bg-white hover:border-slate-300'
+            }`}
         >
           <div className="flex items-center gap-3 mb-2">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                needsLetter === false ? 'bg-slate-200' : 'bg-slate-100'
-              }`}
+              className={`flex h-8 w-8 items-center justify-center rounded-full ${needsLetter === false ? 'bg-slate-200' : 'bg-slate-100'
+                }`}
             >
               <svg
                 className="h-4 w-4 text-slate-400"
@@ -99,7 +95,7 @@ export const StepInvitationLetter = ({
               </svg>
             </div>
             <p className={`text-sm font-semibold ${needsLetter === false ? 'text-slate-700' : 'text-slate-700'}`}>
-              No, not required
+              No, I do not need one
             </p>
           </div>
           <p className="text-xs text-slate-400 leading-relaxed">
@@ -109,6 +105,27 @@ export const StepInvitationLetter = ({
             You can request one later if needed.
           </p>
         </button>
+      </div>
+
+      {/* Accommodation Information */}
+      <div className="mt-8 mb-4">
+        <SectionLabel>Accommodation</SectionLabel>
+      </div>
+      <div className="rounded-lg border border-slate-200 bg-white p-5">
+        <p className="text-sm font-semibold text-slate-800 mb-2">Accommodation Information</p>
+        <p className="text-sm text-slate-600 mb-3 leading-relaxed">
+          For the convenience of IABSE Congress Incheon 2026 participants, we are pleased to provide information on accommodation options near the venue. Detailed information regarding hotels and rates can be found at the link below:
+        </p>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-teal-500 font-bold">•</span>
+          <span className="font-semibold text-slate-700">Link:</span>
+          <a href="https://iabse2026.mice.link/" target="_blank" rel="noreferrer" className="text-teal-600 hover:text-teal-800 font-medium break-all">
+            https://iabse2026.mice.link/
+          </a>
+        </div>
+        <p className="text-[11px] text-slate-500 leading-relaxed">
+          Please note that this information is provided for your reference only. Booking through this link is <strong>entirely optional</strong>, and participants are free to arrange their own accommodations according to their preferences.
+        </p>
       </div>
     </div>
 
@@ -158,5 +175,5 @@ export const StepInvitationLetter = ({
         </button>
       </div>
     </div>
-  </div>
+  </div >
 );

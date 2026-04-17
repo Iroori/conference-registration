@@ -82,7 +82,7 @@ export const StepSummary = ({
         {user && (
           <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Registrant</p>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Personal Details</p>
             </div>
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
               {[

@@ -15,22 +15,22 @@ import { ADDITIONAL_OPTION_IDS, INVITATION_OPTION_ID } from '../types';
 type NavTab = 'REGISTER' | 'HISTORY';
 type HistorySubTab = 'HISTORY' | 'CANCEL';
 
-const STEP_LABELS = ['Package', 'Add-ons', 'Invitation', 'Review', 'Payment'];
+const STEP_LABELS = ['Select', 'Option', 'Option2', 'Summary', 'Payment'];
 
 const STEP_INDEX: Record<RegistrationStep, number> = {
-  REG_TYPE:    1,
+  REG_TYPE: 1,
   ADD_OPTIONS: 2,
-  INVITATION:  3,
-  SUMMARY:     4,
-  PAYMENT:     5,
-  COMPLETE:    6,
+  INVITATION: 3,
+  SUMMARY: 4,
+  PAYMENT: 5,
+  COMPLETE: 6,
 };
 
 export const RegistrationPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [navTab, setNavTab]           = useState<NavTab>('REGISTER');
+  const [navTab, setNavTab] = useState<NavTab>('REGISTER');
   const [historySubTab, setHistorySubTab] = useState<HistorySubTab>('HISTORY');
   const [currentStep, setCurrentStep] = useState<RegistrationStep>('REG_TYPE');
 
@@ -118,18 +118,17 @@ export const RegistrationPage = () => {
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2">
               <span className="text-sm text-slate-600">{user.nameEn}</span>
-              <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${
-                user.memberType === 'MEMBER'
+              <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${user.memberType === 'MEMBER'
                   ? 'bg-teal-100 text-teal-700'
                   : user.memberType === 'NON_MEMBER'
-                  ? 'bg-slate-100 text-slate-600'
-                  : 'bg-violet-100 text-violet-700'
-              }`}>
+                    ? 'bg-slate-100 text-slate-600'
+                    : 'bg-violet-100 text-violet-700'
+                }`}>
                 {user.memberType === 'MEMBER'
                   ? 'MEMBER'
                   : user.isYoungEngineer
-                  ? 'YOUNG ENGINEER'
-                  : 'NON-MEMBER PLUS'}
+                    ? 'YOUNG ENGINEER'
+                    : 'NON-MEMBER PLUS'}
               </span>
             </div>
             <div className="flex gap-1 rounded-xl border border-slate-200 bg-white p-1">
@@ -137,11 +136,10 @@ export const RegistrationPage = () => {
                 <button
                   key={tab}
                   onClick={() => setNavTab(tab)}
-                  className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${
-                    navTab === tab
+                  className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${navTab === tab
                       ? 'bg-slate-800 text-white'
                       : 'text-slate-500 hover:text-slate-700'
-                  }`}
+                    }`}
                 >
                   {tab === 'REGISTER' ? 'Registration' : 'My Payments'}
                 </button>
@@ -259,11 +257,10 @@ export const RegistrationPage = () => {
                   <button
                     key={sub}
                     onClick={() => setHistorySubTab(sub)}
-                    className={`rounded-full border px-4 py-1.5 text-xs font-medium transition ${
-                      historySubTab === sub
+                    className={`rounded-full border px-4 py-1.5 text-xs font-medium transition ${historySubTab === sub
                         ? 'border-slate-800 bg-slate-800 text-white'
                         : 'border-slate-200 text-slate-500 hover:border-slate-300'
-                    }`}
+                      }`}
                   >
                     {sub === 'HISTORY' ? 'Payment History' : 'Cancel Registration'}
                   </button>

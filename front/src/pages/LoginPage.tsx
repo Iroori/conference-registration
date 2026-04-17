@@ -21,7 +21,7 @@ export const LoginPage = () => {
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })
         ?.response?.data?.message;
-      setError(msg ?? '로그인에 실패했습니다.');
+      setError(msg ?? 'Login failed. Please check your credentials.');
     },
   });
 
@@ -29,7 +29,7 @@ export const LoginPage = () => {
     e.preventDefault();
     setError('');
     if (!email || !password) {
-      setError('이메일과 비밀번호를 입력해주세요.');
+      setError('Please enter your email and password.');
       return;
     }
     loginMutation.mutate({ email, password });
@@ -40,18 +40,15 @@ export const LoginPage = () => {
       <div className="w-full max-w-sm">
         {/* Header */}
         <div className="text-center mb-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-teal-500 mb-1">
-            IABSE 2026
-          </p>
-          <h1 className="text-2xl font-semibold text-slate-800">로그인</h1>
-          <p className="mt-2 text-sm text-slate-500">Annual Conference 참가 등록</p>
+          <img src="/logo.png" alt="IABSE Congress Incheon 2026" className="h-12 mx-auto mb-4 object-contain" />
+          <h1 className="text-xl font-semibold text-slate-800">Login</h1>
         </div>
 
         <div className="card p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                이메일
+                Email address
               </label>
               <input
                 type="email"
@@ -65,7 +62,7 @@ export const LoginPage = () => {
 
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                비밀번호
+                Password
               </label>
               <input
                 type="password"
@@ -88,22 +85,22 @@ export const LoginPage = () => {
               disabled={loginMutation.isPending}
               className="btn-primary"
             >
-              {loginMutation.isPending ? '로그인 중...' : '로그인'}
+              {loginMutation.isPending ? 'Logging in...' : 'Login'}
             </button>
           </form>
 
           <div className="mt-4 pt-4 border-t border-slate-100 text-center">
             <p className="text-xs text-slate-500">
-              계정이 없으신가요?{' '}
+              Don't have an account?{' '}
               <Link to="/signup" className="font-medium text-teal-600 hover:text-teal-700">
-                회원가입
+                Create a new user account
               </Link>
             </p>
           </div>
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-400">
-          문의: iabse2026@kibse.or.kr
+          Contact: iabse2026@kibse.or.kr
         </p>
       </div>
     </div>

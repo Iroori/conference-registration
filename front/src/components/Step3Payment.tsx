@@ -229,11 +229,10 @@ export const Step4Complete = ({ result, onGoHistory }: Step4CompleteProps) => (
           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
         </svg>
       </div>
-      <h2 className="mb-2 text-2xl font-semibold text-slate-800">Registration Complete</h2>
-      <p className="mb-1 text-sm text-slate-500">
-        {result.nameEn}'s registration has been successfully processed.
+      <h2 className="mb-2 text-2xl font-semibold text-slate-800">Thank You for Registering</h2>
+      <p className="mb-6 text-sm text-slate-600 leading-relaxed">
+        Thank you for registering for the IABSE Congress Incheon 2026. Once your payment is fully processed, you will receive a confirmation email containing your registration details and a receipt. We look forward to seeing you in Incheon.
       </p>
-      <p className="mb-6 text-sm text-slate-400">A confirmation email and receipt have been sent.</p>
       <div className="flex gap-3">
         <button
           onClick={onGoHistory}
