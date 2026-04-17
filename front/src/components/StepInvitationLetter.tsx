@@ -28,7 +28,7 @@ export const StepInvitationLetter = ({
             <p>
               An official invitation letter may be required for visa application or travel
               authorization purposes. This is a formal letter from the organizing committee
-              confirming your participation in KSSC 2026.
+              confirming your participation in IABSE 2026.
             </p>
             <p className="mt-1.5">
               The letter is provided free of charge and will be issued within

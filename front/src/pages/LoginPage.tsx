@@ -41,7 +41,7 @@ export const LoginPage = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <p className="text-xs font-semibold uppercase tracking-widest text-teal-500 mb-1">
-            KSSC 2026
+            IABSE 2026
           </p>
           <h1 className="text-2xl font-semibold text-slate-800">로그인</h1>
           <p className="mt-2 text-sm text-slate-500">Annual Conference 참가 등록</p>
@@ -103,7 +103,7 @@ export const LoginPage = () => {
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-400">
-          문의: registration@kssc2026.org
+          문의: iabse2026@kibse.or.kr
         </p>
       </div>
     </div>

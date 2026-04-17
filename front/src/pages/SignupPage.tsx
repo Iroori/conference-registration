@@ -145,7 +145,7 @@ export const SignupPage = () => {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-teal-500 mb-1">KSSC 2026</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-teal-500 mb-1">IABSE 2026</p>
             <h1 className="text-2xl font-semibold text-slate-800">Email Verification</h1>
           </div>
           <div className="card p-6">
@@ -197,7 +197,7 @@ export const SignupPage = () => {
     <div className="min-h-screen bg-slate-50 py-12 px-4">
       <div className="mx-auto max-w-lg">
         <div className="text-center mb-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-teal-500 mb-1">KSSC 2026</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-teal-500 mb-1">IABSE 2026</p>
           <h1 className="text-2xl font-semibold text-slate-800">Create Account</h1>
           <p className="mt-2 text-sm text-slate-500">Register to participate in the Annual Conference</p>
         </div>
@@ -401,7 +401,7 @@ export const SignupPage = () => {
                   />
                   <div>
                     <p className="text-xs font-medium text-slate-700">
-                      I am presenting a paper at KSSC 2026
+                      I am presenting a paper at IABSE 2026
                     </p>
                     <p className="text-[11px] text-slate-400 mt-0.5">
                       Check this box if you are an author or co-author presenting a paper at the conference.
