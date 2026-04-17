@@ -387,6 +387,7 @@ docs/
 |------|------|----------|
 | 2026-03-31 | [registration-payment-redesign.md](docs/progress/2026-03-31_registration-payment-redesign.md) | 회원가입 개선(국가·발표자·개인정보동의) + 결제 플로우 전면 재설계(3티어×3유형) + 영어 UI 전환 + 비밀번호 평문 전송 차단(SHA-256) |
 | 2026-04-16 | [aws-deployment.md](docs/progress/2026-04-16_aws-deployment.md) | AWS Lightsail 인프라 구성 + MSSQL + SES + GitHub Actions CI/CD + 도메인/SSL 설정 |
+| 2026-04-17 | [iabse-incheon-redesign.md](docs/progress/2026-04-17_iabse-incheon-redesign.md) | KSSC→IABSE 리브랜딩 + SES 발신주소 변경 + 회원 4분류(YOUNG_ENGINEER) + 기간 설정 기반 관리 + 관리자 계정/ROLE_ADMIN + 옵션 수량UI 제거 + 잔여티켓 관리자 전용 |
 
 > 새 세션에서 기능을 추가·변경할 때마다 해당 날짜의 progress 파일을 생성하거나 업데이트합니다.
 

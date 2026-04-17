@@ -13,6 +13,7 @@ const REGISTRATION_OPTION_IDS: Record<MemberType, string> = {
   MEMBER: 'OPT-REG-MEMBER',
   NON_MEMBER: 'OPT-REG-NONMEMBER',
   NON_MEMBER_PLUS: 'OPT-REG-NONMEMBER-PLUS',
+  YOUNG_ENGINEER: 'OPT-REG-YE',
 };
 
 const CATEGORY_LABELS: Record<ConferenceOption['category'], string> = {

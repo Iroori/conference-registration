@@ -24,6 +24,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -48,6 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/email/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/iasbse/check").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/options").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/config/**").permitAll()
+                        // 관리자 JWT 전용
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // 관리자 엔드포인트 — X-Admin-Key 헤더는 컨트롤러 레이어에서 검증
                         .requestMatchers("/api/iasbse/admin/**").permitAll()
                         // H2 콘솔 + 개발 도우미 (dev-mode=false 시 컨트롤러가 403 반환)

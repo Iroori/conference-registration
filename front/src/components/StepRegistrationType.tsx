@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import { useConferenceOptions } from '../hooks/useRegistration';
+import { useConferenceOptions, useRegistrationPeriods } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, MemberTypePill, SectionLabel, formatKRW } from './Shared';
-import type { MemberType, RegistrationTierKey } from '../types';
+import type { MemberType, RegistrationTierKey, RegistrationPeriods } from '../types';
 import { REG_TIER_CONFIG } from '../types';
 
 interface StepRegistrationTypeProps {
@@ -12,18 +12,31 @@ interface StepRegistrationTypeProps {
   onNext: () => void;
 }
 
-const TODAY = new Date();
+function parseDate(s: string | null | undefined): Date | null {
+  return s ? new Date(s + 'T23:59:59') : null;
+}
 
-function getCurrentTier(): RegistrationTierKey {
-  if (TODAY <= REG_TIER_CONFIG.PRE_REGISTRATION.deadlineDate) return 'PRE_REGISTRATION';
-  if (TODAY <= REG_TIER_CONFIG.EARLY_BIRD.deadlineDate) return 'EARLY_BIRD';
+/** 서버에서 받은 기간 기반으로 현재 활성 티어 판정 */
+function getCurrentTier(periods?: RegistrationPeriods): RegistrationTierKey {
+  const today = new Date();
+  const preEnd = parseDate(periods?.preRegistration.endDate);
+  const earlyEnd = parseDate(periods?.earlyBird.endDate);
+  if (preEnd && today <= preEnd) return 'PRE_REGISTRATION';
+  if (earlyEnd && today <= earlyEnd) return 'EARLY_BIRD';
   return 'REGULAR';
+}
+
+function deadlineLabel(p: { endDate: string | null }): string {
+  if (!p.endDate) return 'TBD';
+  const d = new Date(p.endDate + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 const MEMBER_TYPE_LABELS: Record<MemberType, string> = {
   MEMBER:          'IABSE Member',
-  NON_MEMBER:      'Young Engineer (< 36)',
+  NON_MEMBER:      'Non-Member',
   NON_MEMBER_PLUS: 'Non-Member Plus',
+  YOUNG_ENGINEER:  'Young Engineer (< 36)',
 };
 
 const TIER_ORDER: RegistrationTierKey[] = ['PRE_REGISTRATION', 'EARLY_BIRD', 'REGULAR'];
@@ -42,7 +55,13 @@ export const StepRegistrationType = ({
 }: StepRegistrationTypeProps) => {
   const { user } = useAuth();
   const { data: options, isLoading, error, refetch } = useConferenceOptions(memberType);
-  const currentTier = getCurrentTier();
+  const { data: periods } = useRegistrationPeriods();
+  const currentTier = getCurrentTier(periods);
+  const periodByKey: Record<RegistrationTierKey, { endDate: string | null }> = {
+    PRE_REGISTRATION: periods?.preRegistration ?? { endDate: null, startDate: null },
+    EARLY_BIRD:       periods?.earlyBird        ?? { endDate: null, startDate: null },
+    REGULAR:          periods?.regular          ?? { endDate: null, startDate: null },
+  };
 
   const optionsByTier = useMemo(() => {
     if (!options) return {} as Record<RegistrationTierKey, { id: string; price: number } | undefined>;
@@ -118,7 +137,7 @@ export const StepRegistrationType = ({
                       </div>
                       <p className="text-xs text-slate-400">{cfg.subtitle}</p>
                       <p className="text-[11px] text-slate-400 mt-1">
-                        Deadline: <span className="font-medium">{cfg.deadline}</span>
+                        Deadline: <span className="font-medium">{deadlineLabel(periodByKey[tierKey])}</span>
                       </p>
                     </div>
                   </div>
@@ -157,7 +176,7 @@ export const StepRegistrationType = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {(['MEMBER', 'NON_MEMBER', 'NON_MEMBER_PLUS'] as MemberType[]).map((mt) => (
+                {(['MEMBER', 'NON_MEMBER', 'NON_MEMBER_PLUS', 'YOUNG_ENGINEER'] as MemberType[]).map((mt) => (
                   <tr key={mt} className={memberType === mt ? 'bg-teal-50/40' : ''}>
                     <td className="px-4 py-2.5 font-medium text-slate-600">
                       {MEMBER_TYPE_LABELS[mt]}
@@ -204,7 +223,7 @@ export const StepRegistrationType = ({
             <div>
               <p className="text-sm font-semibold text-teal-700">{REG_TIER_CONFIG[selectedTier].label}</p>
               <p className="text-xs text-slate-400 mt-0.5">
-                Deadline: {REG_TIER_CONFIG[selectedTier].deadline}
+                Deadline: {deadlineLabel(periodByKey[selectedTier])}
               </p>
               {optionsByTier[selectedTier] && (
                 <p className="text-base font-bold text-slate-800 mt-2">

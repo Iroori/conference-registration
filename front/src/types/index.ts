@@ -1,5 +1,5 @@
 // ─── Auth ───────────────────────────────────────────────────────────────────
-export type MemberType = 'MEMBER' | 'NON_MEMBER' | 'NON_MEMBER_PLUS';
+export type MemberType = 'MEMBER' | 'NON_MEMBER' | 'NON_MEMBER_PLUS' | 'YOUNG_ENGINEER';
 
 export interface SignupRequest {
   email: string;
@@ -80,6 +80,7 @@ export interface ConferenceOption {
   isRequired: boolean;
   requiresUpload?: boolean;
   allowedMemberType?: MemberType | null;
+  /** 관리자 응답에만 포함됨 (일반 사용자 응답은 available boolean만 받음) */
   maxCapacity?: number | null;
   currentCount?: number;
   available?: boolean;
@@ -91,59 +92,69 @@ export type RegistrationTierKey = 'PRE_REGISTRATION' | 'EARLY_BIRD' | 'REGULAR';
 export interface RegistrationTierConfig {
   label: string;
   subtitle: string;
-  deadline: string;
-  deadlineDate: Date;
   color: 'teal' | 'amber' | 'slate';
+  /** optionId mapping per member type — 4 categories */
   optionIds: Record<MemberType, string>;
 }
 
+/**
+ * 각 티어의 optionId 매핑 + 스타일 메타데이터.
+ * 기간(deadline)은 서버 /api/config/registration-periods 응답으로 관리된다.
+ */
 export const REG_TIER_CONFIG: Record<RegistrationTierKey, RegistrationTierConfig> = {
   PRE_REGISTRATION: {
     label: 'Pre-Registration',
     subtitle: 'Best rates — limited availability',
-    deadline: 'April 30, 2026',
-    deadlineDate: new Date('2026-04-30'),
     color: 'teal',
     optionIds: {
       MEMBER: 'OPT-REG-PRE-MEMBER',
       NON_MEMBER: 'OPT-REG-PRE-NM',
       NON_MEMBER_PLUS: 'OPT-REG-PRE-NMP',
+      YOUNG_ENGINEER: 'OPT-REG-PRE-YE',
     },
   },
   EARLY_BIRD: {
     label: 'Early Bird',
     subtitle: 'Standard advance registration',
-    deadline: 'July 31, 2026',
-    deadlineDate: new Date('2026-07-31'),
     color: 'amber',
     optionIds: {
       MEMBER: 'OPT-REG-EARLY-MEMBER',
       NON_MEMBER: 'OPT-REG-EARLY-NM',
       NON_MEMBER_PLUS: 'OPT-REG-EARLY-NMP',
+      YOUNG_ENGINEER: 'OPT-REG-EARLY-YE',
     },
   },
   REGULAR: {
     label: 'Regular Registration',
     subtitle: 'On-site & late registration',
-    deadline: 'October 31, 2026',
-    deadlineDate: new Date('2026-10-31'),
     color: 'slate',
     optionIds: {
       MEMBER: 'OPT-REG-MEMBER',
       NON_MEMBER: 'OPT-REG-NONMEMBER',
       NON_MEMBER_PLUS: 'OPT-REG-NONMEMBER-PLUS',
+      YOUNG_ENGINEER: 'OPT-REG-YE',
     },
   },
 };
 
+// ─── Registration Periods (서버 설정 기반) ──────────────────────────────────
+export interface TierPeriod {
+  startDate: string | null;  // ISO yyyy-MM-dd
+  endDate: string | null;
+}
+export interface RegistrationPeriods {
+  preRegistration: TierPeriod;
+  earlyBird: TierPeriod;
+  regular: TierPeriod;
+}
+
 /** Option IDs shown in the Additional Programs step */
 export const ADDITIONAL_OPTION_IDS = [
   'OPT-WELCOME',
-  'OPT-CONGRESS-DINNER',
+  'OPT-GALA-DINNER',
   'OPT-TECH-TOUR',
-  'OPT-YEP',
   'OPT-ACCOMPANYING',
-  'OPT-WORKSHOP',
+  'OPT-PRE-WORKSHOP',
 ] as const;
 
 /** Invitation letter option ID (ADMIN category, free) */

@@ -61,6 +61,16 @@ app:
     allowed-origins: http://localhost:5173,http://localhost:3000
   admin:
     secret-key: ${ADMIN_SECRET:admin-secret-2026}
+  registration:
+    pre-registration:
+      start-date: ${REG_PRE_START:2026-05-30}
+      end-date:   ${REG_PRE_END:2026-07-31}
+    early-bird:
+      start-date: ${REG_EARLY_START:2026-08-01}
+      end-date:   ${REG_EARLY_END:2026-08-31}
+    regular:
+      start-date: ${REG_REGULAR_START:2026-09-01}
+      end-date:   ${REG_REGULAR_END:2026-10-31}
   dev-mode: true                    # 개발 모드: 이메일 콘솔 출력 + /api/dev 엔드포인트 활성화
 
 ---
@@ -109,4 +119,14 @@ app:
     allowed-origins: ${CORS_ORIGINS:https://iabse-inc2026-registration.com}
   admin:
     secret-key: ${ADMIN_SECRET}
+  registration:
+    pre-registration:
+      start-date: ${REG_PRE_START:2026-05-30}
+      end-date:   ${REG_PRE_END:2026-07-31}
+    early-bird:
+      start-date: ${REG_EARLY_START:2026-08-01}
+      end-date:   ${REG_EARLY_END:2026-08-31}
+    regular:
+      start-date: ${REG_REGULAR_START:2026-09-01}
+      end-date:   ${REG_REGULAR_END:2026-10-31}
   dev-mode: false

@@ -56,6 +56,10 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private boolean presenter = false;
 
+    /** 관리자 여부. true 시 JWT의 role 클레임에 ADMIN 부여. */
+    @Column(nullable = false)
+    private boolean admin = false;
+
     protected User() {}
 
     public User(String email, String password, String nameKr, String nameEn,
@@ -112,4 +116,6 @@ public class User extends BaseEntity {
     public boolean isEmailVerified() { return emailVerified; }
     public boolean isActive() { return active; }
     public boolean isPresenter() { return presenter; }
+    public boolean isAdmin() { return admin; }
+    public void promoteToAdmin() { this.admin = true; }
 }

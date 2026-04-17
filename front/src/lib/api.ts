@@ -11,6 +11,7 @@ import type {
   PaymentResponse,
   CancelRequest,
   CancelResult,
+  RegistrationPeriods,
 } from '../types';
 
 // ─── Password hashing ────────────────────────────────────────────────────────
@@ -69,6 +70,12 @@ export const apiFetchOptions = async (memberType: MemberType): Promise<Conferenc
   const res = await apiClient.get<{ data: ConferenceOption[] }>(
     `/options?memberType=${memberType}`
   );
+  return res.data.data;
+};
+
+// ─── Config ──────────────────────────────────────────────────────────────────
+export const apiFetchRegistrationPeriods = async (): Promise<RegistrationPeriods> => {
+  const res = await apiClient.get<{ data: RegistrationPeriods }>('/config/registration-periods');
   return res.data.data;
 };
 

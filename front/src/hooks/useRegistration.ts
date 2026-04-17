@@ -4,13 +4,22 @@ import {
   apiCreatePayment,
   apiFetchMyPayments,
   apiCancelPayment,
+  apiFetchRegistrationPeriods,
 } from '../lib/api';
 import type { MemberType, PaymentRequest, CancelRequest } from '../types';
 
 export const QUERY_KEYS = {
   options: (memberType: MemberType) => ['options', memberType] as const,
   paymentHistory: ['payments', 'me'] as const,
+  registrationPeriods: ['config', 'registration-periods'] as const,
 };
+
+export const useRegistrationPeriods = () =>
+  useQuery({
+    queryKey: QUERY_KEYS.registrationPeriods,
+    queryFn: apiFetchRegistrationPeriods,
+    staleTime: 10 * 60 * 1000,
+  });
 
 export const useConferenceOptions = (memberType: MemberType | null) =>
   useQuery({

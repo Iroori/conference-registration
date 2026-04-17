@@ -12,46 +12,6 @@ interface StepAdditionalOptionsProps {
   onBack: () => void;
 }
 
-const MAX_QTY = 10;
-
-const QuantityStepper = ({
-  value,
-  min = 0,
-  max = MAX_QTY,
-  onChange,
-  disabled,
-}: {
-  value: number;
-  min?: number;
-  max?: number;
-  onChange: (v: number) => void;
-  disabled?: boolean;
-}) => (
-  <div className="flex items-center gap-1">
-    <button
-      type="button"
-      onClick={() => onChange(Math.max(min, value - 1))}
-      disabled={disabled || value <= min}
-      className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-    >
-      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
-      </svg>
-    </button>
-    <span className="w-7 text-center text-sm font-semibold text-slate-700">{value}</span>
-    <button
-      type="button"
-      onClick={() => onChange(Math.min(max, value + 1))}
-      disabled={disabled || value >= max}
-      className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-    >
-      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
-      </svg>
-    </button>
-  </div>
-);
-
 export const StepAdditionalOptions = ({
   memberType,
   quantities,
@@ -68,12 +28,15 @@ export const StepAdditionalOptions = ({
       .filter((o): o is ConferenceOption => o !== undefined);
   }, [options]);
 
+  const isSelected = (id: string) => (quantities[id] ?? 0) > 0;
+
   const subtotal = useMemo(() =>
-    additionalOptions.reduce((sum, o) => sum + o.price * (quantities[o.id] ?? 0), 0),
+    additionalOptions.reduce((sum, o) => sum + (isSelected(o.id) ? o.price : 0), 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [additionalOptions, quantities]
   );
 
-  const selectedCount = Object.values(quantities).filter((q) => q > 0).length;
+  const selectedCount = additionalOptions.filter((o) => isSelected(o.id)).length;
 
   if (isLoading) {
     return (
@@ -108,63 +71,56 @@ export const StepAdditionalOptions = ({
         ) : (
           <div className="space-y-3">
             {additionalOptions.map((opt) => {
-              const qty = quantities[opt.id] ?? 0;
+              const selected = isSelected(opt.id);
               const isSoldOut = opt.available === false;
-              const remainingCapacity =
-                opt.maxCapacity != null ? opt.maxCapacity - (opt.currentCount ?? 0) : null;
-              const effectiveMax = remainingCapacity != null
-                ? Math.min(MAX_QTY, remainingCapacity)
-                : MAX_QTY;
-              const isSelected = qty > 0;
+              const toggle = () => {
+                if (isSoldOut) return;
+                onQuantityChange(opt.id, selected ? 0 : 1);
+              };
 
               return (
-                <div
+                <button
                   key={opt.id}
-                  className={`rounded-xl border p-4 transition ${
-                    isSelected
+                  type="button"
+                  onClick={toggle}
+                  disabled={isSoldOut}
+                  className={`w-full text-left rounded-xl border p-4 transition ${
+                    selected
                       ? 'border-teal-300 bg-teal-50/60 ring-1 ring-teal-200'
                       : isSoldOut
-                      ? 'border-slate-100 bg-slate-50 opacity-50'
-                      : 'border-slate-200 bg-white'
+                      ? 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed'
+                      : 'border-slate-200 bg-white hover:border-slate-300'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                        <p className={`text-sm font-semibold ${isSelected ? 'text-teal-800' : 'text-slate-800'}`}>
-                          {opt.nameEn}
-                        </p>
-                        {isSoldOut && (
-                          <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-500">
-                            Sold Out
-                          </span>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* checkbox indicator */}
+                      <span
+                        className={`mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition ${
+                          selected ? 'bg-teal-500 border-teal-500' : 'border-slate-300 bg-white'
+                        }`}
+                        aria-hidden="true"
+                      >
+                        {selected && (
+                          <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
                         )}
-                        {!isSoldOut && remainingCapacity != null && (
-                          <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-600">
-                            {remainingCapacity} spots left
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-400 leading-relaxed">{opt.description}</p>
-                      {isSelected && (
-                        <p className="text-xs font-medium text-teal-600 mt-1.5">
-                          Subtotal: {formatKRW(opt.price * qty)}
-                        </p>
+                      </span>
+                      <p className={`text-sm font-semibold truncate ${selected ? 'text-teal-800' : 'text-slate-800'}`}>
+                        {opt.nameEn}
+                      </p>
+                      {isSoldOut && (
+                        <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-500">
+                          Sold Out
+                        </span>
                       )}
                     </div>
-                    <div className="flex-shrink-0 flex flex-col items-end gap-2">
-                      <p className={`text-sm font-bold ${isSelected ? 'text-teal-600' : 'text-slate-600'}`}>
-                        {opt.isFree ? 'Free' : `${formatKRW(opt.price)} / person`}
-                      </p>
-                      <QuantityStepper
-                        value={qty}
-                        max={effectiveMax}
-                        onChange={(v) => onQuantityChange(opt.id, v)}
-                        disabled={isSoldOut}
-                      />
-                    </div>
+                    <p className={`flex-shrink-0 text-sm font-bold ${selected ? 'text-teal-600' : 'text-slate-600'}`}>
+                      {opt.isFree ? 'Free' : `${formatKRW(opt.price)} / person`}
+                    </p>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -180,14 +136,12 @@ export const StepAdditionalOptions = ({
         ) : (
           <div className="mb-4 space-y-2">
             {additionalOptions
-              .filter((o) => (quantities[o.id] ?? 0) > 0)
+              .filter((o) => isSelected(o.id))
               .map((o) => (
                 <div key={o.id} className="flex justify-between text-xs">
-                  <span className="text-slate-500 truncate pr-2">
-                    {o.nameEn} × {quantities[o.id]}
-                  </span>
+                  <span className="text-slate-500 truncate pr-2">{o.nameEn}</span>
                   <span className="flex-shrink-0 font-medium text-slate-700">
-                    {o.isFree ? 'Free' : formatKRW(o.price * (quantities[o.id] ?? 0))}
+                    {o.isFree ? 'Free' : formatKRW(o.price)}
                   </span>
                 </div>
               ))}
@@ -204,7 +158,7 @@ export const StepAdditionalOptions = ({
 
         <div className="mt-auto space-y-2">
           <button onClick={onNext} className="btn-primary">
-            Continue to Invitation Letter
+            Continue to registration
           </button>
           <button
             onClick={onBack}

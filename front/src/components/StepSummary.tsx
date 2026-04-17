@@ -123,7 +123,7 @@ export const StepSummary = ({
                 <p className="text-sm font-semibold text-slate-800">{regOption.nameEn}</p>
                 <p className="text-xs text-slate-400 mt-0.5">{regOption.description}</p>
                 <p className="text-xs text-teal-600 mt-1 font-medium">
-                  {REG_TIER_CONFIG[selectedTier].label} · Deadline: {REG_TIER_CONFIG[selectedTier].deadline}
+                  {REG_TIER_CONFIG[selectedTier].label}
                 </p>
               </div>
               <p className="flex-shrink-0 text-sm font-bold text-slate-700">

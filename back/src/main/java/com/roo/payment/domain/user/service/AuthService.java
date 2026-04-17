@@ -70,7 +70,7 @@ public class AuthService {
             memberType = MemberType.MEMBER;
         } else {
             int age = java.time.Period.between(req.birthDate(), java.time.LocalDate.now()).getYears();
-            memberType = age <= 35 ? MemberType.NON_MEMBER : MemberType.NON_MEMBER_PLUS;
+            memberType = age <= 35 ? MemberType.YOUNG_ENGINEER : MemberType.NON_MEMBER;
         }
 
         User user = new User(
@@ -141,7 +141,7 @@ public class AuthService {
         User user = userRepository.findByEmailAndActiveTrue(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        String accessToken  = jwtTokenProvider.generateToken(user.getEmail(), user.getMemberType().name());
+        String accessToken  = jwtTokenProvider.generateToken(user.getEmail(), user.getMemberType().name(), user.isAdmin());
         String refreshToken = issueRefreshToken(user.getEmail());
 
         auditService.log("LOGIN_SUCCESS", email);
@@ -164,7 +164,7 @@ public class AuthService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         refreshTokenRepository.delete(stored);
-        String newAccessToken  = jwtTokenProvider.generateToken(user.getEmail(), user.getMemberType().name());
+        String newAccessToken  = jwtTokenProvider.generateToken(user.getEmail(), user.getMemberType().name(), user.isAdmin());
         String newRefreshToken = issueRefreshToken(user.getEmail());
 
         auditService.log("TOKEN_REFRESH", user.getEmail());

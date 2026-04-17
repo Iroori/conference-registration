@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,12 +35,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(token) && tokenProvider.validateAccessToken(token)) {
             String email      = tokenProvider.getEmail(token);
             String memberType = tokenProvider.getMemberType(token);
+            boolean admin     = tokenProvider.isAdmin(token);
 
             // DB 조회 없이 클레임 기반으로 인증 객체 생성
+            var authorities = new ArrayList<SimpleGrantedAuthority>();
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + memberType));
+            if (admin) authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+
             var auth = new UsernamePasswordAuthenticationToken(
                     email,
                     null,
-                    List.of(new SimpleGrantedAuthority("ROLE_" + memberType))
+                    authorities
             );
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(auth);

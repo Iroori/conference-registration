@@ -34,11 +34,16 @@ public class JwtTokenProvider {
 
     /** Access JWT (short-lived, used in Authorization header) */
     public String generateToken(String email, String memberType) {
+        return generateToken(email, memberType, false);
+    }
+
+    public String generateToken(String email, String memberType, boolean admin) {
         Date now = new Date();
         return Jwts.builder()
                 .issuer(ISSUER)
                 .subject(email)
                 .claim("memberType", memberType)
+                .claim("admin", admin)
                 .claim(CLAIM_TYPE, TYPE_ACCESS)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + expirationMs))
@@ -54,6 +59,11 @@ public class JwtTokenProvider {
 
     public String getMemberType(String token) {
         return parseClaims(token).get("memberType", String.class);
+    }
+
+    public boolean isAdmin(String token) {
+        Boolean v = parseClaims(token).get("admin", Boolean.class);
+        return Boolean.TRUE.equals(v);
     }
 
     // ─── Validation ──────────────────────────────────────────────────────────

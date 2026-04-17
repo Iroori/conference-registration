@@ -5,11 +5,10 @@ import com.roo.payment.domain.option.entity.OptionCategory;
 import com.roo.payment.domain.user.entity.MemberType;
 
 /**
- * 일반 사용자 응답 DTO.
- * 잔여 좌석(maxCapacity/currentCount)은 관리자 전용이므로 일반 사용자에게는 노출하지 않는다.
- * 관리자는 {@link AdminConferenceOptionResponse}를 받는다.
+ * 관리자 전용 옵션 응답 DTO.
+ * 잔여 좌석(maxCapacity/currentCount)을 포함한다.
  */
-public record ConferenceOptionResponse(
+public record AdminConferenceOptionResponse(
         String id,
         OptionCategory category,
         String nameKr,
@@ -20,10 +19,16 @@ public record ConferenceOptionResponse(
         boolean isRequired,
         boolean requiresUpload,
         MemberType allowedMemberType,
+        Integer maxCapacity,
+        int currentCount,
+        int remaining,
         boolean available
 ) {
-    public static ConferenceOptionResponse from(ConferenceOption option) {
-        return new ConferenceOptionResponse(
+    public static AdminConferenceOptionResponse from(ConferenceOption option) {
+        int remaining = option.getMaxCapacity() != null
+                ? option.getMaxCapacity() - option.getCurrentCount()
+                : Integer.MAX_VALUE;
+        return new AdminConferenceOptionResponse(
                 option.getId(),
                 option.getCategory(),
                 option.getNameKr(),
@@ -34,6 +39,9 @@ public record ConferenceOptionResponse(
                 option.isRequired(),
                 option.isRequiresUpload(),
                 option.getAllowedMemberType(),
+                option.getMaxCapacity(),
+                option.getCurrentCount(),
+                remaining,
                 option.hasCapacity()
         );
     }
