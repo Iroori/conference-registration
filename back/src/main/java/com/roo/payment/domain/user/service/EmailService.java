@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
-    private static final String FROM_ADDRESS = "noreply@kssc2026.org";
+    private static final String FROM_ADDRESS = "iabse2026@kibse.or.kr";
 
     private final JavaMailSender mailSender;
     private final AppProperties  appProperties;
@@ -83,7 +83,7 @@ public class EmailService {
             return;
         }
         sendHtmlMail(key,
-                "[KSSC 2026] Email Verification Code",
+                "[IABSE 2026] Email Verification Code",
                 buildVerificationHtml(code, expMin));
     }
 
@@ -128,7 +128,7 @@ public class EmailService {
                     to, registrationNumber, String.format("%,d", totalAmount));
             return;
         }
-        sendHtmlMail(to, "[KSSC 2026] Registration Payment Confirmed",
+        sendHtmlMail(to, "[IABSE 2026] Registration Payment Confirmed",
                 buildPaymentConfirmationHtml(nameEn, registrationNumber, totalAmount, paidAt));
     }
 
@@ -140,7 +140,7 @@ public class EmailService {
                     to, registrationNumber, String.format("%,d", refundAmount));
             return;
         }
-        sendHtmlMail(to, "[KSSC 2026] Registration Cancellation Confirmed",
+        sendHtmlMail(to, "[IABSE 2026] Registration Cancellation Confirmed",
                 buildCancellationHtml(nameEn, registrationNumber, refundAmount));
     }
 
@@ -168,7 +168,7 @@ public class EmailService {
                 <body style="font-family:'Segoe UI',sans-serif;background:#f8fafc;padding:40px 0">
                   <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
                     <div style="background:#1e293b;padding:24px 32px">
-                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">KSSC 2026</p>
+                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">IABSE 2026</p>
                       <h1 style="color:#fff;font-size:20px;margin:4px 0 0">Email Verification</h1>
                     </div>
                     <div style="padding:32px">
@@ -190,7 +190,7 @@ public class EmailService {
                 <body style="font-family:'Segoe UI',sans-serif;background:#f8fafc;padding:40px 0">
                   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
                     <div style="background:#1e293b;padding:24px 32px">
-                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">KSSC 2026</p>
+                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">IABSE 2026</p>
                       <h1 style="color:#fff;font-size:20px;margin:4px 0 0">Payment Confirmed</h1>
                     </div>
                     <div style="padding:32px">
@@ -205,7 +205,7 @@ public class EmailService {
                               <td style="color:#1e293b;font-size:13px;text-align:right">%s</td></tr>
                         </table>
                       </div>
-                      <p style="color:#94a3b8;font-size:12px;margin:0">Inquiries: registration@kssc2026.org</p>
+                      <p style="color:#94a3b8;font-size:12px;margin:0">Inquiries: iabse2026@kibse.or.kr</p>
                     </div>
                   </div>
                 </body></html>
@@ -218,7 +218,7 @@ public class EmailService {
                 <body style="font-family:'Segoe UI',sans-serif;background:#f8fafc;padding:40px 0">
                   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
                     <div style="background:#1e293b;padding:24px 32px">
-                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">KSSC 2026</p>
+                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">IABSE 2026</p>
                       <h1 style="color:#fff;font-size:20px;margin:4px 0 0">Cancellation Confirmed</h1>
                     </div>
                     <div style="padding:32px">

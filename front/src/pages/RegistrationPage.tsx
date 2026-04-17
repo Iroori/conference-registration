@@ -112,7 +112,7 @@ export const RegistrationPage = () => {
         {/* Top Nav */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-teal-500">KSSC 2026</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-teal-500">IABSE 2026</p>
             <h1 className="mt-0.5 text-xl font-semibold text-slate-800">Annual Conference</h1>
           </div>
           <div className="flex items-center gap-3">
@@ -275,7 +275,7 @@ export const RegistrationPage = () => {
         )}
 
         <p className="mt-6 text-center text-xs text-slate-400">
-          Inquiries: registration@kssc2026.org · SSL Encrypted · PCI-DSS Secure Payment
+          Inquiries: iabse2026@kibse.or.kr · SSL Encrypted · PCI-DSS Secure Payment
         </p>
       </div>
     </div>

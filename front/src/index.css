@@ -11,6 +11,14 @@
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    caret-color: transparent;
+  }
+
+  input,
+  textarea,
+  [contenteditable='true'],
+  [contenteditable=''] {
+    caret-color: auto;
   }
 }
 

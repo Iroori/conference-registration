@@ -193,7 +193,7 @@ export const Step3Payment = ({
       <form name="PGIOForm" style={{ display: 'none' }}>
         <input type="hidden" name="mid" value={mid} />
         <input type="hidden" name="paymethod" value={import.meta.env.VITE_PAYGATE_METHOD || 'card'} />
-        <input type="hidden" name="goodname" value="KSSC 2026 Registration" />
+        <input type="hidden" name="goodname" value="IABSE 2026 Registration" />
         <input type="hidden" name="unitprice" value={unitprice} />
         <input type="hidden" name="goodcurrency" value={goodcurrency} />
         <input type="hidden" name="langcode" value="KR" />
