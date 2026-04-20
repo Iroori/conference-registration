@@ -32,6 +32,7 @@ export const Step3Payment = ({
 }: Step3PaymentProps) => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pgError, setPgError] = useState<string | null>(null);
 
   const domestic = isKoreanUser(user?.country);
   const mid = domestic
@@ -41,7 +42,7 @@ export const Step3Payment = ({
   const goodcurrency = 'WON';
   const unitprice = totalAmount;
 
-  const { mutate: createPayment, isPending, error } = useCreatePayment();
+  const { mutate: createPayment, isPending, error: serverError } = useCreatePayment();
 
   useEffect(() => {
     (window as any).getPGIOresult = () => {
@@ -60,22 +61,27 @@ export const Step3Payment = ({
             tid: (form.elements.namedItem('tid') as HTMLInputElement)?.value,
             replycode: replycode
           },
-          { onSuccess: (result) => onComplete(result) }
+          {
+            onSuccess: (result) => onComplete(result),
+            onError: () => setIsSubmitting(false),
+          }
         );
       } else {
-        // 서버로 실패 이벤트 전송 (추적용)
+        // PG 에러: 버튼 잠금 해제 + 인라인 에러 표시
+        setIsSubmitting(false);
+        setPgError(`[${replycode}] ${replyMsg || 'Payment was not completed. Please try again.'}`);
         apiReportPaymentFailure({
           replycode,
           replyMsg,
           tid: (form.elements.namedItem('tid') as HTMLInputElement)?.value || undefined,
         });
-        alert(`Payment failed: [${replycode}] ${replyMsg}`);
       }
     };
   }, [createPayment, selectedOptionIds, quantities, onComplete]);
 
   const handlePay = () => {
-    if (isSubmitting) return; // 중복 클릭 방지
+    if (isSubmitting || isPending) return;
+    setPgError(null); // 이전 에러 초기화
     if (typeof (window as any).doTransaction === 'function') {
       const form = document.forms.namedItem('PGIOForm');
       if (form) {
@@ -83,14 +89,15 @@ export const Step3Payment = ({
         (window as any).doTransaction(form);
       }
     } else {
-      alert("Payment module is not loaded completely. Please refresh and try again.");
+      setPgError("Payment module is not loaded. Please refresh the page and try again.");
     }
   };
 
-  const errMsg = error
-    ? ((error as { response?: { data?: { message?: string } } })?.response?.data?.message
+  const serverErrMsg = serverError
+    ? ((serverError as { response?: { data?: { message?: string } } })?.response?.data?.message
       ?? 'An error occurred during payment processing.')
     : null;
+  const errMsg = pgError ?? serverErrMsg;
 
   return (
     <>
@@ -140,7 +147,14 @@ export const Step3Payment = ({
             </div>
           </div>
 
-          {errMsg && <ErrorBanner message={errMsg} />}
+          {errMsg && (
+            <div className="mt-2">
+              <ErrorBanner message={errMsg} />
+              <p className="mt-1.5 text-center text-xs text-slate-400">
+                Please check your payment details and click <strong>Confirm &amp; Pay</strong> to try again.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Right sidebar */}
@@ -173,11 +187,11 @@ export const Step3Payment = ({
 
           <button
             onClick={handlePay}
-            disabled={isPending}
+            disabled={isPending || isSubmitting}
             className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg bg-teal-500 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-teal-300"
           >
-            {isPending && <LoadingSpinner size="sm" />}
-            {isPending ? 'Processing…' : 'Confirm & Pay'}
+            {(isPending || isSubmitting) && <LoadingSpinner size="sm" />}
+            {isPending ? 'Processing…' : isSubmitting ? 'Opening payment window…' : 'Confirm & Pay'}
           </button>
           <button
             onClick={onBack}
