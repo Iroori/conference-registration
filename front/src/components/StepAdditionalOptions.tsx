@@ -73,8 +73,10 @@ export const StepAdditionalOptions = ({
             {additionalOptions.map((opt) => {
               const selected = isSelected(opt.id);
               const isSoldOut = opt.available === false;
+              const isTbd = !opt.isFree && opt.price === 0;
+              const isDisabled = isSoldOut || isTbd;
               const toggle = () => {
-                if (isSoldOut) return;
+                if (isDisabled) return;
                 onQuantityChange(opt.id, selected ? 0 : 1);
               };
 
@@ -83,11 +85,11 @@ export const StepAdditionalOptions = ({
                   key={opt.id}
                   type="button"
                   onClick={toggle}
-                  disabled={isSoldOut}
+                  disabled={isDisabled}
                   className={`w-full text-left rounded-xl border p-4 transition ${
                     selected
                       ? 'border-teal-300 bg-teal-50/60 ring-1 ring-teal-200'
-                      : isSoldOut
+                      : isDisabled
                       ? 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed'
                       : 'border-slate-200 bg-white hover:border-slate-300'
                   }`}
@@ -115,9 +117,14 @@ export const StepAdditionalOptions = ({
                           Sold Out
                         </span>
                       )}
+                      {isTbd && (
+                        <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600">
+                          Coming Soon
+                        </span>
+                      )}
                     </div>
                     <p className={`flex-shrink-0 text-sm font-bold ${selected ? 'text-teal-600' : 'text-slate-600'}`}>
-                      {opt.isFree ? 'Free' : `${formatKRW(opt.price)} / person`}
+                      {opt.isFree ? 'Free' : isTbd ? 'TBD' : `${formatKRW(opt.price)} / person`}
                     </p>
                   </div>
                 </button>

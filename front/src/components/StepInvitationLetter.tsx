@@ -51,7 +51,7 @@ export const StepInvitationLetter = ({
             : 'border-slate-200 bg-white hover:border-slate-300'
             }`}
         >
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3">
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full ${needsLetter === true ? 'bg-teal-100' : 'bg-slate-100'
                 }`}
@@ -64,14 +64,9 @@ export const StepInvitationLetter = ({
               </svg>
             </div>
             <p className={`text-sm font-semibold ${needsLetter === true ? 'text-teal-700' : 'text-slate-700'}`}>
-              Yes, I need an invitation letter
+              Yes, I need an invitation letter.
             </p>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            An official invitation letter will be issued and sent to your registered email address
-            after payment is confirmed.
-          </p>
-          <p className="text-xs font-semibold text-teal-600 mt-2">Free of charge</p>
         </button>
 
         {/* No */}
@@ -82,7 +77,7 @@ export const StepInvitationLetter = ({
             : 'border-slate-200 bg-white hover:border-slate-300'
             }`}
         >
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3">
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full ${needsLetter === false ? 'bg-slate-200' : 'bg-slate-100'
                 }`}
@@ -95,15 +90,9 @@ export const StepInvitationLetter = ({
               </svg>
             </div>
             <p className={`text-sm font-semibold ${needsLetter === false ? 'text-slate-700' : 'text-slate-700'}`}>
-              No, I do not need one
+              No, I do not need one.
             </p>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            I do not need an invitation letter for visa or travel purposes.
-          </p>
-          <p className="text-xs text-slate-400 mt-2">
-            You can request one later if needed.
-          </p>
         </button>
       </div>
 

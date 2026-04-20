@@ -198,19 +198,19 @@ public class DataInitializer implements ApplicationRunner {
                 new ConferenceOption(
                         "OPT-ACCOMPANYING",
                         OptionCategory.PROGRAM,
-                        "동반자 워킹 투어",
-                        "Accompanying Persons Walking Tour",
+                        "동반자 워킹 투어 (날짜·금액 미정)",
+                        "Accompanying Persons Walking Tour (Date & Fee TBD)",
                         null,
-                        100_000L, false, false, false,
+                        0L, false, false, false,
                         null, null
                 ),
                 new ConferenceOption(
                         "OPT-PRE-WORKSHOP",
                         OptionCategory.PROGRAM,
-                        "프리 워크숍",
-                        "Pre-Workshop",
+                        "프리 워크숍 (날짜·금액 미정)",
+                        "Pre-Workshop (Date & Fee TBD)",
                         null,
-                        80_000L, false, false, false,
+                        0L, false, false, false,
                         null, null
                 ),
 
