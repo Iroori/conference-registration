@@ -40,8 +40,8 @@ export const LoginPage = () => {
       <div className="w-full max-w-sm">
         {/* Header */}
         <div className="text-center mb-8">
-          <img src="/logo.png" alt="IABSE Congress Incheon 2026" className="h-24 mx-auto mb-4 object-contain" />
-          <h1 className="text-xl font-semibold text-slate-800">IABSE Congress Incheon 2026</h1>
+          <img src="/logo.png" alt="IABSE Congress Incheon 2026" className="mx-auto object-contain" style={{ height: '10rem' }} />
+          <h1 className="text-base font-normal text-slate-800">IABSE Congress Incheon 2026</h1>
         </div>
 
         <div className="card p-6">
