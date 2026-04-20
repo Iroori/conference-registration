@@ -40,8 +40,8 @@ export const LoginPage = () => {
       <div className="w-full max-w-sm">
         {/* Header */}
         <div className="text-center mb-8">
-          <img src="/logo.png" alt="IABSE Congress Incheon 2026" className="h-12 mx-auto mb-4 object-contain" />
-          <h1 className="text-xl font-semibold text-slate-800">Login</h1>
+          <img src="/logo.png" alt="IABSE Congress Incheon 2026" className="h-24 mx-auto mb-4 object-contain" />
+          <h1 className="text-xl font-semibold text-slate-800">IABSE Congress Incheon 2026</h1>
         </div>
 
         <div className="card p-6">
@@ -85,17 +85,14 @@ export const LoginPage = () => {
               disabled={loginMutation.isPending}
               className="btn-primary"
             >
-              {loginMutation.isPending ? 'Logging in...' : 'Login'}
+              {loginMutation.isPending ? 'Logging in...' : 'Password'}
             </button>
           </form>
 
           <div className="mt-4 pt-4 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-500">
-              Don't have an account?{' '}
-              <Link to="/signup" className="font-medium text-teal-600 hover:text-teal-700">
-                Create a new user account
-              </Link>
-            </p>
+            <Link to="/signup" className="text-xs font-medium text-teal-600 hover:text-teal-700">
+              Create a new user account
+            </Link>
           </div>
         </div>
 

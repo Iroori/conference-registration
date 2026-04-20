@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useConferenceOptions, useRegistrationPeriods } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, MemberTypePill, SectionLabel, formatKRW } from './Shared';
@@ -74,6 +74,14 @@ export const StepRegistrationType = ({
     ) as Record<RegistrationTierKey, { id: string; price: number } | undefined>;
   }, [options, memberType]);
 
+  // 현재 기간에 해당하는 옵션을 자동 선택
+  useEffect(() => {
+    const tierOpt = optionsByTier[currentTier];
+    if (tierOpt) {
+      onSelect(currentTier, tierOpt.id);
+    }
+  }, [optionsByTier, currentTier]);
+
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
@@ -96,87 +104,58 @@ export const StepRegistrationType = ({
       <div className="border-b border-slate-100 p-6 lg:border-b-0 lg:border-r">
         <SectionLabel>Select Registration Package</SectionLabel>
 
-        <div className="space-y-3 mb-6">
-          {TIER_ORDER.map((tierKey) => {
-            const cfg = REG_TIER_CONFIG[tierKey];
-            const tierOpt = optionsByTier[tierKey];
-            const isSelected = selectedTier === tierKey;
-            const isCurrent = currentTier === tierKey;
-            const colors = TIER_COLOR_CLASSES[cfg.color];
-
-            return (
-              <button
-                key={tierKey}
-                onClick={() => tierOpt && onSelect(tierKey, tierOpt.id)}
-                disabled={!tierOpt}
-                className={`w-full rounded-xl border p-4 text-left transition ${
-                  isSelected
-                    ? `${colors.border} ${colors.bg} ring-1 ${colors.ring}`
-                    : 'border-slate-200 bg-white hover:border-slate-300'
-                } ${!tierOpt ? 'opacity-40 cursor-not-allowed' : ''}`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border transition ${
-                        isSelected ? `${colors.border} bg-teal-500 border-teal-500` : 'border-slate-300'
-                      }`}
-                    >
-                      {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
-                    </div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                        <p className={`text-sm font-semibold ${isSelected ? colors.label : 'text-slate-800'}`}>
-                          {cfg.label}
-                        </p>
-                        {isCurrent && (
-                          <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 ${colors.badge}`}>
-                            Current Period
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-400">{cfg.subtitle}</p>
-                      <p className="text-[11px] text-slate-400 mt-1">
-                        Deadline: <span className="font-medium">{deadlineLabel(periodByKey[tierKey])}</span>
-                      </p>
-                    </div>
+        {/* 현재 등록 기간 표시 (사용자 선택 불가) */}
+        {(() => {
+          const cfg = REG_TIER_CONFIG[currentTier];
+          const tierOpt = optionsByTier[currentTier];
+          const colors = TIER_COLOR_CLASSES[cfg.color];
+          return (
+            <div className={`mb-6 rounded-xl border-2 ${colors.border} ${colors.bg} p-4`}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <p className={`text-sm font-semibold ${colors.label}`}>{cfg.label}</p>
+                    <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 ${colors.badge}`}>
+                      Current Period
+                    </span>
                   </div>
-                  <div className="flex-shrink-0 text-right">
-                    {tierOpt ? (
-                      <p className={`text-lg font-bold ${isSelected ? colors.label : 'text-slate-700'}`}>
-                        {formatKRW(tierOpt.price)}
-                      </p>
-                    ) : (
-                      <p className="text-sm text-slate-300">N/A</p>
-                    )}
-                  </div>
+                  <p className="text-xs text-slate-500">{cfg.subtitle}</p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Deadline: <span className="font-medium">{deadlineLabel(periodByKey[currentTier])}</span>
+                  </p>
                 </div>
-              </button>
-            );
-          })}
-        </div>
+                <div className="flex-shrink-0 text-right">
+                  {tierOpt ? (
+                    <p className={`text-xl font-bold ${colors.label}`}>{formatKRW(tierOpt.price)}</p>
+                  ) : (
+                    <p className="text-sm text-slate-300">N/A</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
-        {/* Pricing comparison table */}
+        {/* Registration Fee Comparison (KRW) — 현재 기간 기준 */}
         <div className="rounded-xl border border-slate-100 overflow-hidden">
-          <div className="bg-slate-50 px-4 py-2.5">
+          <div className="bg-slate-50 px-4 py-2.5 flex items-center justify-between">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Registration Fee Comparison (KRW)
             </p>
+            <span className="text-[10px] text-slate-400">{REG_TIER_CONFIG[currentTier].label}</span>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="px-4 py-2.5 text-left text-slate-400 font-medium">Category</th>
-                  {TIER_ORDER.map((tk) => (
-                    <th key={tk} className="px-4 py-2.5 text-right text-slate-400 font-medium">
-                      {REG_TIER_CONFIG[tk].label.replace(' Registration', '')}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {(['MEMBER', 'NON_MEMBER', 'NON_MEMBER_PLUS', 'YOUNG_ENGINEER'] as MemberType[]).map((mt) => (
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-slate-100">
+                <th className="px-4 py-2.5 text-left text-slate-400 font-medium">Category</th>
+                <th className="px-4 py-2.5 text-right text-slate-400 font-medium">Fee (KRW)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {(['MEMBER', 'NON_MEMBER', 'NON_MEMBER_PLUS', 'YOUNG_ENGINEER'] as MemberType[]).map((mt) => {
+                const optId = REG_TIER_CONFIG[currentTier].optionIds[mt];
+                const opt = options?.find((o) => o.id === optId);
+                return (
                   <tr key={mt} className={memberType === mt ? 'bg-teal-50/40' : ''}>
                     <td className="px-4 py-2.5 font-medium text-slate-600">
                       {MEMBER_TYPE_LABELS[mt]}
@@ -184,20 +163,14 @@ export const StepRegistrationType = ({
                         <span className="ml-1.5 text-[10px] text-teal-500 font-semibold">(you)</span>
                       )}
                     </td>
-                    {TIER_ORDER.map((tk) => {
-                      const optId = REG_TIER_CONFIG[tk].optionIds[mt];
-                      const opt = options?.find((o) => o.id === optId);
-                      return (
-                        <td key={tk} className="px-4 py-2.5 text-right text-slate-600">
-                          {opt ? formatKRW(opt.price) : '—'}
-                        </td>
-                      );
-                    })}
+                    <td className="px-4 py-2.5 text-right text-slate-600">
+                      {opt ? formatKRW(opt.price) : '—'}
+                    </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 

@@ -111,9 +111,12 @@ export const RegistrationPage = () => {
       <div className="mx-auto max-w-4xl px-4">
         {/* Top Nav */}
         <div className="mb-6 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-teal-500">IABSE 2026</p>
-            <h1 className="mt-0.5 text-xl font-semibold text-slate-800">Annual Conference</h1>
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="IABSE 2026" className="h-10 object-contain" />
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-teal-500">IABSE 2026</p>
+              <h1 className="mt-0.5 text-xl font-semibold text-slate-800">Annual Conference IABSE 2026</h1>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2">
@@ -160,7 +163,7 @@ export const RegistrationPage = () => {
             <div className="flex items-center justify-between bg-slate-800 px-6 py-3.5">
               <span className="flex items-center gap-2 text-sm font-medium text-white">
                 <span className="text-teal-400">·</span>
-                {currentStep === 'COMPLETE' ? 'Registration Complete' : 'Conference Registration'}
+                {currentStep === 'COMPLETE' ? 'Registration Complete' : 'Registration'}
               </span>
               {currentStep !== 'COMPLETE' && (
                 <StepProgress
@@ -272,7 +275,7 @@ export const RegistrationPage = () => {
         )}
 
         <p className="mt-6 text-center text-xs text-slate-400">
-          Inquiries: iabse2026@kibse.or.kr · SSL Encrypted · PCI-DSS Secure Payment
+          iabse2026@kibse.or.kr
         </p>
       </div>
     </div>
