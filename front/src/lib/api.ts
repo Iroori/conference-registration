@@ -40,12 +40,14 @@ export const apiLogin = async (req: LoginRequest): Promise<AuthUser> => {
   return res.data.data;
 };
 
-export const apiResendCode = async (email: string): Promise<void> => {
-  await apiClient.post(`/auth/resend-code?email=${encodeURIComponent(email)}`);
+// 인증 코드 발송 (최초 및 재발송 겸용)
+export const apiSendCode = async (email: string): Promise<void> => {
+  await apiClient.post('/auth/send-code', { email });
 };
 
-export const apiVerifyEmail = async (req: EmailVerifyRequest): Promise<void> => {
-  await apiClient.post('/auth/verify-email', req);
+// 인증 코드 검증 (가입 전 단계) — 성공 시 서버가 20분간 인증 이력 보관
+export const apiVerifyCode = async (req: EmailVerifyRequest): Promise<void> => {
+  await apiClient.post('/auth/verify-code', req);
 };
 
 export const apiRefreshToken = async (refreshToken: string): Promise<AuthUser> => {

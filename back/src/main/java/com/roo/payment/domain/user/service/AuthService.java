@@ -59,8 +59,22 @@ public class AuthService {
 
     // ─── Signup ──────────────────────────────────────────────────────────────
 
+    /**
+     * 회원가입. 이메일 인증이 선행되어야만 User 레코드가 생성된다.
+     *
+     * 선행 조건:
+     *   1) /auth/send-code 로 인증 코드 수신
+     *   2) /auth/verify-code 로 소유권 확인 (EmailService.verifiedEmails 에 기록됨)
+     *   3) 20분 이내 /auth/signup 호출
+     *
+     * @throws BusinessException EMAIL_ALREADY_EXISTS  — 중복 이메일
+     * @throws BusinessException EMAIL_NOT_VERIFIED    — 인증 이력 없음/만료
+     */
     @Transactional
     public void signup(SignupRequest req) {
+        if (!emailService.isRecentlyVerified(req.email())) {
+            throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
         if (userRepository.existsByEmail(req.email())) {
             throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
@@ -86,37 +100,37 @@ public class AuthService {
                 memberType,
                 Boolean.TRUE.equals(req.isPresenter())
         );
+        user.verifyEmail();                               // 인증 선행 완료이므로 emailVerified=true
         userRepository.save(user);
-        emailService.sendAndStoreCode(req.email());  // 인증 코드 발송 (인메모리 저장)
+        emailService.consumeVerified(req.email());        // 인증 이력 1회용 소비
         auditService.log("SIGNUP", req.email(), memberType.name());
     }
 
-    // ─── Email Verification ──────────────────────────────────────────────────
+    // ─── Email Verification (가입 전 단계) ────────────────────────────────────
 
     /**
-     * 인증 코드 재발송 (EmailService의 인메모리 저장소에 덮어쓰기)
+     * 인증 코드 발송 또는 재발송.
+     * - 이미 가입된 이메일은 `EMAIL_ALREADY_EXISTS` 반환 (BUG-B 보안)
+     * - 동일 이메일 30초 이내 재요청은 `VERIFICATION_CODE_COOLDOWN` (BUG-D)
      */
     @Transactional
     public void sendVerificationCode(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
         emailService.sendAndStoreCode(email);
     }
 
     /**
-     * 인증 코드 확인 → 유효 시 User.emailVerified = true 처리
+     * 가입 전 이메일 소유권 확인.
+     * 성공 시 EmailService.verifiedEmails 에 20분 TTL로 기록된다.
      */
     @Transactional
-    public void verifyEmail(EmailVerifyRequest req) {
-        User user = userRepository.findByEmailAndActiveTrue(req.email())
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-        if (user.isEmailVerified()) {
-            throw new BusinessException(ErrorCode.EMAIL_ALREADY_VERIFIED);
+    public void verifyCode(VerifyCodeRequest req) {
+        if (userRepository.existsByEmail(req.email())) {
+            throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
-
-        // 코드 검증 (만료/불일치 시 BusinessException 발생)
         emailService.verifyCode(req.email(), req.code());
-
-        user.verifyEmail();
         auditService.log("EMAIL_VERIFIED", req.email());
     }
 
