@@ -1,10 +1,7 @@
-import { useState, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { apiSignup, apiCheckIasbse, apiVerifyEmail, apiResendCode } from '../lib/api';
-import type { IasbseCheckResponse } from '../types';
-
-type Step = 'FORM' | 'VERIFY_EMAIL';
+import { apiSignup, apiSendCode, apiVerifyCode } from '../lib/api';
 
 const COUNTRIES = [
   'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Australia', 'Austria',
@@ -32,9 +29,20 @@ const COUNTRIES = [
   'Other',
 ];
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CODE_TTL_SECONDS = 600;      // 10분 — 서버 expiration-minutes 와 일치
+const RESEND_COOLDOWN_SECONDS = 30; // 서버 RESEND_COOLDOWN_SECONDS 와 일치
+
+type VerifyState = 'IDLE' | 'SENT' | 'VERIFIED';
+
+const formatMMSS = (s: number): string => {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+};
+
 export const SignupPage = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<Step>('FORM');
 
   const [form, setForm] = useState({
     email: '',
@@ -52,26 +60,57 @@ export const SignupPage = () => {
   const [error, setError] = useState('');
   const [privacyAgreed, setPrivacyAgreed] = useState<boolean | null>(null);
 
-  const emailCheckTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [iasbseResult, setIasbseResult] = useState<IasbseCheckResponse | null>(null);
-  const [checkingIasbse, setCheckingIasbse] = useState(false);
-
+  // ── Email verification state ─────────────────────────────────────────────
+  const [verifyState, setVerifyState] = useState<VerifyState>('IDLE');
   const [verifyCode, setVerifyCode] = useState('');
   const [verifyError, setVerifyError] = useState('');
+  const [codeSentAt, setCodeSentAt] = useState<number | null>(null);
+  const [now, setNow] = useState<number>(() => Date.now());
 
-  const signupMutation = useMutation({
-    mutationFn: apiSignup,
-    onSuccess: () => setStep('VERIFY_EMAIL'),
+  const emailValid = EMAIL_REGEX.test(form.email);
+
+  const timeLeft = useMemo(() => {
+    if (codeSentAt == null) return 0;
+    const elapsed = Math.floor((now - codeSentAt) / 1000);
+    return Math.max(0, CODE_TTL_SECONDS - elapsed);
+  }, [codeSentAt, now]);
+
+  const resendCooldown = useMemo(() => {
+    if (codeSentAt == null) return 0;
+    const elapsed = Math.floor((now - codeSentAt) / 1000);
+    return Math.max(0, RESEND_COOLDOWN_SECONDS - elapsed);
+  }, [codeSentAt, now]);
+
+  // 1초마다 tick — 활성 시에만
+  useEffect(() => {
+    if (verifyState !== 'SENT') return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [verifyState]);
+
+  // ── Mutations ─────────────────────────────────────────────────────────────
+  const sendCodeMutation = useMutation({
+    mutationFn: apiSendCode,
+    onSuccess: () => {
+      setCodeSentAt(Date.now());
+      setNow(Date.now());
+      setVerifyState('SENT');
+      setVerifyCode('');
+      setVerifyError('');
+    },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })
         ?.response?.data?.message;
-      setError(msg ?? 'Registration failed. Please try again.');
+      setVerifyError(msg ?? 'Failed to send verification code. Please try again.');
     },
   });
 
-  const verifyMutation = useMutation({
-    mutationFn: apiVerifyEmail,
-    onSuccess: () => navigate('/login?verified=1'),
+  const verifyCodeMutation = useMutation({
+    mutationFn: apiVerifyCode,
+    onSuccess: () => {
+      setVerifyState('VERIFIED');
+      setVerifyError('');
+    },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })
         ?.response?.data?.message;
@@ -79,35 +118,47 @@ export const SignupPage = () => {
     },
   });
 
-  const resendMutation = useMutation({
-    mutationFn: apiResendCode,
+  const signupMutation = useMutation({
+    mutationFn: apiSignup,
+    onSuccess: () => navigate('/login?verified=1'),
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })
+        ?.response?.data?.message;
+      setError(msg ?? 'Registration failed. Please try again.');
+    },
   });
 
+  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setForm((f) => ({ ...f, email: val }));
-    setIasbseResult(null);
-
-    if (emailCheckTimer.current) clearTimeout(emailCheckTimer.current);
-    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-      emailCheckTimer.current = setTimeout(async () => {
-        setCheckingIasbse(true);
-        try {
-          const result = await apiCheckIasbse(val);
-          setIasbseResult(result);
-        } catch {
-          setIasbseResult(null);
-        } finally {
-          setCheckingIasbse(false);
-        }
-      }, 600);
+    setForm((f) => ({ ...f, email: e.target.value }));
+    // 이메일 변경 시 인증 상태 초기화
+    if (verifyState !== 'IDLE') {
+      setVerifyState('IDLE');
+      setVerifyCode('');
+      setVerifyError('');
+      setCodeSentAt(null);
     }
+  };
+
+  const handleSendCode = () => {
+    if (!emailValid) return;
+    setVerifyError('');
+    sendCodeMutation.mutate(form.email);
+  };
+
+  const handleVerifyCode = () => {
+    setVerifyError('');
+    verifyCodeMutation.mutate({ email: form.email, code: verifyCode });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
+    if (verifyState !== 'VERIFIED') {
+      setError('Please verify your email before creating an account.');
+      return;
+    }
     if (form.password !== form.passwordConfirm) {
       setError('Passwords do not match.');
       return;
@@ -126,73 +177,24 @@ export const SignupPage = () => {
     }
 
     const { passwordConfirm: _, ...rest } = form;
+    void _;
     signupMutation.mutate(rest);
-  };
-
-  const handleVerify = (e: React.FormEvent) => {
-    e.preventDefault();
-    setVerifyError('');
-    verifyMutation.mutate({ email: form.email, code: verifyCode });
   };
 
   const set = (field: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       setForm((f) => ({ ...f, [field]: e.target.value }));
 
-  // ─── Email Verification Step ────────────────────────────────────────────────
-  if (step === 'VERIFY_EMAIL') {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4">
-        <div className="w-full max-w-sm">
-          <div className="text-center mb-8">
-            <p className="text-xs font-semibold uppercase tracking-widest text-teal-500 mb-1">IABSE 2026</p>
-            <h1 className="text-2xl font-semibold text-slate-800">Email Verification</h1>
-          </div>
-          <div className="card p-6">
-            <p className="text-sm text-slate-600 mb-5">
-              A 6-digit verification code has been sent to{' '}
-              <span className="font-medium text-slate-800">{form.email}</span>.
-              Please check your inbox and enter the code below.
-            </p>
-            <form onSubmit={handleVerify} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1.5">Verification Code</label>
-                <input
-                  type="text"
-                  value={verifyCode}
-                  onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="input-base text-center text-lg tracking-widest font-semibold"
-                  placeholder="000000"
-                  maxLength={6}
-                />
-              </div>
-              {verifyError && (
-                <div className="rounded-lg bg-red-50 border border-red-100 px-3 py-2.5">
-                  <p className="text-xs text-red-600">{verifyError}</p>
-                </div>
-              )}
-              <button
-                type="submit"
-                disabled={verifyCode.length !== 6 || verifyMutation.isPending}
-                className="btn-primary"
-              >
-                {verifyMutation.isPending ? 'Verifying…' : 'Verify Email'}
-              </button>
-            </form>
-            <button
-              onClick={() => resendMutation.mutate(form.email)}
-              disabled={resendMutation.isPending}
-              className="btn-secondary mt-3"
-            >
-              {resendMutation.isPending ? 'Sending…' : 'Resend Code'}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // ── Derived UI state ──────────────────────────────────────────────────────
+  const canSendCode = emailValid && !sendCodeMutation.isPending && verifyState !== 'VERIFIED';
+  const canResend = verifyState === 'SENT' && resendCooldown === 0 && !sendCodeMutation.isPending;
+  const codeExpired = verifyState === 'SENT' && timeLeft === 0;
+  const canConfirm =
+    verifyState === 'SENT' && verifyCode.length === 6 && !codeExpired && !verifyCodeMutation.isPending;
+  const canSubmit = verifyState === 'VERIFIED' && !signupMutation.isPending;
 
-  // ─── Registration Form ──────────────────────────────────────────────────────
+  const timerColor = timeLeft === 0 ? 'text-red-500' : timeLeft <= 60 ? 'text-amber-600' : 'text-slate-500';
+
   return (
     <div className="min-h-screen bg-slate-50 py-12 px-4">
       <div className="mx-auto max-w-lg">
@@ -211,37 +213,89 @@ export const SignupPage = () => {
 
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
 
-            {/* Email */}
+            {/* Email + Verify button */}
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1.5">
                 Email Address <span className="text-red-400">*</span>
                 <span className="ml-1 font-normal text-slate-400">(used as login ID)</span>
               </label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={handleEmailChange}
-                className="input-base"
-                placeholder="your@email.com"
-                required
-              />
-              {checkingIasbse && (
-                <p className="mt-1.5 text-xs text-slate-400">Checking IABSE membership…</p>
-              )}
-              {iasbseResult && !checkingIasbse && (
-                <div className={`mt-1.5 flex items-center gap-1.5 text-xs ${iasbseResult.isIasbseMember ? 'text-teal-600' : 'text-amber-600'
-                  }`}>
-                  <span>{iasbseResult.isIasbseMember ? '✓' : '!'}</span>
-                  <span>{iasbseResult.message}</span>
-                  {iasbseResult.isIasbseMember ? (
-                    <span className="ml-1 rounded-full bg-teal-100 px-2 py-0.5 text-teal-700 font-medium">
-                      MEMBER rate applies
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={handleEmailChange}
+                  className="input-base flex-1"
+                  placeholder="your@email.com"
+                  required
+                  readOnly={verifyState === 'VERIFIED'}
+                />
+                {verifyState === 'VERIFIED' ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-teal-50 border border-teal-200 px-3 text-xs font-semibold text-teal-700 whitespace-nowrap">
+                    <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Verified
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSendCode}
+                    disabled={!canSendCode}
+                    className="rounded-lg bg-slate-800 px-4 text-xs font-semibold text-white hover:bg-slate-700 disabled:bg-slate-300 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    {sendCodeMutation.isPending ? 'Sending…' : verifyState === 'SENT' ? 'Sent' : 'Verify'}
+                  </button>
+                )}
+              </div>
+
+              {/* Verification code input (shown after [Verify] clicked) */}
+              {verifyState === 'SENT' && (
+                <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[11px] text-slate-500">
+                      A 6-digit code was sent to <span className="font-medium text-slate-700">{form.email}</span>.
+                    </p>
+                    <span className={`text-xs font-mono font-semibold ${timerColor}`}>
+                      {codeExpired ? 'Expired' : formatMMSS(timeLeft)}
                     </span>
-                  ) : (
-                    <span className="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-amber-700 font-medium">
-                      NON-MEMBER rate applies
-                    </span>
-                  )}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={verifyCode}
+                      onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      disabled={codeExpired}
+                      className="input-base flex-1 text-center tracking-widest font-semibold"
+                      placeholder="000000"
+                      maxLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleVerifyCode}
+                      disabled={!canConfirm}
+                      className="rounded-lg bg-teal-500 px-4 text-xs font-semibold text-white hover:bg-teal-600 disabled:bg-slate-300 disabled:cursor-not-allowed whitespace-nowrap"
+                    >
+                      {verifyCodeMutation.isPending ? 'Checking…' : 'Confirm'}
+                    </button>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    {verifyError ? (
+                      <p className="text-[11px] text-red-600">{verifyError}</p>
+                    ) : codeExpired ? (
+                      <p className="text-[11px] text-red-600">Code expired. Please resend.</p>
+                    ) : (
+                      <p className="text-[11px] text-slate-400">Didn't receive it? Check your spam folder.</p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleSendCode}
+                      disabled={!canResend}
+                      className="text-[11px] font-medium text-teal-600 hover:text-teal-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+                    >
+                      {resendCooldown > 0 ? `Resend (${resendCooldown}s)` : 'Resend Code'}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -474,10 +528,11 @@ export const SignupPage = () => {
 
             <button
               type="submit"
-              disabled={signupMutation.isPending}
+              disabled={!canSubmit}
               className="btn-primary"
+              title={verifyState !== 'VERIFIED' ? 'Verify your email first' : undefined}
             >
-              {signupMutation.isPending ? 'Processing…' : 'Create Account & Get Verification Code'}
+              {signupMutation.isPending ? 'Processing…' : 'Create Account'}
             </button>
           </form>
         </div>

@@ -4,8 +4,6 @@ import com.roo.payment.common.response.ApiResponse;
 import com.roo.payment.domain.user.dto.*;
 import com.roo.payment.domain.user.service.AuthService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,32 +18,41 @@ public class AuthController {
     }
 
     /**
-     * 회원가입
+     * 회원가입 (이메일 인증 완료 후에만 허용)
      * POST /api/auth/signup
+     *
+     * 선행 조건: 클라이언트는 먼저 /auth/send-code, /auth/verify-code 를 통해
+     *            이메일 소유권을 증명해야 한다. 미인증 상태로 호출 시 403 반환.
      */
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody SignupRequest request) {
         authService.signup(request);
-        return ResponseEntity.ok(ApiResponse.ok("회원가입이 완료되었습니다. 이메일 인증을 진행해주세요.", null));
+        return ResponseEntity.ok(ApiResponse.ok("회원가입이 완료되었습니다.", null));
     }
 
     /**
-     * 이메일 인증 코드 재발송
-     * POST /api/auth/resend-code?email=xxx@xxx.com
+     * 이메일 인증 코드 발송 / 재발송 (가입 전 단계)
+     * POST /api/auth/send-code
+     *
+     * 동일 엔드포인트로 최초 발송과 재발송을 모두 처리한다.
+     * 30초 이내 재호출 시 VERIFICATION_CODE_COOLDOWN (429) 반환.
      */
-    @PostMapping("/resend-code")
-    public ResponseEntity<ApiResponse<Void>> resendCode(@RequestParam @NotBlank @Email String email) {
-        authService.sendVerificationCode(email);
+    @PostMapping("/send-code")
+    public ResponseEntity<ApiResponse<Void>> sendCode(@Valid @RequestBody SendCodeRequest request) {
+        authService.sendVerificationCode(request.email());
         return ResponseEntity.ok(ApiResponse.ok("인증 코드가 발송되었습니다.", null));
     }
 
     /**
-     * 이메일 인증 코드 확인
-     * POST /api/auth/verify-email
+     * 이메일 인증 코드 확인 (가입 전 단계)
+     * POST /api/auth/verify-code
+     *
+     * 성공 시 서버는 인증 이력을 20분간 보관한다.
+     * 이후 /auth/signup 요청 시 이 이력이 있어야만 가입이 허용된다.
      */
-    @PostMapping("/verify-email")
-    public ResponseEntity<ApiResponse<Void>> verifyEmail(@Valid @RequestBody EmailVerifyRequest request) {
-        authService.verifyEmail(request);
+    @PostMapping("/verify-code")
+    public ResponseEntity<ApiResponse<Void>> verifyCode(@Valid @RequestBody VerifyCodeRequest request) {
+        authService.verifyCode(request);
         return ResponseEntity.ok(ApiResponse.ok("이메일 인증이 완료되었습니다.", null));
     }
 
