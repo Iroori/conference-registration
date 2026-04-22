@@ -9,20 +9,17 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 /**
- * AWS SES SMTP JavaMailSender 빈 설정.
+ * JavaMailSender 공용 빈 — {@code spring.mail.*} 설정으로 SMTP 서버에 연결한다.
  *
- * prod 프로파일: application.yaml의 spring.mail.* 값을 환경변수로 주입
- * dev  프로파일: app.dev-mode=true 시 EmailService가 콘솔 출력으로 대체하므로
- *               실제 SMTP 연결 없이 동작함 (test-connection: false)
+ * 활성 Provider ({@code email.provider}) 는 이 빈을 주입받아 사용한다:
+ *   - smtp → Google Workspace SMTP ({@code smtp.gmail.com:587}, Google 앱 비밀번호)
+ *   - ses  → AWS SES SMTP ({@code email-smtp.ap-northeast-2.amazonaws.com:587}, SES SMTP 자격증명)
  *
- * AWS SES SMTP 자격증명 발급:
- *   1. AWS SES 콘솔 → SMTP settings → Create SMTP credentials
- *   2. 생성된 SMTP Username / Password를 MAIL_USERNAME / MAIL_PASSWORD 환경변수에 설정
- *   ※ SES SMTP 자격증명은 IAM Access Key / Secret Key와 별개입니다.
+ * Provider 전환 시 환경변수 {@code EMAIL_PROVIDER}, {@code MAIL_HOST},
+ * {@code MAIL_USERNAME}, {@code GOOGLE_APP_PASSWORD}/{@code MAIL_PASSWORD} 를 함께 조정한다.
  *
- * SES 도메인 인증 (Route 53 연동 시 자동):
- *   - SES 콘솔 → Verified identities → Add domain → Route 53 자동 DNS 설정
- *   - Sandbox 해제 후 임의 수신자에게 발송 가능 (기본은 검증된 이메일만 수신 가능)
+ * dev 프로파일: {@code app.dev-mode=true} 시 EmailService 가 콘솔 출력으로 대체하므로
+ *               실제 SMTP 연결 없이 동작 ({@code test-connection: false}).
  */
 @Configuration
 public class EmailConfig {
@@ -51,7 +48,7 @@ public class EmailConfig {
         mailSender.setHost(host);
         mailSender.setPort(port);
         mailSender.setUsername(username);
-        mailSender.setPassword(password);  // Google App Password (16자리)
+        mailSender.setPassword(password);  // Gmail: 앱 비밀번호(16자리) / SES: SMTP 자격증명
         mailSender.setDefaultEncoding("UTF-8");
 
         Properties props = mailSender.getJavaMailProperties();

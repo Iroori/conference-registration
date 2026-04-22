@@ -3,17 +3,16 @@ package com.roo.payment.domain.user.service;
 import com.roo.payment.common.exception.BusinessException;
 import com.roo.payment.common.exception.ErrorCode;
 import com.roo.payment.config.AppProperties;
+import com.roo.payment.email.EmailSender;
+import com.roo.payment.email.dto.EmailMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import jakarta.mail.internet.MimeMessage;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Map;
@@ -46,7 +45,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
-    private static final String FROM_ADDRESS = "iabse2026@kibse.or.kr";
 
     // 재발송 쿨다운 (초). 동일 이메일에 대해 이 간격 내 재요청 시 TOO_MANY_REQUESTS
     private static final long RESEND_COOLDOWN_SECONDS = 30L;
@@ -56,8 +54,9 @@ public class EmailService {
 
     private final SecureRandom random = new SecureRandom();
 
-    private final JavaMailSender mailSender;
-    private final AppProperties  appProperties;
+    // Provider 추상화 — email.provider 설정값에 따라 SMTP / SES 중 하나가 주입됨
+    private final EmailSender   emailSender;
+    private final AppProperties appProperties;
 
     // ── In-memory 인증 코드 저장소 ──────────────────────────────────────
     // key: email(소문자), value: CodeEntry { code, expiresAt }
@@ -78,8 +77,8 @@ public class EmailService {
     @Lazy
     private EmailService self;
 
-    public EmailService(JavaMailSender mailSender, AppProperties appProperties) {
-        this.mailSender   = mailSender;
+    public EmailService(EmailSender emailSender, AppProperties appProperties) {
+        this.emailSender   = emailSender;
         this.appProperties = appProperties;
     }
 
@@ -242,14 +241,10 @@ public class EmailService {
     // ─── private helpers ─────────────────────────────────────────────────
 
     private void sendHtmlMail(String to, String subject, String htmlBody) {
+        // 발송 실패는 호출 트랜잭션을 막지 않도록 경계에서 흡수한다.
+        // Provider 구현체(SMTP/SES)는 실패 시 RuntimeException 으로 전파.
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setFrom(FROM_ADDRESS);
-            helper.setText(htmlBody, true);
-            mailSender.send(message);
+            emailSender.send(EmailMessage.html(to, subject, htmlBody));
         } catch (Exception e) {
             log.error("Email send failed to {}: {}", to, e.getMessage());
         }
