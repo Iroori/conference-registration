@@ -215,7 +215,7 @@ public class EmailService {
     // ─── 알림 메일 ───────────────────────────────────────────────────────
 
     @Async
-    public void sendPaymentConfirmation(String to, String nameEn, String registrationNumber,
+    public void sendPaymentConfirmation(String to, String name, String registrationNumber,
                                         long totalAmount, String paidAt) {
         if (appProperties.isDevMode()) {
             log.info("[DEV] Payment Confirmation → {} | Reg#{} | ₩{}",
@@ -223,11 +223,11 @@ public class EmailService {
             return;
         }
         sendHtmlMail(to, "[IABSE 2026] Registration Payment Confirmed",
-                buildPaymentConfirmationHtml(nameEn, registrationNumber, totalAmount, paidAt));
+                buildPaymentConfirmationHtml(name, registrationNumber, totalAmount, paidAt));
     }
 
     @Async
-    public void sendCancellationConfirmation(String to, String nameEn,
+    public void sendCancellationConfirmation(String to, String name,
                                               String registrationNumber, long refundAmount) {
         if (appProperties.isDevMode()) {
             log.info("[DEV] Cancellation Confirmed → {} | Reg#{} | Refund ₩{}",
@@ -235,7 +235,7 @@ public class EmailService {
             return;
         }
         sendHtmlMail(to, "[IABSE 2026] Registration Cancellation Confirmed",
-                buildCancellationHtml(nameEn, registrationNumber, refundAmount));
+                buildCancellationHtml(name, registrationNumber, refundAmount));
     }
 
     // ─── private helpers ─────────────────────────────────────────────────

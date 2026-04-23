@@ -119,7 +119,7 @@ export const RegistrationPage = () => {
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2">
-              <span className="text-sm text-slate-600">{user.nameEn}</span>
+              <span className="text-sm text-slate-600">{user.firstName} {user.lastName}</span>
               <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${user.memberType === 'MEMBER'
                 ? 'bg-teal-100 text-teal-700'
                 : user.memberType === 'NON_MEMBER'

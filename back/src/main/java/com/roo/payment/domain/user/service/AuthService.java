@@ -79,19 +79,22 @@ public class AuthService {
             throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
+        // Young Engineer 최우선 — 만 35세 이하(생년월일 기준 Western age)이면 다른 조건 무관하게 YE
+        int age = java.time.Period.between(req.birthDate(), java.time.LocalDate.now()).getYears();
         MemberType memberType;
-        if (iasbseMemberService.isIasbseMember(req.email())) {
+        if (age <= 35) {
+            memberType = MemberType.YOUNG_ENGINEER;
+        } else if (iasbseMemberService.isIasbseMember(req.email())) {
             memberType = MemberType.MEMBER;
         } else {
-            int age = java.time.Period.between(req.birthDate(), java.time.LocalDate.now()).getYears();
-            memberType = age <= 35 ? MemberType.YOUNG_ENGINEER : MemberType.NON_MEMBER;
+            memberType = MemberType.NON_MEMBER_PLUS;
         }
 
         User user = new User(
                 req.email(),
                 passwordEncoder.encode(req.password()),
-                req.nameKr(),
-                req.nameEn(),
+                req.firstName(),
+                req.lastName(),
                 req.affiliation(),
                 req.position(),
                 req.country(),

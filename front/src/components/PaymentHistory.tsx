@@ -52,7 +52,7 @@ export const PaymentHistoryTab = () => {
                 {record.registrationNumber}
               </p>
               <div className="mt-0.5 flex items-center gap-1.5">
-                <p className="text-xs text-slate-400">{record.nameEn}</p>
+                <p className="text-xs text-slate-400">{record.firstName} {record.lastName}</p>
                 <MemberTypePill type={record.memberType} />
               </div>
             </div>

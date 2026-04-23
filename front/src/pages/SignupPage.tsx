@@ -48,8 +48,8 @@ export const SignupPage = () => {
     email: '',
     password: '',
     passwordConfirm: '',
-    nameKr: '',
-    nameEn: '',
+    firstName: '',
+    lastName: '',
     affiliation: '',
     position: '',
     country: 'South Korea',
@@ -346,27 +346,27 @@ export const SignupPage = () => {
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                    Name (Korean) <span className="text-red-400">*</span>
+                    First Name <span className="text-red-400">*</span>
                   </label>
                   <input
                     type="text"
-                    value={form.nameKr}
-                    onChange={set('nameKr')}
+                    value={form.firstName}
+                    onChange={set('firstName')}
                     className="input-base"
-                    placeholder="Hong Gil-dong"
+                    placeholder="Gildong"
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                    Name (English) <span className="text-red-400">*</span>
+                    Last Name <span className="text-red-400">*</span>
                   </label>
                   <input
                     type="text"
-                    value={form.nameEn}
-                    onChange={set('nameEn')}
+                    value={form.lastName}
+                    onChange={set('lastName')}
                     className="input-base"
-                    placeholder="HONG Gildong"
+                    placeholder="Hong"
                     required
                   />
                 </div>
