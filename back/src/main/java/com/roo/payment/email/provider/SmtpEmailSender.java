@@ -2,6 +2,7 @@ package com.roo.payment.email.provider;
 
 import com.roo.payment.email.EmailSender;
 import com.roo.payment.email.dto.EmailMessage;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class SmtpEmailSender implements EmailSender {
         try {
             MimeMessage mime = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mime, true, "UTF-8");
-            helper.setFrom(fromAddress);
+            helper.setFrom(new InternetAddress(fromAddress, "IABSE 2026 Registration", "UTF-8"));
             helper.setTo(message.to());
             helper.setSubject(message.subject());
             helper.setText(message.body(), message.html());
