@@ -114,18 +114,17 @@ export const RegistrationPage = () => {
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="IABSE 2026" className="h-10 object-contain" />
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-teal-500">IABSE 2026</p>
-              <h1 className="mt-0.5 text-xl font-semibold text-slate-800">Annual Conference IABSE 2026</h1>
+              <h1 className="mt-0.5 text-xl font-semibold text-slate-800">IABSE Congress Incheon 2026</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2">
               <span className="text-sm text-slate-600">{user.nameEn}</span>
               <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${user.memberType === 'MEMBER'
-                  ? 'bg-teal-100 text-teal-700'
-                  : user.memberType === 'NON_MEMBER'
-                    ? 'bg-slate-100 text-slate-600'
-                    : 'bg-violet-100 text-violet-700'
+                ? 'bg-teal-100 text-teal-700'
+                : user.memberType === 'NON_MEMBER'
+                  ? 'bg-slate-100 text-slate-600'
+                  : 'bg-violet-100 text-violet-700'
                 }`}>
                 {user.memberType === 'MEMBER'
                   ? 'MEMBER'
@@ -140,8 +139,8 @@ export const RegistrationPage = () => {
                   key={tab}
                   onClick={() => setNavTab(tab)}
                   className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${navTab === tab
-                      ? 'bg-slate-800 text-white'
-                      : 'text-slate-500 hover:text-slate-700'
+                    ? 'bg-slate-800 text-white'
+                    : 'text-slate-500 hover:text-slate-700'
                     }`}
                 >
                   {tab === 'REGISTER' ? 'Registration' : 'My Payments'}
@@ -261,8 +260,8 @@ export const RegistrationPage = () => {
                     key={sub}
                     onClick={() => setHistorySubTab(sub)}
                     className={`rounded-full border px-4 py-1.5 text-xs font-medium transition ${historySubTab === sub
-                        ? 'border-slate-800 bg-slate-800 text-white'
-                        : 'border-slate-200 text-slate-500 hover:border-slate-300'
+                      ? 'border-slate-800 bg-slate-800 text-white'
+                      : 'border-slate-200 text-slate-500 hover:border-slate-300'
                       }`}
                   >
                     {sub === 'HISTORY' ? 'Payment History' : 'Cancel Registration'}
