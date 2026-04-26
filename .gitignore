@@ -50,3 +50,12 @@ pnpm-debug.log*
 *.key
 application-prod.yml
 application-prod.properties
+
+.claude/
+.claude/
+node_modules/
+build/
+target/
+dist/
+temp/
+.agent/
