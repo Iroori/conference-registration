@@ -29,12 +29,12 @@ spring:
 
   mail:
     # ── 로컬 개발: app.dev-mode=true 이면 실제 메일 미발송, 콘솔 로그 출력 ──
-    # ── AWS SES SMTP 실제 발송 테스트 시 아래 값을 환경변수로 주입 ──────────
-    # ── SES SMTP 자격증명은 AWS Access Key와 별개로 SES 콘솔에서 발급 ────────
-    host: ${MAIL_HOST:email-smtp.ap-northeast-2.amazonaws.com}
+    # ── 기본값: Google Workspace SMTP. email.provider=ses 로 전환 시 ────────
+    # ──   MAIL_HOST=email-smtp.ap-northeast-2.amazonaws.com 등 환경변수로 오버라이드 ──
+    host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}          # SES SMTP 자격증명 사용자명 (IAM Access Key 아님)
-    password: ${MAIL_PASSWORD:}          # SES SMTP 자격증명 비밀번호
+    username: ${MAIL_USERNAME:iabse2026@kibse.or.kr}
+    password: ${GOOGLE_APP_PASSWORD:${MAIL_PASSWORD:}}   # Google 앱 비밀번호 우선, 미설정 시 MAIL_PASSWORD 로 폴백 (SES 호환)
     test-connection: false               # 시작 시 SMTP 연결 테스트 건너뜀 (dev용)
     properties:
       mail:
@@ -79,6 +79,13 @@ app:
     event-date:  ${PAYGATE_EVENT_DATE:2026-09-16}
   dev-mode: true                    # 개발 모드: 이메일 콘솔 출력 + /api/dev 엔드포인트 활성화
 
+# ── 이메일 Provider 선택 (smtp | ses) ─────────────────────────────────────
+# smtp: Google Workspace SMTP (기본)
+# ses : AWS SES SMTP (롤백 대비 — spring.mail.* 를 SES 엔드포인트/자격증명으로 오버라이드)
+email:
+  provider: ${EMAIL_PROVIDER:smtp}
+  from: ${EMAIL_FROM:iabse2026@kibse.or.kr}
+
 ---
 # ===== 운영 환경 (SQL Server) =====
 spring:
@@ -99,10 +106,11 @@ spring:
     show-sql: false
 
   mail:
-    host: ${MAIL_HOST:email-smtp.ap-northeast-2.amazonaws.com}  # AWS SES SMTP 엔드포인트
+    # 기본값은 Google Workspace SMTP. AWS SES 로 전환 시 환경변수로 host/credentials 오버라이드.
+    host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME}    # SES SMTP 자격증명 사용자명
-    password: ${MAIL_PASSWORD}    # SES SMTP 자격증명 비밀번호
+    username: ${MAIL_USERNAME:iabse2026@kibse.or.kr}
+    password: ${GOOGLE_APP_PASSWORD:${MAIL_PASSWORD:}}   # Google 앱 비밀번호 우선, SES 사용 시 MAIL_PASSWORD 로 폴백
     properties:
       mail:
         smtp:
@@ -142,3 +150,10 @@ app:
     cancel-url:  ${PAYGATE_CANCEL_URL:https://service.paygate.net/service/cancelAPI.json}
     event-date:  ${PAYGATE_EVENT_DATE:2026-09-16}
   dev-mode: false
+
+# ── 이메일 Provider 선택 (smtp | ses) ─────────────────────────────────────
+# 기본은 smtp (Google Workspace). 운영 중 긴급 롤백 필요 시 EMAIL_PROVIDER=ses 및
+# MAIL_HOST/MAIL_USERNAME/MAIL_PASSWORD 를 SES 값으로 환경변수에서 지정 후 재기동.
+email:
+  provider: ${EMAIL_PROVIDER:smtp}
+  from: ${EMAIL_FROM:iabse2026@kibse.or.kr}

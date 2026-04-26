@@ -58,9 +58,9 @@ export const StepRegistrationType = ({
   const { data: periods } = useRegistrationPeriods();
   const currentTier = getCurrentTier(periods);
   const periodByKey: Record<RegistrationTierKey, { endDate: string | null }> = {
-    PRE_REGISTRATION: periods?.preRegistration ?? { endDate: null, startDate: null },
-    EARLY_BIRD:       periods?.earlyBird        ?? { endDate: null, startDate: null },
-    REGULAR:          periods?.regular          ?? { endDate: null, startDate: null },
+    PRE_REGISTRATION: periods?.preRegistration ?? { endDate: null },
+    EARLY_BIRD:       periods?.earlyBird        ?? { endDate: null },
+    REGULAR:          periods?.regular          ?? { endDate: null },
   };
 
   const optionsByTier = useMemo(() => {

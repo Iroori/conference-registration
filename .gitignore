@@ -50,8 +50,10 @@ pnpm-debug.log*
 *.key
 application-prod.yml
 application-prod.properties
+application-local.yaml
+application-local.yml
+application-local.properties
 
-.claude/
 .claude/
 node_modules/
 build/
