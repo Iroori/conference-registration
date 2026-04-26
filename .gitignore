@@ -53,3 +53,11 @@ application-prod.properties
 application-local.yaml
 application-local.yml
 application-local.properties
+
+.claude/
+node_modules/
+build/
+target/
+dist/
+temp/
+.agent/

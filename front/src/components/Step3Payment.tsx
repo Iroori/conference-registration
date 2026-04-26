@@ -107,7 +107,7 @@ export const Step3Payment = ({
           {/* Registrant quick summary */}
           {user && (
             <div className="mb-5 rounded-lg border border-slate-100 bg-slate-50/60 p-4">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+              <p className="label-section mb-3">
                 Confirming Payment For
               </p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
@@ -118,8 +118,8 @@ export const Step3Payment = ({
                   ['Country', user.country],
                 ].map(([label, val]) => (
                   <div key={label} className="flex justify-between">
-                    <span className="text-slate-400">{label}</span>
-                    <span className="font-medium text-slate-700">{val}</span>
+                    <span className="text-ink-faint">{label}</span>
+                    <span className="font-medium text-ink">{val}</span>
                   </div>
                 ))}
               </div>
@@ -128,19 +128,19 @@ export const Step3Payment = ({
 
           {/* Payment method info */}
           <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+            <p className="label-section mb-3">
               Payment Method
             </p>
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-teal-100">
-                <svg className="h-4 w-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gold-soft">
+                <svg className="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
                   <line x1="1" y1="10" x2="23" y2="10" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-700">Credit / Debit Card</p>
-                <p className="text-xs text-slate-400">
+                <p className="text-sm font-semibold text-ink">Credit / Debit Card</p>
+                <p className="text-xs text-ink-faint">
                   {domestic ? 'Domestic card payment (KRW)' : 'International card payment (USD)'}
                 </p>
               </div>
@@ -150,7 +150,7 @@ export const Step3Payment = ({
           {errMsg && (
             <div className="mt-2">
               <ErrorBanner message={errMsg} />
-              <p className="mt-1.5 text-center text-xs text-slate-400">
+              <p className="mt-1.5 text-center text-xs text-ink-faint">
                 Please check your payment details and click <strong>Confirm &amp; Pay</strong> to try again.
               </p>
             </div>
@@ -158,28 +158,28 @@ export const Step3Payment = ({
         </div>
 
         {/* Right sidebar */}
-        <div className="bg-teal-50/40 p-6">
+        <div className="bg-gold-tint p-6">
           <SectionLabel>Payment Total</SectionLabel>
           {user && (
-            <div className="mb-4 flex items-center gap-3 rounded-lg border border-teal-100 bg-white p-3">
-              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs font-semibold text-teal-700">
+            <div className="mb-4 flex items-center gap-3 rounded-lg border border-gold-soft bg-white p-3">
+              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gold-soft text-xs font-semibold text-gold">
                 {user.nameEn.charAt(0)}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-slate-800 truncate">{user.nameEn}</p>
-                <p className="text-xs text-slate-400 truncate">{user.affiliation}</p>
+                <p className="text-sm font-semibold text-ink truncate">{user.nameEn}</p>
+                <p className="text-xs text-ink-faint truncate">{user.affiliation}</p>
               </div>
               <MemberTypePill type={memberType} />
             </div>
           )}
 
-          <div className="mb-5 border border-teal-100 rounded-lg bg-white p-4">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-semibold text-slate-700">Total (incl. VAT)</span>
-              <span className="text-xl font-bold text-teal-600">{formatKRW(totalAmount)}</span>
+          <div className="mb-5 border border-gold-soft rounded-lg bg-white p-4">
+            <div className="flex justify-between items-baseline">
+              <span className="label-section">Total (incl. VAT)</span>
+              <span className="amount-total">{formatKRW(totalAmount)}</span>
             </div>
             {!domestic && (
-              <p className="mt-1 text-right text-xs text-slate-400">
+              <p className="mt-1 text-right text-xs text-ink-faint">
                 ≈ USD {unitprice.toLocaleString()}
               </p>
             )}
@@ -188,18 +188,18 @@ export const Step3Payment = ({
           <button
             onClick={handlePay}
             disabled={isPending || isSubmitting}
-            className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg bg-teal-500 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-teal-300"
+            className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg bg-gold py-2.5 text-sm font-semibold text-white transition hover:bg-gold-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-gold-soft disabled:text-gold"
           >
             {(isPending || isSubmitting) && <LoadingSpinner size="sm" />}
             {isPending ? 'Processing…' : isSubmitting ? 'Opening payment window…' : 'Confirm & Pay'}
           </button>
           <button
             onClick={onBack}
-            className="w-full rounded-lg border border-slate-200 py-2 text-sm text-slate-500 transition hover:bg-slate-50"
+            className="w-full rounded-lg border border-slate-200 py-2 text-sm text-ink-muted transition hover:bg-slate-50"
           >
             Back to Summary
           </button>
-          <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-slate-400">
+          <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] uppercase tracking-[0.1em] text-ink-faint">
             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0110 0v4" />
@@ -207,7 +207,7 @@ export const Step3Payment = ({
             SSL Encrypted · PCI-DSS Secure
           </div>
           {user && (
-            <p className="mt-2 text-center text-xs text-slate-400">
+            <p className="mt-2 text-center text-[11px] text-ink-faint">
               A receipt will be sent to {user.email} after payment.
             </p>
           )}
@@ -249,31 +249,31 @@ interface Step4CompleteProps {
 export const Step4Complete = ({ result, onGoHistory }: Step4CompleteProps) => (
   <div className="grid grid-cols-1 gap-6 p-8 lg:grid-cols-[1fr_320px]">
     <div className="flex flex-col justify-center">
-      <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-teal-100">
-        <svg className="h-7 w-7 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-gold-soft">
+        <svg className="h-7 w-7 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
         </svg>
       </div>
-      <h2 className="mb-2 text-2xl font-semibold text-slate-800">Thank You for Registering</h2>
-      <p className="mb-6 text-sm text-slate-600 leading-relaxed">
+      <h2 className="mb-2 text-2xl font-semibold text-ink">Thank You for Registering</h2>
+      <p className="mb-6 text-sm text-ink-muted leading-relaxed">
         Thank you for registering for the IABSE Congress Incheon 2026. Once your payment is fully processed, you will receive a confirmation email containing your registration details and a receipt. We look forward to seeing you in Incheon.
       </p>
       <div className="flex gap-3">
         <button
           onClick={onGoHistory}
-          className="rounded-lg border border-slate-200 px-5 py-2 text-sm text-slate-600 transition hover:bg-slate-50"
+          className="rounded-lg border border-slate-200 px-5 py-2 text-sm text-ink-muted transition hover:border-gold/40 hover:text-ink"
         >
           View Payment History
         </button>
       </div>
     </div>
 
-    <div className="rounded-xl border border-teal-100 bg-teal-50/50 p-5">
+    <div className="rounded-xl border border-gold-soft bg-gold-tint p-5">
       <SectionLabel>Registration Confirmation</SectionLabel>
       <div className="mb-4 space-y-2.5">
         <div className="flex justify-between text-sm">
-          <span className="text-slate-400">Registration No.</span>
-          <span className="font-mono font-semibold text-teal-700">{result.registrationNumber}</span>
+          <span className="text-ink-faint">Registration No.</span>
+          <span className="font-mono font-semibold text-gold">{result.registrationNumber}</span>
         </div>
         {[
           ['Name', result.nameEn],
@@ -282,21 +282,21 @@ export const Step4Complete = ({ result, onGoHistory }: Step4CompleteProps) => (
           ['Paid At', result.paidAt ?? '-'],
         ].map(([label, val]) => (
           <div key={label} className="flex justify-between text-sm">
-            <span className="text-slate-400">{label}</span>
-            <span className="font-medium text-slate-700 text-right">{val}</span>
+            <span className="text-ink-faint">{label}</span>
+            <span className="font-medium text-ink text-right">{val}</span>
           </div>
         ))}
       </div>
-      <div className="border-t border-teal-100 pt-3">
+      <div className="border-t border-gold-soft pt-3">
         {result.selectedOptions.map((opt) => (
           <div key={opt.id} className="mb-1.5 flex justify-between text-xs">
-            <span className="text-slate-500">{opt.nameEn}</span>
-            <span className="text-slate-600">{opt.isFree ? 'Free' : formatKRW(opt.price)}</span>
+            <span className="text-ink-muted">{opt.nameEn}</span>
+            <span className="text-ink">{opt.isFree ? 'Free' : formatKRW(opt.price)}</span>
           </div>
         ))}
-        <div className="mt-2 flex justify-between border-t border-teal-100 pt-2">
-          <span className="text-sm font-semibold text-slate-700">Total</span>
-          <span className="text-base font-bold text-teal-600">{formatKRW(result.totalAmount)}</span>
+        <div className="mt-2 flex justify-between items-baseline border-t border-gold-soft pt-2">
+          <span className="label-section">Total</span>
+          <span className="amount-total">{formatKRW(result.totalAmount)}</span>
         </div>
       </div>
     </div>

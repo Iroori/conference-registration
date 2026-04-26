@@ -41,10 +41,15 @@ const MEMBER_TYPE_LABELS: Record<MemberType, string> = {
 
 const TIER_ORDER: RegistrationTierKey[] = ['PRE_REGISTRATION', 'EARLY_BIRD', 'REGULAR'];
 
-const TIER_COLOR_CLASSES = {
-  teal:  { border: 'border-teal-400',  bg: 'bg-teal-50',   ring: 'ring-teal-200',  badge: 'bg-teal-100 text-teal-700',  label: 'text-teal-700' },
-  amber: { border: 'border-amber-400', bg: 'bg-amber-50',  ring: 'ring-amber-200', badge: 'bg-amber-100 text-amber-700', label: 'text-amber-700' },
-  slate: { border: 'border-slate-300', bg: 'bg-slate-50',  ring: 'ring-slate-200', badge: 'bg-slate-100 text-slate-600', label: 'text-slate-600' },
+// All tiers share the same gold accent — distinguished only by labels.
+const TIER_STYLES = {
+  active: {
+    border: 'border-gold-soft',
+    bg: 'bg-gold-tint',
+    badge: 'bg-gold-soft text-gold border border-gold-soft',
+    label: 'text-gold',
+    price: 'text-gold',
+  },
 };
 
 export const StepRegistrationType = ({
@@ -108,25 +113,25 @@ export const StepRegistrationType = ({
         {(() => {
           const cfg = REG_TIER_CONFIG[currentTier];
           const tierOpt = optionsByTier[currentTier];
-          const colors = TIER_COLOR_CLASSES[cfg.color];
+          const styles = TIER_STYLES.active;
           return (
-            <div className={`mb-6 rounded-xl border-2 ${colors.border} ${colors.bg} p-4`}>
+            <div className={`mb-6 rounded-xl border ${styles.border} ${styles.bg} p-4`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <p className={`text-sm font-semibold ${colors.label}`}>{cfg.label}</p>
-                    <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 ${colors.badge}`}>
+                    <p className={`text-sm font-semibold ${styles.label}`}>{cfg.label}</p>
+                    <span className={`text-[10px] font-semibold uppercase tracking-[0.1em] rounded-full px-2 py-0.5 ${styles.badge}`}>
                       Current Period
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500">{cfg.subtitle}</p>
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    Deadline: <span className="font-medium">{deadlineLabel(periodByKey[currentTier])}</span>
+                  <p className="text-xs text-ink-muted">{cfg.subtitle}</p>
+                  <p className="text-[11px] text-ink-faint mt-1">
+                    Deadline: <span className="font-medium text-ink-muted">{deadlineLabel(periodByKey[currentTier])}</span>
                   </p>
                 </div>
                 <div className="flex-shrink-0 text-right">
                   {tierOpt ? (
-                    <p className={`text-xl font-bold ${colors.label}`}>{formatKRW(tierOpt.price)}</p>
+                    <p className="amount-total">{formatKRW(tierOpt.price)}</p>
                   ) : (
                     <p className="text-sm text-slate-300">N/A</p>
                   )}
@@ -139,16 +144,16 @@ export const StepRegistrationType = ({
         {/* Registration Fee Comparison (KRW) — 현재 기간 기준 */}
         <div className="rounded-xl border border-slate-100 overflow-hidden">
           <div className="bg-slate-50 px-4 py-2.5 flex items-center justify-between">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="label-section">
               Registration Fee Comparison (KRW)
             </p>
-            <span className="text-[10px] text-slate-400">{REG_TIER_CONFIG[currentTier].label}</span>
+            <span className="text-[10px] text-ink-faint">{REG_TIER_CONFIG[currentTier].label}</span>
           </div>
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-slate-100">
-                <th className="px-4 py-2.5 text-left text-slate-400 font-medium">Category</th>
-                <th className="px-4 py-2.5 text-right text-slate-400 font-medium">Fee (KRW)</th>
+                <th className="px-4 py-2.5 text-left text-ink-faint font-medium">Category</th>
+                <th className="px-4 py-2.5 text-right text-ink-faint font-medium">Fee (KRW)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -156,14 +161,14 @@ export const StepRegistrationType = ({
                 const optId = REG_TIER_CONFIG[currentTier].optionIds[mt];
                 const opt = options?.find((o) => o.id === optId);
                 return (
-                  <tr key={mt} className={memberType === mt ? 'bg-teal-50/40' : ''}>
-                    <td className="px-4 py-2.5 font-medium text-slate-600">
+                  <tr key={mt} className={memberType === mt ? 'bg-gold-tint' : ''}>
+                    <td className="px-4 py-2.5 font-medium text-ink-muted">
                       {MEMBER_TYPE_LABELS[mt]}
                       {memberType === mt && (
-                        <span className="ml-1.5 text-[10px] text-teal-500 font-semibold">(you)</span>
+                        <span className="ml-1.5 text-[10px] text-gold font-semibold uppercase tracking-[0.1em]">(you)</span>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 text-right text-slate-600">
+                    <td className="px-4 py-2.5 text-right text-ink-muted">
                       {opt ? formatKRW(opt.price) : '—'}
                     </td>
                   </tr>
@@ -175,37 +180,37 @@ export const StepRegistrationType = ({
       </div>
 
       {/* Right sidebar */}
-      <div className="bg-teal-50/40 p-6 flex flex-col">
+      <div className="bg-gold-tint p-6 flex flex-col">
         <SectionLabel>Your Profile</SectionLabel>
         {user && (
-          <div className="mb-5 flex items-center gap-3 rounded-lg border border-teal-100 bg-white p-3">
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs font-semibold text-teal-700">
+          <div className="mb-5 flex items-center gap-3 rounded-lg border border-gold-soft bg-white p-3">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gold-soft text-xs font-semibold text-gold">
               {user.nameEn.charAt(0)}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-slate-800 truncate">{user.nameEn}</p>
-              <p className="text-xs text-slate-400 truncate">{user.affiliation}</p>
+              <p className="text-sm font-semibold text-ink truncate">{user.nameEn}</p>
+              <p className="text-xs text-ink-faint truncate">{user.affiliation}</p>
             </div>
             <MemberTypePill type={memberType} />
           </div>
         )}
 
         <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold text-slate-600 mb-2">Selected Package</p>
+          <p className="label-section mb-2">Selected Package</p>
           {selectedTier ? (
             <div>
-              <p className="text-sm font-semibold text-teal-700">{REG_TIER_CONFIG[selectedTier].label}</p>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-sm font-semibold text-gold">{REG_TIER_CONFIG[selectedTier].label}</p>
+              <p className="text-xs text-ink-faint mt-0.5">
                 Deadline: {deadlineLabel(periodByKey[selectedTier])}
               </p>
               {optionsByTier[selectedTier] && (
-                <p className="text-base font-bold text-slate-800 mt-2">
+                <p className="amount-total mt-2">
                   {formatKRW(optionsByTier[selectedTier]!.price)}
                 </p>
               )}
             </div>
           ) : (
-            <p className="text-xs text-slate-400">No package selected yet</p>
+            <p className="text-xs text-ink-faint">No package selected yet</p>
           )}
         </div>
 

@@ -7,8 +7,16 @@
     box-sizing: border-box;
   }
 
+  html {
+    background-color: #FAFAF8;
+  }
+
   body {
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    @apply bg-cream text-ink;
+    font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
+      'Noto Sans KR', 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     caret-color: transparent;
@@ -24,15 +32,15 @@
 
 @layer components {
   .input-base {
-    @apply h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-teal-400 focus:ring-2 focus:ring-teal-100;
+    @apply h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-ink outline-none transition placeholder:text-slate-300 focus:border-gold focus:ring-2 focus:ring-gold-soft;
   }
 
   .btn-primary {
-    @apply w-full rounded-lg bg-teal-500 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400;
+    @apply w-full rounded-lg bg-gold py-2.5 text-sm font-semibold text-white transition hover:bg-gold-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400;
   }
 
   .btn-secondary {
-    @apply w-full rounded-lg border border-slate-200 py-2 text-sm text-slate-500 transition hover:bg-slate-50;
+    @apply w-full rounded-lg border border-slate-200 py-2 text-sm text-ink-muted transition hover:bg-slate-50;
   }
 
   .card {
@@ -44,11 +52,18 @@
   }
 
   .option-card-selected {
-    @apply border-teal-400 bg-teal-50 ring-1 ring-teal-200;
+    @apply border-gold-soft bg-gold-tint ring-1 ring-gold-soft;
+  }
+
+  .label-section {
+    @apply text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint;
+  }
+
+  .amount-total {
+    @apply text-[20px] font-medium text-gold;
   }
 }
 
-/* 페이게이트 결제 UI 내부 인풋 요소 글씨색 강제 지정 */
 #PGIOscreen input,
 #PGIOscreen select,
 #PGIOscreen textarea {
