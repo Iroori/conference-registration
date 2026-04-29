@@ -262,9 +262,9 @@ public class DataInitializer implements ApplicationRunner {
         // 2) MEMBER 계정 (IASBSE 회원, 이메일 인증 완료)
         User member = new User(
                 "member@test.com", pw,
-                "김회원", "Kim Hoewon",
-                "POSTECH", "교수",
-                "대한민국", "+82-10-1111-0001",
+                "Kim", "Hoewon",
+                "POSTECH", "Professor",
+                "South Korea", "+82-10-1111-0001",
                 LocalDate.of(1975, 5, 10),
                 MemberType.MEMBER
         );
@@ -274,9 +274,9 @@ public class DataInitializer implements ApplicationRunner {
         // 3) YOUNG_ENGINEER 계정 (비회원, 만 30세)
         User youngEngineer = new User(
                 "young@test.com", pw,
-                "이청년", "Lee Cheongnyeon",
-                "KAIST", "박사과정",
-                "대한민국", "+82-10-2222-0002",
+                "Lee", "Cheongnyeon",
+                "KAIST", "Ph.D. Candidate",
+                "South Korea", "+82-10-2222-0002",
                 LocalDate.of(1995, 8, 20),
                 MemberType.YOUNG_ENGINEER
         );
@@ -286,9 +286,9 @@ public class DataInitializer implements ApplicationRunner {
         // 4) NON_MEMBER 계정 (일반 비회원, 만 47세)
         User senior = new User(
                 "senior@test.com", pw,
-                "박시니어", "Park Senior",
-                "한국건설기술연구원", "수석연구원",
-                "대한민국", "+82-10-3333-0003",
+                "Park", "Senior",
+                "KICT", "Principal Researcher",
+                "South Korea", "+82-10-3333-0003",
                 LocalDate.of(1978, 3, 15),
                 MemberType.NON_MEMBER
         );
@@ -299,9 +299,9 @@ public class DataInitializer implements ApplicationRunner {
         //    잔여 티켓 조회 등 관리자 전용 엔드포인트 접근용.
         User admin = new User(
                 "admin@kibse.or.kr", passwordEncoder.encode(sha256("Admin2026!")),
-                "관리자", "Administrator",
+                "System", "Administrator",
                 "KIBSE", "Admin",
-                "대한민국", "+82-2-0000-0000",
+                "South Korea", "+82-2-0000-0000",
                 LocalDate.of(1985, 1, 1),
                 MemberType.MEMBER
         );

@@ -137,7 +137,7 @@ public class PaymentService {
 
         try {
             emailService.sendPaymentConfirmation(
-                    user.getEmail(), user.getNameKr(), regNumber,
+                    user.getEmail(), user.getFullName(), regNumber,
                     payment.getTotalAmount(),
                     payment.getPaidAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         } catch (Exception e) {
@@ -214,7 +214,7 @@ public class PaymentService {
 
         try {
             emailService.sendCancellationConfirmation(
-                    user.getEmail(), user.getNameKr(),
+                    user.getEmail(), user.getFullName(),
                     request.registrationNumber(), refundAmount);
         } catch (Exception e) {
             log.error("[PAYMENT] Cancellation email failed — email={} error={}",

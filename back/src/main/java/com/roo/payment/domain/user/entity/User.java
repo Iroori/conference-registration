@@ -22,11 +22,11 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(length = 100)
-    private String nameKr;
+    @Column(name = "last_name", length = 100)
+    private String lastName;
 
-    @Column(length = 100)
-    private String nameEn;
+    @Column(name = "first_name", length = 100)
+    private String firstName;
 
     @Column(length = 200)
     private String affiliation;
@@ -62,19 +62,19 @@ public class User extends BaseEntity {
 
     protected User() {}
 
-    public User(String email, String password, String nameKr, String nameEn,
+    public User(String email, String password, String lastName, String firstName,
                 String affiliation, String position, String country, String phone,
                 LocalDate birthDate, MemberType memberType) {
-        this(email, password, nameKr, nameEn, affiliation, position, country, phone, birthDate, memberType, false);
+        this(email, password, lastName, firstName, affiliation, position, country, phone, birthDate, memberType, false);
     }
 
-    public User(String email, String password, String nameKr, String nameEn,
+    public User(String email, String password, String lastName, String firstName,
                 String affiliation, String position, String country, String phone,
                 LocalDate birthDate, MemberType memberType, boolean presenter) {
         this.email = email.toLowerCase().trim();
         this.password = password;
-        this.nameKr = nameKr;
-        this.nameEn = nameEn;
+        this.lastName = lastName;
+        this.firstName = firstName;
         this.affiliation = affiliation;
         this.position = position;
         this.country = country;
@@ -102,11 +102,20 @@ public class User extends BaseEntity {
         this.emailVerified = true;
     }
 
+    /** "First Last" 형태의 표시용 풀네임. null/빈 값은 안전하게 무시. */
+    public String getFullName() {
+        String f = firstName == null ? "" : firstName.trim();
+        String l = lastName == null ? "" : lastName.trim();
+        if (f.isEmpty()) return l;
+        if (l.isEmpty()) return f;
+        return f + " " + l;
+    }
+
     public Long getId() { return id; }
     public String getEmail() { return email; }
     public String getPassword() { return password; }
-    public String getNameKr() { return nameKr; }
-    public String getNameEn() { return nameEn; }
+    public String getLastName() { return lastName; }
+    public String getFirstName() { return firstName; }
     public String getAffiliation() { return affiliation; }
     public String getPosition() { return position; }
     public String getCountry() { return country; }

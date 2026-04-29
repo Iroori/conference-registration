@@ -86,7 +86,7 @@ export const StepSummary = ({
             </div>
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
               {[
-                ['Name', user.nameEn],
+                ['Name', `${user.firstName} ${user.lastName}`],
                 ['Affiliation', user.affiliation],
                 ['Position', user.position],
                 ['Email', user.email],

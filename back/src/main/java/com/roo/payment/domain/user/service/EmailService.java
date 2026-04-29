@@ -215,7 +215,7 @@ public class EmailService {
     // ─── 알림 메일 ───────────────────────────────────────────────────────
 
     @Async
-    public void sendPaymentConfirmation(String to, String nameEn, String registrationNumber,
+    public void sendPaymentConfirmation(String to, String fullName, String registrationNumber,
                                         long totalAmount, String paidAt) {
         if (appProperties.isDevMode()) {
             log.info("[DEV] Payment Confirmation → {} | Reg#{} | ₩{}",
@@ -223,11 +223,11 @@ public class EmailService {
             return;
         }
         sendHtmlMail(to, "[IABSE 2026] Registration Payment Confirmed",
-                buildPaymentConfirmationHtml(nameEn, registrationNumber, totalAmount, paidAt));
+                buildPaymentConfirmationHtml(fullName, registrationNumber, totalAmount, paidAt));
     }
 
     @Async
-    public void sendCancellationConfirmation(String to, String nameEn,
+    public void sendCancellationConfirmation(String to, String fullName,
                                               String registrationNumber, long refundAmount) {
         if (appProperties.isDevMode()) {
             log.info("[DEV] Cancellation Confirmed → {} | Reg#{} | Refund ₩{}",
@@ -235,7 +235,7 @@ public class EmailService {
             return;
         }
         sendHtmlMail(to, "[IABSE 2026] Registration Cancellation Confirmed",
-                buildCancellationHtml(nameEn, registrationNumber, refundAmount));
+                buildCancellationHtml(fullName, registrationNumber, refundAmount));
     }
 
     // ─── private helpers ─────────────────────────────────────────────────
@@ -273,7 +273,7 @@ public class EmailService {
                 """.formatted(code, expirationMinutes);
     }
 
-    private String buildPaymentConfirmationHtml(String nameEn, String registrationNumber,
+    private String buildPaymentConfirmationHtml(String fullName, String registrationNumber,
                                                 long totalAmount, String paidAt) {
         return """
                 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head>
@@ -299,10 +299,10 @@ public class EmailService {
                     </div>
                   </div>
                 </body></html>
-                """.formatted(nameEn, registrationNumber, totalAmount, paidAt);
+                """.formatted(fullName, registrationNumber, totalAmount, paidAt);
     }
 
-    private String buildCancellationHtml(String nameEn, String registrationNumber, long refundAmount) {
+    private String buildCancellationHtml(String fullName, String registrationNumber, long refundAmount) {
         return """
                 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head>
                 <body style="font-family:'Segoe UI',sans-serif;background:#f8fafc;padding:40px 0">
@@ -321,7 +321,7 @@ public class EmailService {
                     </div>
                   </div>
                 </body></html>
-                """.formatted(nameEn, registrationNumber, refundAmount);
+                """.formatted(fullName, registrationNumber, refundAmount);
     }
 
     // ─── Inner record ────────────────────────────────────────────────────
