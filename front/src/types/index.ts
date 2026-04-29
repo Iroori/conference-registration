@@ -4,8 +4,8 @@ export type MemberType = 'MEMBER' | 'NON_MEMBER' | 'NON_MEMBER_PLUS' | 'YOUNG_EN
 export interface SignupRequest {
   email: string;
   password: string;
-  nameKr: string;
-  nameEn: string;
+  lastName: string;
+  firstName: string;
   affiliation: string;
   position: string;
   country: string;
@@ -23,8 +23,8 @@ export interface AuthUser {
   accessToken: string;
   refreshToken: string;
   email: string;
-  nameKr: string;
-  nameEn: string;
+  lastName: string;
+  firstName: string;
   affiliation: string;
   position: string;
   country: string;
@@ -47,8 +47,8 @@ export interface EmailVerifyRequest {
 export interface Member {
   id: string;
   email: string;
-  nameKr: string;
-  nameEn: string;
+  lastName: string;
+  firstName: string;
   affiliation: string;
   position: string;
   country: string;
@@ -58,8 +58,8 @@ export interface Member {
 }
 
 export interface PersonalInfo {
-  nameKr: string;
-  nameEn: string;
+  lastName: string;
+  firstName: string;
   affiliation: string;
   position: string;
   country: string;
@@ -177,8 +177,8 @@ export interface PaymentResponse {
   id: number;
   registrationNumber: string;
   email: string;
-  nameKr: string;
-  nameEn: string;
+  lastName: string;
+  firstName: string;
   affiliation: string;
   memberType: MemberType;
   status: PaymentStatus;

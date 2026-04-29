@@ -185,10 +185,10 @@ export const StepRegistrationType = ({
         {user && (
           <div className="mb-5 flex items-center gap-3 rounded-lg border border-gold-soft bg-white p-3">
             <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gold-soft text-xs font-semibold text-gold">
-              {user.nameEn?.charAt(0) ?? '?'}
+              {user.firstName?.charAt(0) ?? '?'}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-ink truncate">{user.nameEn}</p>
+              <p className="text-sm font-semibold text-ink truncate">{`${user.firstName} ${user.lastName}`}</p>
               <p className="text-xs text-ink-faint truncate">{user.affiliation}</p>
             </div>
             <MemberTypePill type={memberType} />

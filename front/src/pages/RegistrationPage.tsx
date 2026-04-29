@@ -112,12 +112,12 @@ export const RegistrationPage = () => {
       <div className="bg-navy">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-5">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="IABSE 2026" className="h-10 object-contain" />
+            <img src="/logo_IABSE_white.png" alt="IABSE 2026" className="h-10 object-contain" />
             <h1 className="text-base font-medium tracking-wide text-white">IABSE Congress Incheon 2026</h1>
           </div>
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2.5">
-              <span className="text-xs text-white/70">{user.nameEn}</span>
+              <span className="text-xs text-white/70">{`${user.firstName} ${user.lastName}`}</span>
               <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] ${
                 user.memberType === 'MEMBER'
                   ? 'border-gold-soft bg-gold-soft text-gold'
