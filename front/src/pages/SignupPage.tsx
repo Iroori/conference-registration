@@ -477,8 +477,8 @@ export const SignupPage = () => {
                 {[
                   { badge: 'MEMBER', desc: 'IABSE registered member' },
                   { badge: 'YOUNG ENGINEER', desc: 'Non-member · Under 36 years old' },
-                  { badge: 'NON-MEMBER', desc: 'Non-IABSE general delegate' },
-                  { badge: 'NON-MEMBER PLUS', desc: 'Non-member · 36 years or older' },
+                  { badge: 'NON-MEMBER', desc: 'Non-member · 36 years or older' },
+                  { badge: 'NON-MEMBER PLUS', desc: 'Premium non-member tier' },
                 ].map(({ badge, desc }) => (
                   <div key={badge} className="flex items-center gap-2">
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] ${TIER_BADGE_CLASSES[badge]}`}>
