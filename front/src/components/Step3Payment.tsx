@@ -40,8 +40,8 @@ export const Step3Payment = ({
 
   const domestic = isKoreanUser(user?.country);
   const mid = domestic
-    ? (import.meta.env.VITE_PAYGATE_MID_DOMESTIC || 'paygatekr')
-    : (import.meta.env.VITE_PAYGATE_MID_OVERSEAS || 'paygateoverseaskr');
+    ? (import.meta.env.VITE_PAYGATE_MID_DOMESTIC || 'kibse')
+    : (import.meta.env.VITE_PAYGATE_MID_OVERSEAS || 'kibse0us');
   // 통화 및 금액: 해외 MID의 통화·환율 변환은 PayGate가 자체 처리 — 항상 KRW(WON) 원화 금액 전달
   const goodcurrency = 'WON';
   const unitprice = totalAmount;
