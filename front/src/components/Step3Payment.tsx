@@ -123,10 +123,10 @@ export const Step3Payment = ({
               </p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                 {[
-                  ['Name', `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'No Name'],
-                  ['Affiliation', user.affiliation || 'No Affiliation'],
+                  ['Name', `${user.firstName || ''} ${user.lastName || ''}`.trim() || '-'],
+                  ['Affiliation', user.affiliation || '-'],
                   ['Email', user.email],
-                  ['Country', user.country || 'No Country'],
+                  ['Country', user.country || '-'],
                 ].map(([label, val]) => (
                   <div key={label} className="flex justify-between">
                     <span className="text-ink-faint">{label}</span>
@@ -255,11 +255,11 @@ export const Step3Payment = ({
           {user && (
             <div className="mb-4 flex items-center gap-3 rounded-lg border border-gold-soft bg-white p-3">
               <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gold-soft text-xs font-semibold text-gold">
-                {user.firstName?.charAt(0) ?? '?'}
+                {user.firstName?.charAt(0) || user.email.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-ink truncate">{`${user.firstName} ${user.lastName}`}</p>
-                <p className="text-xs text-ink-faint truncate">{user.affiliation}</p>
+                <p className="text-sm font-semibold text-ink truncate">{`${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email}</p>
+                <p className="text-xs text-ink-faint truncate">{user.affiliation || '-'}</p>
               </div>
               <MemberTypePill type={memberType} />
             </div>

@@ -146,7 +146,9 @@ public class User extends BaseEntity {
     public boolean isAdmin() { return admin; }
     public void promoteToAdmin() { this.admin = true; }
 
-    public void updateProfile(String affiliation, String country, String position, String phone, LocalDate birthDate) {
+    public void updateProfile(String firstName, String lastName, String affiliation, String country, String position, String phone, LocalDate birthDate) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.affiliation = affiliation;
         this.country = country;
         this.position = position;

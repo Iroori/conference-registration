@@ -214,18 +214,22 @@ public class DataInitializer implements ApplicationRunner {
         // 1) IASBSE 회원 등록
         if (iasbseMemberRepository.count() == 0) {
             iasbseMemberRepository.save(new IasbseMember("Hoewon", "Kim", "POSTECH", "Active"));
+            iasbseMemberRepository.save(new IasbseMember("John", "Smith", "Stanford University", "Active"));
         }
 
         // 2) MEMBER 계정 (IASBSE 회원, 이메일 인증 완료, 국내 계정)
         seedUser("member@test.com", pw, "Kim", "Hoewon", "POSTECH", "Professor", "KR", "+82-10-1111-0001", LocalDate.of(1975, 5, 10), MemberType.MEMBER, false);
 
-        // 3) YOUNG_ENGINEER 계정 (비회원, 만 30세, 해외 계정)
+        // 3) MEMBER 계정 (IASBSE 회원, 이메일 인증 완료, 해외 계정)
+        seedUser("overseas@test.com", pw, "Smith", "John", "Stanford University", "Associate Professor", "US", "+1-650-555-0123", LocalDate.of(1982, 11, 5), MemberType.MEMBER, false);
+
+        // 4) YOUNG_ENGINEER 계정 (비회원, 만 30세, 해외 계정)
         seedUser("young@test.com", pw, "Lee", "Cheongnyeon", "KAIST", "Ph.D. Candidate", "US", "+1-555-0199", LocalDate.of(1995, 8, 20), MemberType.YOUNG_ENGINEER, false);
 
-        // 4) NON_MEMBER 계정 (일반 비회원, 만 47세, 해외 계정)
+        // 5) NON_MEMBER 계정 (일반 비회원, 만 47세, 해외 계정)
         seedUser("senior@test.com", pw, "Park", "Senior", "KICT", "Principal Researcher", "JP", "+81-90-1111-2222", LocalDate.of(1978, 3, 15), MemberType.NON_MEMBER, false);
 
-        // 5) 관리자 계정 (admin@kibse.or.kr / Admin2026!)
+        // 6) 관리자 계정 (admin@kibse.or.kr / Admin2026!)
         seedUser("admin@kibse.or.kr", passwordEncoder.encode(sha256("Admin2026!")), "System", "Administrator", "KIBSE", "Admin", "KR", "+82-2-0000-0000", LocalDate.of(1985, 1, 1), MemberType.MEMBER, true);
     }
 
@@ -234,7 +238,7 @@ public class DataInitializer implements ApplicationRunner {
                           LocalDate birthDate, MemberType type, boolean isAdmin) {
         userRepository.findByEmailAndActiveTrue(email).ifPresentOrElse(
                 user -> {
-                    user.updateProfile(affiliation, country, position, phone, birthDate);
+                    user.updateProfile(firstName, lastName, affiliation, country, position, phone, birthDate);
                     userRepository.save(user);
                 },
                 () -> {
