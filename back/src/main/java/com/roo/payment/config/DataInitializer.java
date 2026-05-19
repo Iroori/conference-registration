@@ -29,22 +29,39 @@ public class DataInitializer implements ApplicationRunner {
     private final UserRepository userRepository;
     private final IasbseMemberRepository iasbseMemberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final com.roo.payment.domain.iasbse.service.IasbseMemberService iasbseMemberService;
 
     public DataInitializer(ConferenceOptionRepository optionRepository,
                            UserRepository userRepository,
                            IasbseMemberRepository iasbseMemberRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           com.roo.payment.domain.iasbse.service.IasbseMemberService iasbseMemberService) {
         this.optionRepository = optionRepository;
         this.userRepository = userRepository;
         this.iasbseMemberRepository = iasbseMemberRepository;
         this.passwordEncoder = passwordEncoder;
+        this.iasbseMemberService = iasbseMemberService;
     }
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
         seedOptions();
+        seedIasbseMembersFromExcel();
         seedTestAccounts();
+    }
+
+    private void seedIasbseMembersFromExcel() {
+        java.io.File file = new java.io.File("docs/payment/2026-04-28 Members IABSE (1).xls");
+        if (!file.exists()) {
+            return;
+        }
+        try (java.io.InputStream is = new java.io.FileInputStream(file)) {
+            int count = iasbseMemberService.importFromExcel(is);
+            System.out.println("Seeded " + count + " IASBSE members from Excel file.");
+        } catch (Exception e) {
+            System.err.println("Failed to seed IASBSE members from Excel: " + e.getMessage());
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

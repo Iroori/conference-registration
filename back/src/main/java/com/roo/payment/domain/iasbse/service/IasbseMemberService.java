@@ -39,10 +39,10 @@ public class IasbseMemberService {
      * 컬럼 순서: First name | Last name | Company | Country | Fellowship | Membership level | Membership status
      */
     @Transactional
-    public int importFromExcel(MultipartFile file) throws IOException {
+    public int importFromExcel(java.io.InputStream inputStream) throws IOException {
         List<IasbseMember> toSave = new ArrayList<>();
 
-        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+        try (Workbook workbook = WorkbookFactory.create(inputStream)) {
             Sheet sheet = workbook.getSheetAt(0);
 
             // 1행은 헤더 → 2행부터 처리
