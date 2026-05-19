@@ -2,12 +2,15 @@ package com.roo.payment.domain.iasbse.repository;
 
 import com.roo.payment.domain.iasbse.entity.IasbseMember;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface IasbseMemberRepository extends JpaRepository<IasbseMember, Long> {
 
-    Optional<IasbseMember> findByEmailAndActiveTrue(String email);
+    boolean existsByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndCompanyIgnoreCase(String firstName, String lastName, String company);
 
-    boolean existsByEmailAndActiveTrue(String email);
+    @Query("SELECT DISTINCT m.company FROM IasbseMember m ORDER BY m.company ASC")
+    List<String> findDistinctCompanies();
 }

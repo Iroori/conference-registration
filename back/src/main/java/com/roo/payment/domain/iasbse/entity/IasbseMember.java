@@ -1,61 +1,52 @@
 package com.roo.payment.domain.iasbse.entity;
 
 import com.roo.payment.common.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "iasbse_members", indexes = {
-        @Index(name = "idx_iasbse_email", columnList = "email", unique = true)
-})
+@Table(
+    name = "iasbse_members",
+    indexes = {
+        @Index(name = "idx_iasbse_member_name_company", columnList = "first_name, last_name, company")
+    }
+)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class IasbseMember extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 255)
-    private String email;
+    @Column(name = "first_name", nullable = false, length = 100)
+    private String firstName;
 
-    @Column(length = 100)
-    private String nameKr;
+    @Column(name = "last_name", nullable = false, length = 100)
+    private String lastName;
 
-    @Column(length = 100)
-    private String nameEn;
+    @Column(name = "company", nullable = false, length = 200)
+    private String company;
 
-    @Column(length = 200)
-    private String affiliation;
+    @Column(name = "status", length = 50)
+    private String status;
 
-    @Column(length = 50)
-    private String memberNo;   // IASBSE 회원 번호 (있는 경우)
-
-    @Column(nullable = false)
-    private boolean active = true;
-
-    protected IasbseMember() {}
-
-    public IasbseMember(String email, String nameKr, String nameEn, String affiliation, String memberNo) {
-        this.email = email.toLowerCase().trim();
-        this.nameKr = nameKr;
-        this.nameEn = nameEn;
-        this.affiliation = affiliation;
-        this.memberNo = memberNo;
+    public IasbseMember(String firstName, String lastName, String company, String status) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.company = company;
+        this.status = status;
     }
 
-    public Long getId() { return id; }
-    public String getEmail() { return email; }
-    public String getNameKr() { return nameKr; }
-    public String getNameEn() { return nameEn; }
-    public String getAffiliation() { return affiliation; }
-    public String getMemberNo() { return memberNo; }
-    public boolean isActive() { return active; }
-
-    public void deactivate() { this.active = false; }
-    public void activate() { this.active = true; }
-
-    public void update(String nameKr, String nameEn, String affiliation, String memberNo) {
-        if (nameKr != null) this.nameKr = nameKr;
-        if (nameEn != null) this.nameEn = nameEn;
-        if (affiliation != null) this.affiliation = affiliation;
-        if (memberNo != null) this.memberNo = memberNo;
+    public void update(String status) {
+        this.status = status;
     }
 }

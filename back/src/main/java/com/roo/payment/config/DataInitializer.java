@@ -214,10 +214,9 @@ public class DataInitializer implements ApplicationRunner {
         // Store BCrypt(SHA-256("Test1234!")) to match the client-side hashing scheme
         String pw = passwordEncoder.encode(sha256("Test1234!"));
 
-        // 1) IASBSE 회원 등록 (member@test.com)
+        // 1) IASBSE 회원 등록 (member@test.com 연동 용이 아님, 이름과 소속 기준)
         iasbseMemberRepository.save(
-                new IasbseMember("member@test.com", "김회원", "Kim Hoewon",
-                        "POSTECH", "IASBSE-001")
+                new IasbseMember("Hoewon", "Kim", "POSTECH", "Active")
         );
 
         // 2) MEMBER 계정 (IASBSE 회원, 이메일 인증 완료)

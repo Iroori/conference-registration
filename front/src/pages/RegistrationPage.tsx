@@ -97,7 +97,7 @@ export const RegistrationPage = () => {
         subtotal += opt.price * qty;
       }
     });
-    return subtotal + Math.round(subtotal * 0.1);
+    return subtotal;
   }, [options, paymentPayload]);
 
   const resetRegistration = () => {

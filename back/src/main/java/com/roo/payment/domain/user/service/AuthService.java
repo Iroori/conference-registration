@@ -84,7 +84,7 @@ public class AuthService {
         MemberType memberType;
         if (age <= 35) {
             memberType = MemberType.YOUNG_ENGINEER;
-        } else if (iasbseMemberService.isIasbseMember(req.email())) {
+        } else if (iasbseMemberService.isIasbseMember(req.firstName(), req.lastName(), req.affiliation())) {
             memberType = MemberType.MEMBER;
         } else {
             memberType = MemberType.NON_MEMBER_PLUS;

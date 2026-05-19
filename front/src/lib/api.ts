@@ -4,7 +4,6 @@ import type {
   SignupRequest,
   LoginRequest,
   EmailVerifyRequest,
-  IasbseCheckResponse,
   ConferenceOption,
   MemberType,
   PaymentRequest,
@@ -58,10 +57,15 @@ export const apiLogout = async (refreshToken: string): Promise<void> => {
 };
 
 // ─── IASBSE ──────────────────────────────────────────────────────────────────
-export const apiCheckIasbse = async (email: string): Promise<IasbseCheckResponse> => {
-  const res = await apiClient.get<{ data: IasbseCheckResponse }>(
-    `/iasbse/check?email=${encodeURIComponent(email)}`
+export const apiCheckIasbse = async (firstName: string, lastName: string, company: string): Promise<boolean> => {
+  const res = await apiClient.get<{ data: boolean }>(
+    `/iasbse/check?firstName=${encodeURIComponent(firstName)}&lastName=${encodeURIComponent(lastName)}&company=${encodeURIComponent(company)}`
   );
+  return res.data.data;
+};
+
+export const apiGetIasbseCompanies = async (): Promise<string[]> => {
+  const res = await apiClient.get<{ data: string[] }>('/iasbse/companies');
   return res.data.data;
 };
 

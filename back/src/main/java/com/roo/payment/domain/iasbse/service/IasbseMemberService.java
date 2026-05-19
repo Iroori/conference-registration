@@ -3,7 +3,6 @@ package com.roo.payment.domain.iasbse.service;
 import com.roo.payment.domain.iasbse.entity.IasbseMember;
 import com.roo.payment.domain.iasbse.repository.IasbseMemberRepository;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,21 +22,27 @@ public class IasbseMemberService {
     }
 
     /**
-     * 이메일로 IASBSE 회원 여부 확인
+     * 이름과 소속으로 IASBSE 회원 여부 확인
      */
-    public boolean isIasbseMember(String email) {
-        return iasbseMemberRepository.existsByEmailAndActiveTrue(email.toLowerCase().trim());
+    public boolean isIasbseMember(String firstName, String lastName, String company) {
+        if (firstName == null || lastName == null || company == null) return false;
+        return iasbseMemberRepository.existsByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndCompanyIgnoreCase(
+                firstName.trim(), lastName.trim(), company.trim());
+    }
+
+    public List<String> getDistinctCompanies() {
+        return iasbseMemberRepository.findDistinctCompanies();
     }
 
     /**
-     * 엑셀 파일로 IASBSE 회원 데이터 일괄 업로드 (upsert)
-     * 컬럼 순서: email | nameKr | nameEn | affiliation | memberNo
+     * 엑셀 파일로 IASBSE 회원 데이터 일괄 업로드 (Truncate and Insert)
+     * 컬럼 순서: First name | Last name | Company | Country | Fellowship | Membership level | Membership status
      */
     @Transactional
     public int importFromExcel(MultipartFile file) throws IOException {
         List<IasbseMember> toSave = new ArrayList<>();
 
-        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
 
             // 1행은 헤더 → 2행부터 처리
@@ -45,23 +50,22 @@ public class IasbseMemberService {
                 Row row = sheet.getRow(rowIdx);
                 if (row == null) continue;
 
-                String email = getCellString(row, 0);
-                if (email == null || email.isBlank()) continue;
+                String firstName = getCellString(row, 0);
+                String lastName = getCellString(row, 1);
+                String company = getCellString(row, 2);
+                String status = getCellString(row, 6);
 
-                String nameKr = getCellString(row, 1);
-                String nameEn = getCellString(row, 2);
-                String affiliation = getCellString(row, 3);
-                String memberNo = getCellString(row, 4);
+                if (firstName == null || firstName.isBlank() || 
+                    lastName == null || lastName.isBlank() || 
+                    company == null || company.isBlank()) {
+                    continue;
+                }
 
-                // 기존 회원이면 업데이트, 없으면 신규 추가
-                iasbseMemberRepository.findByEmailAndActiveTrue(email.toLowerCase().trim())
-                        .ifPresentOrElse(
-                                existing -> existing.update(nameKr, nameEn, affiliation, memberNo),
-                                () -> toSave.add(new IasbseMember(email, nameKr, nameEn, affiliation, memberNo))
-                        );
+                toSave.add(new IasbseMember(firstName.trim(), lastName.trim(), company.trim(), status));
             }
 
             if (!toSave.isEmpty()) {
+                iasbseMemberRepository.deleteAll(); // Truncate existing data
                 iasbseMemberRepository.saveAll(toSave);
             }
         }

@@ -117,15 +117,15 @@ export const Step3Payment = ({
           {/* Registrant quick summary */}
           {user && (
             <div className="mb-5 rounded-lg border border-slate-100 bg-slate-50/60 p-4">
-              <p className="label-section mb-3">
+              <p className="label-section text-sm mb-3">
                 Confirming Payment For
               </p>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
                 {[
-                  ['Name', `${user.firstName} ${user.lastName}`],
-                  ['Affiliation', user.affiliation],
+                  ['Name', `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'No Name'],
+                  ['Affiliation', user.affiliation || 'No Affiliation'],
                   ['Email', user.email],
-                  ['Country', user.country],
+                  ['Country', user.country || 'No Country'],
                 ].map(([label, val]) => (
                   <div key={label} className="flex justify-between">
                     <span className="text-ink-faint">{label}</span>
@@ -138,7 +138,7 @@ export const Step3Payment = ({
 
           {/* Payment method info */}
           <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4">
-            <p className="label-section mb-3">
+            <p className="label-section text-sm mb-3">
               Payment Method
             </p>
             <div className="flex items-center gap-3">
@@ -149,9 +149,9 @@ export const Step3Payment = ({
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-ink">Credit / Debit Card</p>
-                <p className="text-xs text-ink-faint">
-                  {domestic ? 'Domestic card payment (KRW)' : 'International card payment (USD)'}
+                <p className="text-base font-semibold text-ink">Credit / Debit Card</p>
+                <p className="text-sm text-ink-faint">
+                  {domestic ? 'Domestic card payment (KRW)' : 'International card payment (KRW)'}
                 </p>
               </div>
             </div>
@@ -159,8 +159,8 @@ export const Step3Payment = ({
 
           {/* Cancellation & Refund Policy */}
           <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4">
-            <p className="label-section mb-2">Cancellation &amp; Refund Policy</p>
-            <div className="max-h-56 overflow-y-auto rounded-md border border-slate-100 bg-slate-50/60 p-3 text-[11px] leading-relaxed text-ink-muted space-y-2.5">
+            <p className="label-section text-sm mb-2">Cancellation &amp; Refund Policy</p>
+            <div className="rounded-md border border-slate-100 bg-slate-50/60 p-3 text-xs leading-relaxed text-ink-muted space-y-2.5">
               <div>
                 <p className="font-semibold text-ink">1. How to Request a Cancellation</p>
                 <p>
@@ -232,7 +232,7 @@ export const Step3Payment = ({
                 onChange={(e) => setPolicyAgreed(e.target.checked)}
                 className="mt-0.5 h-4 w-4 rounded border-slate-300 text-gold focus:ring-gold"
               />
-              <span className="text-xs font-medium text-ink">
+              <span className="text-sm font-medium text-ink">
                 I have read and agree to the Cancellation and Refund Policy.
               </span>
             </label>
@@ -266,12 +266,12 @@ export const Step3Payment = ({
 
           <div className="mb-5 border border-gold-soft rounded-lg bg-white p-4">
             <div className="flex justify-between items-baseline">
-              <span className="label-section">Total (incl. VAT)</span>
+              <span className="label-section text-sm">Total</span>
               <span className="amount-total">{formatKRW(totalAmount)}</span>
             </div>
             {!domestic && (
-              <p className="mt-1 text-right text-xs text-ink-faint">
-                ≈ USD {unitprice.toLocaleString()}
+              <p className="mt-1 text-right text-sm text-ink-faint">
+                ≈ KRW {unitprice.toLocaleString()}
               </p>
             )}
           </div>

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
-import { apiSignup, apiSendCode, apiVerifyCode } from '../lib/api';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { apiSignup, apiSendCode, apiVerifyCode, apiGetIasbseCompanies } from '../lib/api';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import type { DietaryRequirement } from '../types';
 
 const DIETARY_OPTIONS: { value: DietaryRequirement; label: string }[] = [
@@ -68,13 +70,21 @@ export const SignupPage = () => {
     position: '',
     country: 'South Korea',
     phone: '',
-    birthDate: '',
+    birthDate: null as Date | null,
     isPresenter: false,
     dietaryRequirement: 'NONE' as DietaryRequirement,
     dietaryNote: '',
   });
   const [error, setError] = useState('');
   const [privacyAgreed, setPrivacyAgreed] = useState<boolean | null>(null);
+
+  const [isOtherCompany, setIsOtherCompany] = useState(false);
+  const [customCompany, setCustomCompany] = useState('');
+
+  const { data: companies = [] } = useQuery({
+    queryKey: ['iasbseCompanies'],
+    queryFn: apiGetIasbseCompanies,
+  });
 
   // ── Email verification state ─────────────────────────────────────────────
   const [verifyState, setVerifyState] = useState<VerifyState>('IDLE');
@@ -196,9 +206,21 @@ export const SignupPage = () => {
       return;
     }
 
-    const { passwordConfirm: _, ...rest } = form;
+    const { passwordConfirm: _, birthDate, ...rest } = form;
     void _;
-    signupMutation.mutate(rest);
+    const formattedDate = birthDate ? birthDate.toISOString().split('T')[0] : '';
+    const finalAffiliation = isOtherCompany ? customCompany : form.affiliation;
+
+    if (isOtherCompany && !customCompany.trim()) {
+      setError('Please specify your affiliation.');
+      return;
+    }
+
+    signupMutation.mutate({
+      ...rest,
+      birthDate: formattedDate,
+      affiliation: finalAffiliation,
+    });
   };
 
   const set = (field: keyof typeof form) =>
@@ -398,14 +420,36 @@ export const SignupPage = () => {
                   <label className="block label-section mb-1.5">
                     Affiliation <span className="text-red-400">*</span>
                   </label>
-                  <input
-                    type="text"
-                    value={form.affiliation}
-                    onChange={set('affiliation')}
+                  <select
+                    value={isOtherCompany ? 'OTHER' : form.affiliation}
+                    onChange={(e) => {
+                      if (e.target.value === 'OTHER') {
+                        setIsOtherCompany(true);
+                        setForm((f) => ({ ...f, affiliation: '' }));
+                      } else {
+                        setIsOtherCompany(false);
+                        setForm((f) => ({ ...f, affiliation: e.target.value }));
+                      }
+                    }}
                     className="input-base"
-                    placeholder="Organization / University"
                     required
-                  />
+                  >
+                    <option value="" disabled>Select your affiliation</option>
+                    {companies.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                    <option value="OTHER">Other (Please specify)</option>
+                  </select>
+                  {isOtherCompany && (
+                    <input
+                      type="text"
+                      value={customCompany}
+                      onChange={(e) => setCustomCompany(e.target.value)}
+                      className="input-base mt-2"
+                      placeholder="Please specify your affiliation"
+                      required
+                    />
+                  )}
                 </div>
                 <div>
                   <label className="block label-section mb-1.5">
@@ -424,17 +468,21 @@ export const SignupPage = () => {
 
               {/* Date of Birth / Country */}
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <div>
+                <div className="flex flex-col">
                   <label className="block label-section mb-1.5">
                     Date of Birth <span className="text-red-400">*</span>
                     <span className="ml-1 normal-case tracking-normal text-ink-faint">(for YE eligibility)</span>
                   </label>
-                  <input
-                    type="date"
-                    value={form.birthDate}
-                    onChange={set('birthDate')}
-                    className="input-base"
-                    max={new Date().toISOString().split('T')[0]}
+                  <DatePicker
+                    selected={form.birthDate}
+                    onChange={(date: Date | null) => setForm((f) => ({ ...f, birthDate: date }))}
+                    dateFormat="yyyy-MM-dd"
+                    showYearDropdown
+                    showMonthDropdown
+                    dropdownMode="select"
+                    maxDate={new Date()}
+                    placeholderText="Select Date"
+                    className="input-base w-full"
                     required
                   />
                 </div>

@@ -72,8 +72,7 @@ export const StepSummary = ({
       ? invitationOption.price
       : 0;
     const subtotal = regPrice + addonsPrice + invPrice;
-    const tax = Math.round(subtotal * 0.1);
-    return { regPrice, addonsPrice, subtotal, tax, total: subtotal + tax };
+    return { regPrice, addonsPrice, subtotal, tax: 0, total: subtotal };
   }, [regOption, additionalSelected, needsInvitationLetter, invitationOption]);
 
   if (isLoading) {
@@ -94,9 +93,9 @@ export const StepSummary = ({
         {user && (
           <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="label-section">Personal Details</p>
+              <p className="label-section text-sm">Personal Details</p>
             </div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
               {[
                 ['Name', `${user.firstName} ${user.lastName}`],
                 ['Affiliation', user.affiliation],
@@ -119,10 +118,10 @@ export const StepSummary = ({
         {/* Registration Package */}
         <div className="rounded-xl border border-gold-soft bg-white p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="label-section">Registration Category</p>
+            <p className="label-section text-sm">Registration Category</p>
             <button
               onClick={onEditPackage}
-              className="text-[10px] font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
+              className="text-xs font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
             >
               Edit
             </button>
@@ -130,37 +129,37 @@ export const StepSummary = ({
           {regOption ? (
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-ink">{regOption.nameEn}</p>
-                <p className="text-xs text-gold mt-1 font-semibold uppercase tracking-[0.1em]">
+                <p className="text-base font-semibold text-ink">{regOption.nameEn}</p>
+                <p className="text-sm text-gold mt-1 font-semibold uppercase tracking-[0.1em]">
                   {REG_TIER_CONFIG[selectedTier].label}
                 </p>
               </div>
-              <p className="flex-shrink-0 text-sm font-semibold text-ink">
+              <p className="flex-shrink-0 text-base font-semibold text-ink">
                 {formatKRW(regOption.price)}
               </p>
             </div>
           ) : (
-            <p className="text-xs text-ink-faint">No category selected</p>
+            <p className="text-sm text-ink-faint">No category selected</p>
           )}
         </div>
 
         {/* Additional Programs */}
         <div className="rounded-xl border border-slate-100 bg-white p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="label-section">Additional Programs</p>
+            <p className="label-section text-sm">Additional Programs</p>
             <button
               onClick={onEditAddons}
-              className="text-[10px] font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
+              className="text-xs font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
             >
               Edit
             </button>
           </div>
           {additionalSelected.length === 0 ? (
-            <p className="text-xs text-ink-faint">No additional programs selected.</p>
+            <p className="text-sm text-ink-faint">No additional programs selected.</p>
           ) : (
             <div className="space-y-2">
               {additionalSelected.map(({ opt, qty }) => (
-                <div key={opt.id} className="flex items-start justify-between gap-3 text-xs">
+                <div key={opt.id} className="flex items-start justify-between gap-3 text-sm">
                   <div>
                     <p className="font-medium text-ink">{opt.nameEn}</p>
                     {opt.description && (
@@ -189,16 +188,16 @@ export const StepSummary = ({
         {/* Invitation Letter */}
         <div className="rounded-xl border border-slate-100 bg-white p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="label-section">Invitation Letter</p>
+            <p className="label-section text-sm">Invitation Letter</p>
             <button
               onClick={onEditInvitation}
-              className="text-[10px] font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
+              className="text-xs font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
             >
               Edit
             </button>
           </div>
           {needsInvitationLetter ? (
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center justify-between text-sm">
               <div>
                 <p className="font-medium text-ink">Official Invitation Letter (Visa)</p>
                 <p className="text-ink-faint mt-0.5">Issued within 5 business days of payment</p>
@@ -206,7 +205,7 @@ export const StepSummary = ({
               <p className="font-semibold text-gold">Free</p>
             </div>
           ) : (
-            <p className="text-xs text-ink-faint">Not requested.</p>
+            <p className="text-sm text-ink-faint">Not requested.</p>
           )}
         </div>
       </div>
@@ -216,13 +215,13 @@ export const StepSummary = ({
         <SectionLabel>Payment Breakdown</SectionLabel>
 
         <div className="mb-5 space-y-2.5">
-          <div className="flex justify-between text-xs">
+          <div className="flex justify-between text-sm">
             <span className="text-ink-muted">{REG_TIER_CONFIG[selectedTier].label}</span>
             <span className="font-medium text-ink">{formatKRW(pricing.regPrice)}</span>
           </div>
 
           {additionalSelected.map(({ opt, qty }) => (
-            <div key={opt.id} className="flex justify-between text-xs">
+            <div key={opt.id} className="flex justify-between text-sm">
               <span className="text-ink-muted">
                 {opt.nameEn}
                 {qty > 1 ? ` × ${qty}` : ''}
@@ -234,23 +233,15 @@ export const StepSummary = ({
           ))}
 
           {needsInvitationLetter && (
-            <div className="flex justify-between text-xs">
+            <div className="flex justify-between text-sm">
               <span className="text-ink-muted">Invitation Letter</span>
               <span className="font-medium text-gold">Free</span>
             </div>
           )}
 
           <div className="border-t border-gold-soft pt-2 space-y-1.5">
-            <div className="flex justify-between text-xs text-ink-faint">
-              <span>Subtotal</span>
-              <span>{formatKRW(pricing.subtotal)}</span>
-            </div>
-            <div className="flex justify-between text-xs text-ink-faint">
-              <span>VAT (10%)</span>
-              <span>{formatKRW(pricing.tax)}</span>
-            </div>
             <div className="flex justify-between items-baseline pt-1">
-              <span className="label-section">Total</span>
+              <span className="label-section text-sm">Total</span>
               <span className="amount-total">{formatKRW(pricing.total)}</span>
             </div>
           </div>
