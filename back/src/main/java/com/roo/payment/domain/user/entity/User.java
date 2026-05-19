@@ -47,6 +47,15 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 20)
     private MemberType memberType;
 
+    /** 식단 요구사항 (회원가입 시 수집) */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private DietaryRequirement dietaryRequirement;
+
+    /** 식단 요구사항이 OTHER 인 경우의 상세 내용 */
+    @Column(length = 200)
+    private String dietaryNote;
+
     @Column(nullable = false)
     private boolean emailVerified = false;
 
@@ -102,6 +111,12 @@ public class User extends BaseEntity {
         this.emailVerified = true;
     }
 
+    /** 식단 요구사항 등록 — OTHER 가 아니면 상세 내용은 보관하지 않는다. */
+    public void assignDietaryRequirement(DietaryRequirement requirement, String note) {
+        this.dietaryRequirement = requirement;
+        this.dietaryNote = requirement == DietaryRequirement.OTHER ? note : null;
+    }
+
     /** "First Last" 형태의 표시용 풀네임. null/빈 값은 안전하게 무시. */
     public String getFullName() {
         String f = firstName == null ? "" : firstName.trim();
@@ -122,6 +137,8 @@ public class User extends BaseEntity {
     public String getPhone() { return phone; }
     public LocalDate getBirthDate() { return birthDate; }
     public MemberType getMemberType() { return memberType; }
+    public DietaryRequirement getDietaryRequirement() { return dietaryRequirement; }
+    public String getDietaryNote() { return dietaryNote; }
     public boolean isEmailVerified() { return emailVerified; }
     public boolean isActive() { return active; }
     public boolean isPresenter() { return presenter; }

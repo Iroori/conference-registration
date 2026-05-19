@@ -1,6 +1,8 @@
 // ─── Auth ───────────────────────────────────────────────────────────────────
 export type MemberType = 'MEMBER' | 'NON_MEMBER' | 'NON_MEMBER_PLUS' | 'YOUNG_ENGINEER';
 
+export type DietaryRequirement = 'NONE' | 'VEGETARIAN' | 'HALAL' | 'OTHER';
+
 export interface SignupRequest {
   email: string;
   password: string;
@@ -12,6 +14,8 @@ export interface SignupRequest {
   phone: string;
   birthDate: string; // ISO: "1990-03-15"
   isPresenter?: boolean;
+  dietaryRequirement: DietaryRequirement;
+  dietaryNote?: string;
 }
 
 export interface LoginRequest {
@@ -31,6 +35,8 @@ export interface AuthUser {
   memberType: MemberType;
   isYoungEngineer: boolean;
   isPresenter: boolean;
+  dietaryRequirement: DietaryRequirement;
+  dietaryNote?: string | null;
 }
 
 export interface IasbseCheckResponse {

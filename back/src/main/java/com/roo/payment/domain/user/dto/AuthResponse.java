@@ -1,5 +1,6 @@
 package com.roo.payment.domain.user.dto;
 
+import com.roo.payment.domain.user.entity.DietaryRequirement;
 import com.roo.payment.domain.user.entity.MemberType;
 import com.roo.payment.domain.user.entity.User;
 
@@ -14,7 +15,9 @@ public record AuthResponse(
         String country,
         MemberType memberType,
         boolean isYoungEngineer,
-        boolean isPresenter
+        boolean isPresenter,
+        DietaryRequirement dietaryRequirement,
+        String dietaryNote
 ) {
     public static AuthResponse of(String accessToken, String refreshToken, User user) {
         return new AuthResponse(
@@ -28,7 +31,9 @@ public record AuthResponse(
                 user.getCountry(),
                 user.getMemberType(),
                 user.isYoungEngineer(),
-                user.isPresenter()
+                user.isPresenter(),
+                user.getDietaryRequirement(),
+                user.getDietaryNote()
         );
     }
 }

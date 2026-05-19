@@ -71,6 +71,24 @@
 - 등록비/옵션 시드를 기동 시 항상 동기화 — 가격이 시드 기준으로 관리되며 별도 관리자
   편집 UI가 없으므로 시드를 단일 출처(source of truth)로 삼았다. 판매 수량은 보존한다.
 
+## 추가 작업 (동일 세션)
+### 회원가입 — 식단 요구사항
+- `DietaryRequirement` enum(NONE/VEGETARIAN/HALAL/OTHER) 추가
+- `User` 에 `dietaryRequirement`·`dietaryNote` 컬럼 추가 (`assignDietaryRequirement`)
+- `SignupRequest`·`AuthResponse` 에 필드 추가, OTHER 선택 시 상세 내용 필수 검증
+- 회원가입 폼 Personal Details 섹션에 라디오 그룹 + "Other" 상세 입력칸 추가
+
+### 취소·환불 규정 동의
+- 결제 단계(`Step3Payment`)에 취소·환불 규정 전문 표시
+- "I have read and agree to the Cancellation and Refund Policy" 체크박스 추가
+- 동의 체크 전에는 결제 버튼 비활성화 (프론트엔드 게이트)
+
+### 변경 파일 (추가분)
+- 백엔드 신규: `domain/user/entity/DietaryRequirement.java`
+- 백엔드 수정: `domain/user/entity/User.java`, `dto/SignupRequest.java`,
+  `dto/AuthResponse.java`, `service/AuthService.java`
+- 프론트엔드 수정: `types/index.ts`, `pages/SignupPage.tsx`, `components/Step3Payment.tsx`
+
 ## 참고 — 옵션 ID
 - 등록비: `OPT-REG-PRE-*`, `OPT-REG-EARLY-*`, `OPT-REG-*` (MEMBER/NM/NMP/YE/EXH)
 - 옵션비: `OPT-WELCOME`, `OPT-GALA-DINNER`, `OPT-GALA-DINNER-YE`,

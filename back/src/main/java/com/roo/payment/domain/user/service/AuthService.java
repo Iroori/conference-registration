@@ -87,6 +87,12 @@ public class AuthService {
             memberType = age <= 35 ? MemberType.YOUNG_ENGINEER : MemberType.NON_MEMBER;
         }
 
+        if (req.dietaryRequirement() == com.roo.payment.domain.user.entity.DietaryRequirement.OTHER
+                && (req.dietaryNote() == null || req.dietaryNote().isBlank())) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT,
+                    "식단 요구사항으로 Other 를 선택한 경우 상세 내용을 입력해 주세요.");
+        }
+
         User user = new User(
                 req.email(),
                 passwordEncoder.encode(req.password()),
@@ -100,6 +106,7 @@ public class AuthService {
                 memberType,
                 Boolean.TRUE.equals(req.isPresenter())
         );
+        user.assignDietaryRequirement(req.dietaryRequirement(), req.dietaryNote());
         user.verifyEmail();                               // 인증 선행 완료이므로 emailVerified=true
         userRepository.save(user);
         emailService.consumeVerified(req.email());        // 인증 이력 1회용 소비
