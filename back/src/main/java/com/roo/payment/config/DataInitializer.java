@@ -212,8 +212,10 @@ public class DataInitializer implements ApplicationRunner {
         String pw = passwordEncoder.encode(sha256("Test1234!"));
 
         // 1) IASBSE 회원 등록
-        if (iasbseMemberRepository.count() == 0) {
+        if (!iasbseMemberRepository.existsByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndCompanyIgnoreCase("Hoewon", "Kim", "POSTECH")) {
             iasbseMemberRepository.save(new IasbseMember("Hoewon", "Kim", "POSTECH", "Active"));
+        }
+        if (!iasbseMemberRepository.existsByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndCompanyIgnoreCase("John", "Smith", "Stanford University")) {
             iasbseMemberRepository.save(new IasbseMember("John", "Smith", "Stanford University", "Active"));
         }
 
