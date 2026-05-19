@@ -93,8 +93,8 @@ public class AuthService {
         User user = new User(
                 req.email(),
                 passwordEncoder.encode(req.password()),
-                req.firstName(),
                 req.lastName(),
+                req.firstName(),
                 req.affiliation(),
                 req.position(),
                 req.country(),

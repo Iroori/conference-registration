@@ -36,18 +36,18 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4">
+    <div className="min-h-screen bg-cream flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-sm">
         {/* Header */}
         <div className="text-center mb-8">
           <img src="/logo.png" alt="IABSE Congress Incheon 2026" className="mx-auto object-contain" style={{ height: '10rem' }} />
-          <h1 className="text-base font-normal text-slate-800">IABSE Congress Incheon 2026</h1>
+          <h1 className="text-base font-medium tracking-wide text-ink">IABSE Congress Incheon 2026</h1>
         </div>
 
         <div className="card p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">
+              <label className="block label-section mb-1.5">
                 Email address
               </label>
               <input
@@ -61,7 +61,7 @@ export const LoginPage = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">
+              <label className="block label-section mb-1.5">
                 Password
               </label>
               <input
@@ -85,18 +85,18 @@ export const LoginPage = () => {
               disabled={loginMutation.isPending}
               className="btn-primary"
             >
-              {loginMutation.isPending ? 'Logging in...' : 'Password'}
+              {loginMutation.isPending ? 'Logging in...' : 'Sign In'}
             </button>
           </form>
 
           <div className="mt-4 pt-4 border-t border-slate-100 text-center">
-            <Link to="/signup" className="text-xs font-medium text-teal-600 hover:text-teal-700">
+            <Link to="/signup" className="text-xs font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover">
               Create a new user account
             </Link>
           </div>
         </div>
 
-        <p className="mt-6 text-center text-xs text-slate-400">
+        <p className="mt-6 text-center text-[11px] tracking-wide text-ink-faint">
           Contact: iabse2026@kibse.or.kr
         </p>
       </div>

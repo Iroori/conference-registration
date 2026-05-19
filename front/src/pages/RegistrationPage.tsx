@@ -107,25 +107,24 @@ export const RegistrationPage = () => {
   const stepIndex = STEP_INDEX[currentStep];
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8">
-      <div className="mx-auto max-w-4xl px-4">
-        {/* Top Nav */}
-        <div className="mb-6 flex items-center justify-between">
+    <div className="min-h-screen bg-cream">
+      {/* Top navy header bar */}
+      <div className="bg-navy">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-5">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="IABSE 2026" className="h-10 object-contain" />
-            <div>
-              <h1 className="mt-0.5 text-xl font-semibold text-slate-800">IABSE Congress Incheon 2026</h1>
-            </div>
+            <img src="/logo_IABSE_white.png" alt="IABSE 2026" className="h-10 object-contain" />
+            <h1 className="text-base font-medium tracking-wide text-white">IABSE Congress Incheon 2026</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2">
-              <span className="text-sm text-slate-600">{user.firstName} {user.lastName}</span>
-              <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${user.memberType === 'MEMBER'
-                ? 'bg-teal-100 text-teal-700'
-                : user.memberType === 'NON_MEMBER'
-                  ? 'bg-slate-100 text-slate-600'
-                  : 'bg-violet-100 text-violet-700'
-                }`}>
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-2.5">
+              <span className="text-xs text-white/70">{`${user.firstName} ${user.lastName}`}</span>
+              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] ${
+                user.memberType === 'MEMBER'
+                  ? 'border-gold-soft bg-gold-soft text-gold'
+                  : user.memberType === 'NON_MEMBER'
+                  ? 'border-white/20 bg-white/5 text-white/70'
+                  : 'border-white/30 bg-white/10 text-white'
+              }`}>
                 {user.memberType === 'MEMBER'
                   ? 'MEMBER'
                   : user.isYoungEngineer
@@ -133,15 +132,16 @@ export const RegistrationPage = () => {
                     : 'NON-MEMBER PLUS'}
               </span>
             </div>
-            <div className="flex gap-1 rounded-xl border border-slate-200 bg-white p-1">
+            <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-0.5">
               {(['REGISTER', 'HISTORY'] as NavTab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setNavTab(tab)}
-                  className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${navTab === tab
-                    ? 'bg-slate-800 text-white'
-                    : 'text-slate-500 hover:text-slate-700'
-                    }`}
+                  className={`rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-[0.1em] transition ${
+                    navTab === tab
+                      ? 'bg-gold text-navy'
+                      : 'text-white/70 hover:text-white'
+                  }`}
                 >
                   {tab === 'REGISTER' ? 'Registration' : 'My Payments'}
                 </button>
@@ -149,19 +149,21 @@ export const RegistrationPage = () => {
             </div>
             <button
               onClick={handleLogout}
-              className="text-xs text-slate-400 hover:text-slate-600 transition"
+              className="text-[11px] uppercase tracking-[0.1em] text-white/50 transition hover:text-white"
             >
               Sign Out
             </button>
           </div>
         </div>
+      </div>
 
+      <div className="mx-auto max-w-4xl px-4 py-8">
         {/* Registration Flow */}
         {navTab === 'REGISTER' && (
           <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-            <div className="flex items-center justify-between bg-slate-800 px-6 py-3.5">
-              <span className="flex items-center gap-2 text-sm font-medium text-white">
-                <span className="text-teal-400">·</span>
+            <div className="flex items-center justify-between bg-navy px-6 py-3.5">
+              <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-white">
+                <span className="text-gold">·</span>
                 {currentStep === 'COMPLETE' ? 'Registration Complete' : 'Registration'}
               </span>
               {currentStep !== 'COMPLETE' && (
@@ -248,9 +250,9 @@ export const RegistrationPage = () => {
         {/* Payment Management */}
         {navTab === 'HISTORY' && (
           <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-            <div className="bg-slate-800 px-6 py-3.5">
-              <span className="flex items-center gap-2 text-sm font-medium text-white">
-                <span className="text-teal-400">·</span> Payment Management
+            <div className="bg-navy px-6 py-3.5">
+              <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-white">
+                <span className="text-gold">·</span> Payment Management
               </span>
             </div>
             <div className="p-6">
@@ -259,10 +261,11 @@ export const RegistrationPage = () => {
                   <button
                     key={sub}
                     onClick={() => setHistorySubTab(sub)}
-                    className={`rounded-full border px-4 py-1.5 text-xs font-medium transition ${historySubTab === sub
-                      ? 'border-slate-800 bg-slate-800 text-white'
-                      : 'border-slate-200 text-slate-500 hover:border-slate-300'
-                      }`}
+                    className={`rounded-full border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] transition ${
+                      historySubTab === sub
+                        ? 'border-gold bg-gold text-navy'
+                        : 'border-slate-200 text-ink-muted hover:border-gold/40 hover:text-ink'
+                    }`}
                   >
                     {sub === 'HISTORY' ? 'Payment History' : 'Cancel Registration'}
                   </button>
@@ -273,7 +276,7 @@ export const RegistrationPage = () => {
           </div>
         )}
 
-        <p className="mt-6 text-center text-xs text-slate-400">
+        <p className="mt-6 text-center text-[11px] tracking-wide text-ink-faint">
           iabse2026@kibse.or.kr
         </p>
       </div>

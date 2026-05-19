@@ -30,18 +30,18 @@ interface LoadingSpinnerProps {
 export const LoadingSpinner = ({ label, size = 'md' }: LoadingSpinnerProps) => (
   <div className="flex items-center gap-2">
     <svg
-      className={`animate-spin text-teal-500 ${size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'}`}
+      className={`animate-spin text-gold ${size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'}`}
       fill="none" viewBox="0 0 24 24"
     >
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
     </svg>
-    {label && <span className="text-sm text-slate-500">{label}</span>}
+    {label && <span className="text-sm text-ink-muted">{label}</span>}
   </div>
 );
 
 const STATUS_MAP: Record<PaymentStatus, { label: string; classes: string }> = {
-  COMPLETED: { label: 'Completed',  classes: 'bg-teal-50 text-teal-700 border-teal-200' },
+  COMPLETED: { label: 'Completed',  classes: 'bg-gold-soft text-gold border-gold-soft' },
   PENDING:   { label: 'Pending',    classes: 'bg-amber-50 text-amber-700 border-amber-200' },
   CANCELLED: { label: 'Cancelled',  classes: 'bg-red-50 text-red-700 border-red-200' },
   FAILED:    { label: 'Failed',     classes: 'bg-slate-100 text-slate-500 border-slate-200' },
@@ -50,23 +50,23 @@ const STATUS_MAP: Record<PaymentStatus, { label: string; classes: string }> = {
 export const StatusPill = ({ status }: { status: PaymentStatus }) => {
   const { label, classes } = STATUS_MAP[status];
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${classes}`}>
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wide ${classes}`}>
       {label}
     </span>
   );
 };
 
 const MEMBER_TYPE_MAP: Record<MemberType, { label: string; classes: string }> = {
-  MEMBER:           { label: 'MEMBER',          classes: 'bg-teal-50 text-teal-700 border-teal-200' },
-  NON_MEMBER:       { label: 'NON-MEMBER',      classes: 'bg-slate-100 text-slate-600 border-slate-200' },
-  NON_MEMBER_PLUS:  { label: 'NON-MEMBER PLUS', classes: 'bg-violet-50 text-violet-700 border-violet-200' },
+  MEMBER:           { label: 'MEMBER',          classes: 'bg-gold-soft text-gold border-gold-soft' },
+  NON_MEMBER:       { label: 'NON-MEMBER',      classes: 'bg-slate-100 text-ink-muted border-slate-200' },
+  NON_MEMBER_PLUS:  { label: 'NON-MEMBER PLUS', classes: 'bg-navy text-white border-navy' },
   YOUNG_ENGINEER:   { label: 'YOUNG ENGINEER',  classes: 'bg-amber-50 text-amber-700 border-amber-200' },
 };
 
 export const MemberTypePill = ({ type }: { type: MemberType }) => {
   const { label, classes } = MEMBER_TYPE_MAP[type];
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium tracking-wide ${classes}`}>
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] ${classes}`}>
       {label}
     </span>
   );
@@ -76,7 +76,7 @@ export const formatKRW = (amount: number) =>
   new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(amount);
 
 export const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">{children}</p>
+  <p className="mb-3 label-section">{children}</p>
 );
 
 interface StepProgressProps {
@@ -94,10 +94,10 @@ export const StepProgress = ({ currentStep, stepLabels }: StepProgressProps) => 
         <React.Fragment key={stepNum}>
           <div className="flex items-center gap-1.5">
             <div
-              className={`flex h-5 w-5 items-center justify-center rounded-full text-xs font-semibold transition-all ${
-                isDone ? 'bg-teal-400 text-slate-900' :
-                isCur  ? 'bg-white text-slate-900' :
-                         'border border-slate-600 text-slate-500'
+              className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold transition-all ${
+                isDone ? 'bg-gold text-navy' :
+                isCur  ? 'bg-white text-navy' :
+                         'border border-white/30 text-white/50'
               }`}
             >
               {isDone ? (
@@ -106,12 +106,12 @@ export const StepProgress = ({ currentStep, stepLabels }: StepProgressProps) => 
                 </svg>
               ) : stepNum}
             </div>
-            <span className={`hidden text-xs sm:inline ${isCur || isDone ? 'text-teal-100' : 'text-slate-500'}`}>
+            <span className={`hidden text-[10px] uppercase tracking-[0.1em] sm:inline ${isCur || isDone ? 'text-gold' : 'text-white/50'}`}>
               {label}
             </span>
           </div>
           {i < stepLabels.length - 1 && (
-            <div className={`mx-1 h-px w-4 ${isDone ? 'bg-teal-400' : 'bg-slate-600'}`} />
+            <div className={`mx-1 h-px w-4 ${isDone ? 'bg-gold' : 'bg-white/20'}`} />
           )}
         </React.Fragment>
       );

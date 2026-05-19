@@ -41,6 +41,12 @@ const formatMMSS = (s: number): string => {
   return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 };
 
+const TIER_BADGE_CLASSES: Record<string, string> = {
+  MEMBER: 'bg-gold-soft text-gold border border-gold-soft',
+  'YOUNG ENGINEER': 'bg-amber-50 text-amber-700 border border-amber-200',
+  'NON-MEMBER PLUS': 'bg-navy text-white border border-navy',
+};
+
 export const SignupPage = () => {
   const navigate = useNavigate();
 
@@ -48,8 +54,8 @@ export const SignupPage = () => {
     email: '',
     password: '',
     passwordConfirm: '',
-    firstName: '',
     lastName: '',
+    firstName: '',
     affiliation: '',
     position: '',
     country: 'South Korea',
@@ -193,21 +199,21 @@ export const SignupPage = () => {
     verifyState === 'SENT' && verifyCode.length === 6 && !codeExpired && !verifyCodeMutation.isPending;
   const canSubmit = verifyState === 'VERIFIED' && !signupMutation.isPending;
 
-  const timerColor = timeLeft === 0 ? 'text-red-500' : timeLeft <= 60 ? 'text-amber-600' : 'text-slate-500';
+  const timerColor = timeLeft === 0 ? 'text-red-500' : timeLeft <= 60 ? 'text-amber-600' : 'text-ink-muted';
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 px-4">
+    <div className="min-h-screen bg-cream py-12 px-4">
       <div className="mx-auto max-w-lg">
         <div className="text-center mb-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-teal-500 mb-1">IABSE 2026</p>
-          <h1 className="text-2xl font-semibold text-slate-800">Create Account</h1>
-          <p className="mt-2 text-sm text-slate-500">Register to participate in the Annual Conference</p>
+          <p className="label-section text-gold mb-1">IABSE 2026</p>
+          <h1 className="text-2xl font-semibold text-ink">Create Account</h1>
+          <p className="mt-2 text-sm text-ink-muted">Register to participate in the Annual Conference</p>
         </div>
 
         <div className="card">
-          <div className="bg-slate-800 px-6 py-3.5">
-            <span className="flex items-center gap-2 text-sm font-medium text-white">
-              <span className="text-teal-400">·</span> Personal Information
+          <div className="bg-navy px-6 py-3.5">
+            <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-white">
+              <span className="text-gold">·</span> Personal Information
             </span>
           </div>
 
@@ -215,9 +221,9 @@ export const SignupPage = () => {
 
             {/* Email + Verify button */}
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">
+              <label className="block label-section mb-1.5">
                 Email Address <span className="text-red-400">*</span>
-                <span className="ml-1 font-normal text-slate-400">(used as login ID)</span>
+                <span className="ml-1 normal-case tracking-normal text-ink-faint">(used as login ID)</span>
               </label>
               <div className="flex gap-2">
                 <input
@@ -230,7 +236,7 @@ export const SignupPage = () => {
                   readOnly={verifyState === 'VERIFIED'}
                 />
                 {verifyState === 'VERIFIED' ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-teal-50 border border-teal-200 px-3 text-xs font-semibold text-teal-700 whitespace-nowrap">
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-gold-soft border border-gold-soft px-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-gold whitespace-nowrap">
                     <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
@@ -241,7 +247,7 @@ export const SignupPage = () => {
                     type="button"
                     onClick={handleSendCode}
                     disabled={!canSendCode}
-                    className="rounded-lg bg-slate-800 px-4 text-xs font-semibold text-white hover:bg-slate-700 disabled:bg-slate-300 disabled:cursor-not-allowed whitespace-nowrap"
+                    className="rounded-lg bg-navy px-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-white hover:bg-navy-hover disabled:bg-slate-300 disabled:cursor-not-allowed whitespace-nowrap"
                   >
                     {sendCodeMutation.isPending ? 'Sending…' : verifyState === 'SENT' ? 'Sent' : 'Verify'}
                   </button>
@@ -252,8 +258,8 @@ export const SignupPage = () => {
               {verifyState === 'SENT' && (
                 <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-[11px] text-slate-500">
-                      A 6-digit code was sent to <span className="font-medium text-slate-700">{form.email}</span>.
+                    <p className="text-[11px] text-ink-muted">
+                      A 6-digit code was sent to <span className="font-medium text-ink">{form.email}</span>.
                     </p>
                     <span className={`text-xs font-mono font-semibold ${timerColor}`}>
                       {codeExpired ? 'Expired' : formatMMSS(timeLeft)}
@@ -274,7 +280,7 @@ export const SignupPage = () => {
                       type="button"
                       onClick={handleVerifyCode}
                       disabled={!canConfirm}
-                      className="rounded-lg bg-teal-500 px-4 text-xs font-semibold text-white hover:bg-teal-600 disabled:bg-slate-300 disabled:cursor-not-allowed whitespace-nowrap"
+                      className="rounded-lg bg-gold px-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-white hover:bg-gold-hover disabled:bg-slate-300 disabled:cursor-not-allowed whitespace-nowrap"
                     >
                       {verifyCodeMutation.isPending ? 'Checking…' : 'Confirm'}
                     </button>
@@ -285,13 +291,13 @@ export const SignupPage = () => {
                     ) : codeExpired ? (
                       <p className="text-[11px] text-red-600">Code expired. Please resend.</p>
                     ) : (
-                      <p className="text-[11px] text-slate-400">Didn't receive it? Check your spam folder.</p>
+                      <p className="text-[11px] text-ink-faint">Didn't receive it? Check your spam folder.</p>
                     )}
                     <button
                       type="button"
                       onClick={handleSendCode}
                       disabled={!canResend}
-                      className="text-[11px] font-medium text-teal-600 hover:text-teal-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+                      className="text-[11px] font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover disabled:text-slate-400 disabled:cursor-not-allowed"
                     >
                       {resendCooldown > 0 ? `Resend (${resendCooldown}s)` : 'Resend Code'}
                     </button>
@@ -303,7 +309,7 @@ export const SignupPage = () => {
             {/* Password */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                <label className="block label-section mb-1.5">
                   Password <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -317,7 +323,7 @@ export const SignupPage = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                <label className="block label-section mb-1.5">
                   Confirm Password <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -333,32 +339,19 @@ export const SignupPage = () => {
                 />
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 -mt-2">
+            <p className="text-[11px] text-ink-faint -mt-2">
               Must include uppercase, lowercase, number, and special character.
             </p>
 
             <div className="border-t border-slate-100 pt-4">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
+              <p className="label-section mb-4">
                 Personal Details
               </p>
 
               {/* Name */}
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                    First Name <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={form.firstName}
-                    onChange={set('firstName')}
-                    className="input-base"
-                    placeholder="Gildong"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                  <label className="block label-section mb-1.5">
                     Last Name <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -370,12 +363,25 @@ export const SignupPage = () => {
                     required
                   />
                 </div>
+                <div>
+                  <label className="block label-section mb-1.5">
+                    First Name <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={form.firstName}
+                    onChange={set('firstName')}
+                    className="input-base"
+                    placeholder="Gildong"
+                    required
+                  />
+                </div>
               </div>
 
               {/* Affiliation / Position */}
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                  <label className="block label-section mb-1.5">
                     Affiliation <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -388,7 +394,7 @@ export const SignupPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                  <label className="block label-section mb-1.5">
                     Position / Title <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -405,9 +411,9 @@ export const SignupPage = () => {
               {/* Date of Birth / Country */}
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                  <label className="block label-section mb-1.5">
                     Date of Birth <span className="text-red-400">*</span>
-                    <span className="ml-1 font-normal text-slate-400">(for YE eligibility)</span>
+                    <span className="ml-1 normal-case tracking-normal text-ink-faint">(for YE eligibility)</span>
                   </label>
                   <input
                     type="date"
@@ -419,7 +425,7 @@ export const SignupPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1.5">
+                  <label className="block label-section mb-1.5">
                     Country <span className="text-red-400">*</span>
                   </label>
                   <select value={form.country} onChange={set('country')} className="input-base">
@@ -432,7 +438,7 @@ export const SignupPage = () => {
 
               {/* Phone */}
               <div className="mb-3">
-                <label className="block text-xs font-medium text-slate-600 mb-1.5">Phone Number</label>
+                <label className="block label-section mb-1.5">Phone Number</label>
                 <input
                   type="tel"
                   value={form.phone}
@@ -449,13 +455,13 @@ export const SignupPage = () => {
                     type="checkbox"
                     checked={form.isPresenter}
                     onChange={(e) => setForm((f) => ({ ...f, isPresenter: e.target.checked }))}
-                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-teal-500 focus:ring-teal-400"
+                    className="mt-0.5 h-4 w-4 rounded border-slate-300 text-gold focus:ring-gold"
                   />
                   <div>
-                    <p className="text-xs font-medium text-slate-700">
+                    <p className="text-xs font-medium text-ink">
                       I am presenting a paper at IABSE 2026
                     </p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-ink-faint mt-0.5">
                       Check this box if you are an author or co-author presenting a paper at the conference.
                     </p>
                   </div>
@@ -465,18 +471,18 @@ export const SignupPage = () => {
 
             {/* Registration Type Info */}
             <div className="rounded-lg bg-slate-50 border border-slate-200 p-4">
-              <p className="text-xs font-semibold text-slate-600 mb-2">Registration Rate Guide</p>
+              <p className="label-section mb-2">Registration Rate Guide</p>
               <div className="space-y-1.5">
                 {[
-                  { badge: 'MEMBER', color: 'teal', desc: 'IABSE registered member' },
-                  { badge: 'YOUNG ENGINEER', color: 'amber', desc: 'Non-member · Under 36 years old' },
-                  { badge: 'NON-MEMBER PLUS', color: 'violet', desc: 'Non-member · 36 years or older' },
-                ].map(({ badge, color, desc }) => (
+                  { badge: 'MEMBER', desc: 'IABSE registered member' },
+                  { badge: 'YOUNG ENGINEER', desc: 'Non-member · Under 36 years old' },
+                  { badge: 'NON-MEMBER PLUS', desc: 'Non-member · 36 years or older' },
+                ].map(({ badge, desc }) => (
                   <div key={badge} className="flex items-center gap-2">
-                    <span className={`text-xs rounded-full px-2 py-0.5 font-medium bg-${color}-100 text-${color}-700`}>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] ${TIER_BADGE_CLASSES[badge]}`}>
                       {badge}
                     </span>
-                    <span className="text-xs text-slate-500">{desc}</span>
+                    <span className="text-xs text-ink-muted">{desc}</span>
                   </div>
                 ))}
               </div>
@@ -484,11 +490,11 @@ export const SignupPage = () => {
 
             {/* ── Privacy & Data Collection Consent ── */}
             <div className="border border-slate-200 rounded-lg overflow-hidden">
-              <div className="bg-slate-800 px-4 py-2.5">
-                <p className="text-xs font-semibold text-white">Data Processing Consent</p>
+              <div className="bg-navy px-4 py-2.5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white">Data Processing Consent</p>
               </div>
               <div className="p-4">
-                <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                <p className="text-xs text-ink-muted leading-relaxed mb-4">
                   By registering for the IABSE Congress Incheon 2026, you (the delegate) agree that your personal data will be processed for registration and handling purposes, as well as to provide you with information related to the congress. All personal data will be processed in accordance with applicable data protection legislation and will not be disclosed to a third party without the delegate's written consent. Please tick the box below to provide your consent. Please note that if you do not agree to the terms, you will not be able to complete your registration.
                 </p>
                 <div className="flex flex-col gap-2">
@@ -498,9 +504,9 @@ export const SignupPage = () => {
                       name="privacyConsent"
                       checked={privacyAgreed === true}
                       onChange={() => setPrivacyAgreed(true)}
-                      className="h-4 w-4 border-slate-300 text-teal-500 focus:ring-teal-400"
+                      className="h-4 w-4 border-slate-300 text-gold focus:ring-gold"
                     />
-                    <span className="text-xs font-medium text-slate-700">
+                    <span className="text-xs font-medium text-ink">
                       I give consent
                     </span>
                   </label>
@@ -510,9 +516,9 @@ export const SignupPage = () => {
                       name="privacyConsent"
                       checked={privacyAgreed === false}
                       onChange={() => setPrivacyAgreed(false)}
-                      className="h-4 w-4 border-slate-300 text-teal-500 focus:ring-teal-400"
+                      className="h-4 w-4 border-slate-300 text-gold focus:ring-gold"
                     />
-                    <span className="text-xs font-medium text-slate-700">
+                    <span className="text-xs font-medium text-ink">
                       I do not consent
                     </span>
                   </label>
@@ -538,9 +544,9 @@ export const SignupPage = () => {
         </div>
 
         <div className="mt-4 text-center">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-muted">
             Already have an account?{' '}
-            <Link to="/login" className="font-medium text-teal-600 hover:text-teal-700">
+            <Link to="/login" className="font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover">
               Sign In
             </Link>
           </p>

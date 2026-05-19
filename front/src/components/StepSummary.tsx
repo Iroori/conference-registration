@@ -82,7 +82,7 @@ export const StepSummary = ({
         {user && (
           <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Personal Details</p>
+              <p className="label-section">Personal Details</p>
             </div>
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
               {[
@@ -92,12 +92,12 @@ export const StepSummary = ({
                 ['Email', user.email],
               ].map(([label, val]) => (
                 <div key={label} className="flex justify-between">
-                  <span className="text-slate-400">{label}</span>
-                  <span className="font-medium text-slate-700">{val}</span>
+                  <span className="text-ink-faint">{label}</span>
+                  <span className="font-medium text-ink">{val}</span>
                 </div>
               ))}
               <div className="col-span-2 flex items-center justify-between">
-                <span className="text-slate-400">Member Type</span>
+                <span className="text-ink-faint">Member Type</span>
                 <MemberTypePill type={memberType} />
               </div>
             </div>
@@ -105,14 +105,14 @@ export const StepSummary = ({
         )}
 
         {/* Registration Package */}
-        <div className="rounded-xl border border-teal-100 bg-white p-4">
+        <div className="rounded-xl border border-gold-soft bg-white p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="label-section">
               Registration Package
             </p>
             <button
               onClick={onEditPackage}
-              className="text-xs font-medium text-teal-600 hover:text-teal-700 transition"
+              className="text-[10px] font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
             >
               Edit
             </button>
@@ -120,49 +120,49 @@ export const StepSummary = ({
           {regOption ? (
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-slate-800">{regOption.nameEn}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{regOption.description}</p>
-                <p className="text-xs text-teal-600 mt-1 font-medium">
+                <p className="text-sm font-semibold text-ink">{regOption.nameEn}</p>
+                <p className="text-xs text-ink-faint mt-0.5">{regOption.description}</p>
+                <p className="text-xs text-gold mt-1 font-semibold uppercase tracking-[0.1em]">
                   {REG_TIER_CONFIG[selectedTier].label}
                 </p>
               </div>
-              <p className="flex-shrink-0 text-sm font-bold text-slate-700">
+              <p className="flex-shrink-0 text-sm font-semibold text-ink">
                 {formatKRW(regOption.price)}
               </p>
             </div>
           ) : (
-            <p className="text-xs text-slate-400">No package selected</p>
+            <p className="text-xs text-ink-faint">No package selected</p>
           )}
         </div>
 
         {/* Additional Programs */}
         <div className="rounded-xl border border-slate-100 bg-white p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="label-section">
               Additional Programs
             </p>
             <button
               onClick={onEditAddons}
-              className="text-xs font-medium text-teal-600 hover:text-teal-700 transition"
+              className="text-[10px] font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
             >
               Edit
             </button>
           </div>
           {additionalSelected.length === 0 ? (
-            <p className="text-xs text-slate-400">No additional programs selected.</p>
+            <p className="text-xs text-ink-faint">No additional programs selected.</p>
           ) : (
             <div className="space-y-2">
               {additionalSelected.map(({ opt, qty }) => (
                 <div key={opt.id} className="flex items-start justify-between gap-3 text-xs">
                   <div>
-                    <p className="font-medium text-slate-700">{opt.nameEn}</p>
-                    <p className="text-slate-400 mt-0.5">{opt.description}</p>
+                    <p className="font-medium text-ink">{opt.nameEn}</p>
+                    <p className="text-ink-faint mt-0.5">{opt.description}</p>
                   </div>
                   <div className="flex-shrink-0 text-right">
-                    <p className="font-semibold text-slate-700">
+                    <p className="font-semibold text-ink">
                       {opt.isFree ? 'Free' : formatKRW(opt.price * qty)}
                     </p>
-                    <p className="text-slate-400">{qty} × {opt.isFree ? 'Free' : formatKRW(opt.price)}</p>
+                    <p className="text-ink-faint">{qty} × {opt.isFree ? 'Free' : formatKRW(opt.price)}</p>
                   </div>
                 </div>
               ))}
@@ -173,12 +173,12 @@ export const StepSummary = ({
         {/* Invitation Letter */}
         <div className="rounded-xl border border-slate-100 bg-white p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="label-section">
               Invitation Letter
             </p>
             <button
               onClick={onEditInvitation}
-              className="text-xs font-medium text-teal-600 hover:text-teal-700 transition"
+              className="text-[10px] font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
             >
               Edit
             </button>
@@ -186,35 +186,35 @@ export const StepSummary = ({
           {needsInvitationLetter ? (
             <div className="flex items-center justify-between text-xs">
               <div>
-                <p className="font-medium text-slate-700">Official Invitation Letter (Visa)</p>
-                <p className="text-slate-400 mt-0.5">Issued within 5 business days of payment</p>
+                <p className="font-medium text-ink">Official Invitation Letter (Visa)</p>
+                <p className="text-ink-faint mt-0.5">Issued within 5 business days of payment</p>
               </div>
-              <p className="font-bold text-teal-600">Free</p>
+              <p className="font-semibold text-gold">Free</p>
             </div>
           ) : (
-            <p className="text-xs text-slate-400">Not requested.</p>
+            <p className="text-xs text-ink-faint">Not requested.</p>
           )}
         </div>
       </div>
 
       {/* Right sidebar — price breakdown */}
-      <div className="bg-teal-50/40 p-6 flex flex-col">
+      <div className="bg-gold-tint p-6 flex flex-col">
         <SectionLabel>Payment Breakdown</SectionLabel>
 
         <div className="mb-5 space-y-2.5">
           {/* Registration */}
           <div className="flex justify-between text-xs">
-            <span className="text-slate-500">
+            <span className="text-ink-muted">
               {REG_TIER_CONFIG[selectedTier].label}
             </span>
-            <span className="font-medium text-slate-700">{formatKRW(pricing.regPrice)}</span>
+            <span className="font-medium text-ink">{formatKRW(pricing.regPrice)}</span>
           </div>
 
           {/* Add-ons */}
           {additionalSelected.map(({ opt, qty }) => (
             <div key={opt.id} className="flex justify-between text-xs">
-              <span className="text-slate-500">{opt.nameEn} × {qty}</span>
-              <span className="font-medium text-slate-700">
+              <span className="text-ink-muted">{opt.nameEn} × {qty}</span>
+              <span className="font-medium text-ink">
                 {opt.isFree ? 'Free' : formatKRW(opt.price * qty)}
               </span>
             </div>
@@ -223,23 +223,23 @@ export const StepSummary = ({
           {/* Invitation letter */}
           {needsInvitationLetter && (
             <div className="flex justify-between text-xs">
-              <span className="text-slate-500">Invitation Letter</span>
-              <span className="font-medium text-teal-600">Free</span>
+              <span className="text-ink-muted">Invitation Letter</span>
+              <span className="font-medium text-gold">Free</span>
             </div>
           )}
 
-          <div className="border-t border-slate-200 pt-2 space-y-1.5">
-            <div className="flex justify-between text-xs text-slate-400">
+          <div className="border-t border-gold-soft pt-2 space-y-1.5">
+            <div className="flex justify-between text-xs text-ink-faint">
               <span>Subtotal</span>
               <span>{formatKRW(pricing.subtotal)}</span>
             </div>
-            <div className="flex justify-between text-xs text-slate-400">
+            <div className="flex justify-between text-xs text-ink-faint">
               <span>VAT (10%)</span>
               <span>{formatKRW(pricing.tax)}</span>
             </div>
-            <div className="flex justify-between pt-1">
-              <span className="text-sm font-semibold text-slate-800">Total</span>
-              <span className="text-base font-bold text-teal-600">{formatKRW(pricing.total)}</span>
+            <div className="flex justify-between items-baseline pt-1">
+              <span className="label-section">Total</span>
+              <span className="amount-total">{formatKRW(pricing.total)}</span>
             </div>
           </div>
         </div>
@@ -250,7 +250,7 @@ export const StepSummary = ({
           </button>
           <button
             onClick={onBack}
-            className="w-full rounded-lg border border-slate-200 py-2 text-sm text-slate-500 transition hover:bg-slate-50"
+            className="w-full rounded-lg border border-slate-200 py-2 text-sm text-ink-muted transition hover:bg-slate-50"
           >
             Back
           </button>

@@ -59,13 +59,13 @@ export const StepAdditionalOptions = ({
       {/* Left — options list */}
       <div className="border-b border-slate-100 p-6 lg:border-b-0 lg:border-r">
         <SectionLabel>Additional Programs</SectionLabel>
-        <p className="text-xs text-slate-400 mb-5">
+        <p className="text-xs text-ink-muted mb-5 leading-relaxed">
           Select additional programs and social events. Use the +/- buttons to choose quantity.
           All options are optional.
         </p>
 
         {additionalOptions.length === 0 ? (
-          <p className="text-sm text-slate-400 py-8 text-center">
+          <p className="text-sm text-ink-faint py-8 text-center">
             No additional programs available for your registration type.
           </p>
         ) : (
@@ -88,10 +88,10 @@ export const StepAdditionalOptions = ({
                   disabled={isDisabled}
                   className={`w-full text-left rounded-xl border p-4 transition ${
                     selected
-                      ? 'border-teal-300 bg-teal-50/60 ring-1 ring-teal-200'
+                      ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
                       : isDisabled
                       ? 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed'
-                      : 'border-slate-200 bg-white hover:border-slate-300'
+                      : 'border-slate-200 bg-white hover:border-gold/40'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -99,7 +99,7 @@ export const StepAdditionalOptions = ({
                       {/* checkbox indicator */}
                       <span
                         className={`mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition ${
-                          selected ? 'bg-teal-500 border-teal-500' : 'border-slate-300 bg-white'
+                          selected ? 'bg-gold border-gold' : 'border-slate-300 bg-white'
                         }`}
                         aria-hidden="true"
                       >
@@ -109,21 +109,21 @@ export const StepAdditionalOptions = ({
                           </svg>
                         )}
                       </span>
-                      <p className={`text-sm font-semibold truncate ${selected ? 'text-teal-800' : 'text-slate-800'}`}>
+                      <p className={`text-sm font-semibold truncate ${selected ? 'text-ink' : 'text-ink'}`}>
                         {opt.nameEn}
                       </p>
                       {isSoldOut && (
-                        <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-500">
+                        <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-red-500">
                           Sold Out
                         </span>
                       )}
                       {isTbd && (
-                        <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600">
+                        <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-600">
                           Coming Soon
                         </span>
                       )}
                     </div>
-                    <p className={`flex-shrink-0 text-sm font-bold ${selected ? 'text-teal-600' : 'text-slate-600'}`}>
+                    <p className={`flex-shrink-0 text-sm font-semibold ${selected ? 'text-gold' : 'text-ink-muted'}`}>
                       {opt.isFree ? 'Free' : isTbd ? 'TBD' : `${formatKRW(opt.price)} / person`}
                     </p>
                   </div>
@@ -135,31 +135,31 @@ export const StepAdditionalOptions = ({
       </div>
 
       {/* Right sidebar */}
-      <div className="bg-teal-50/40 p-6 flex flex-col">
+      <div className="bg-gold-tint p-6 flex flex-col">
         <SectionLabel>Programs Selected</SectionLabel>
 
         {selectedCount === 0 ? (
-          <p className="text-xs text-slate-400 mb-4">No additional programs selected.</p>
+          <p className="text-xs text-ink-faint mb-4">No additional programs selected.</p>
         ) : (
           <div className="mb-4 space-y-2">
             {additionalOptions
               .filter((o) => isSelected(o.id))
               .map((o) => (
                 <div key={o.id} className="flex justify-between text-xs">
-                  <span className="text-slate-500 truncate pr-2">{o.nameEn}</span>
-                  <span className="flex-shrink-0 font-medium text-slate-700">
+                  <span className="text-ink-muted truncate pr-2">{o.nameEn}</span>
+                  <span className="flex-shrink-0 font-medium text-ink">
                     {o.isFree ? 'Free' : formatKRW(o.price)}
                   </span>
                 </div>
               ))}
-            <div className="border-t border-slate-200 pt-2 flex justify-between text-sm">
-              <span className="font-semibold text-slate-700">Programs subtotal</span>
-              <span className="font-bold text-teal-600">{formatKRW(subtotal)}</span>
+            <div className="border-t border-gold-soft pt-2 flex justify-between items-baseline">
+              <span className="label-section">Programs subtotal</span>
+              <span className="amount-total">{formatKRW(subtotal)}</span>
             </div>
           </div>
         )}
 
-        <p className="text-[11px] text-slate-400 mb-6">
+        <p className="text-[11px] text-ink-faint mb-6 leading-relaxed">
           Additional charges will be combined with your registration fee on the summary screen.
         </p>
 
@@ -169,7 +169,7 @@ export const StepAdditionalOptions = ({
           </button>
           <button
             onClick={onBack}
-            className="w-full rounded-lg border border-slate-200 py-2 text-sm text-slate-500 transition hover:bg-slate-50"
+            className="w-full rounded-lg border border-slate-200 py-2 text-sm text-ink-muted transition hover:bg-slate-50"
           >
             Back
           </button>

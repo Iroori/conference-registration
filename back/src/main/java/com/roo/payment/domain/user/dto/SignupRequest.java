@@ -13,10 +13,10 @@ public record SignupRequest(
         String password,
 
         @NotBlank @Size(max = 100)
-        String firstName,
+        String lastName,
 
         @NotBlank @Size(max = 100)
-        String lastName,
+        String firstName,
 
         @NotBlank @Size(max = 200)
         String affiliation,
