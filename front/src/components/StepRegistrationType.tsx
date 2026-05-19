@@ -38,7 +38,7 @@ function getCurrentTier(periods?: RegistrationPeriods): RegistrationTierKey {
 function deadlineLabel(p: { endDate: string | null }): string {
   if (!p.endDate) return 'TBD';
   const d = new Date(p.endDate + 'T00:00:00');
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
 }
 
 export const StepRegistrationType = ({
