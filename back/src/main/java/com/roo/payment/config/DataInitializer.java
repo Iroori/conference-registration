@@ -82,47 +82,47 @@ public class DataInitializer implements ApplicationRunner {
      */
     private List<ConferenceOption> desiredOptions() {
         return List.of(
-                // ── 등록비: 사전등록 (~6/30) ──────────────────────────────────────
+                // ── 등록비: 얼리버드 (~6/30) ──────────────────────────────────────
                 reg("OPT-REG-PRE-MEMBER",
-                        "사전등록 (IABSE 회원)", "Pre-Registration — IABSE Member", 1_200_000L),
+                        "얼리버드 (IABSE 회원)", "Early Bird — IABSE Member", 1_200_000L),
                 reg("OPT-REG-PRE-NM",
-                        "사전등록 (비IABSE 회원)", "Pre-Registration — Non-IABSE Member", 1_400_000L),
+                        "얼리버드 (비IABSE 회원)", "Early Bird — Non-IABSE Member", 1_400_000L),
                 reg("OPT-REG-PRE-NMP",
-                        "사전등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
-                        "Pre-Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_500_000L),
+                        "얼리버드 (비회원 Plus, 1년 IABSE 회원권 포함)",
+                        "Early Bird — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_500_000L),
                 reg("OPT-REG-PRE-YE",
-                        "사전등록 (Young Engineer)", "Pre-Registration — Young Engineer", 700_000L),
+                        "얼리버드 (Young Engineer)", "Early Bird — Young Engineer", 700_000L),
                 reg("OPT-REG-PRE-EXH",
-                        "사전등록 (전시자 추가 배지)",
-                        "Pre-Registration — Additional Badge for Exhibitors", 450_000L),
+                        "얼리버드 (전시자 추가 배지)",
+                        "Early Bird — Additional Badge for Exhibitors", 450_000L),
 
-                // ── 등록비: 얼리버드 (7/1~8/31) ──────────────────────────────────
+                // ── 등록비: 일반등록 (7/1~8/31) ──────────────────────────────────
                 reg("OPT-REG-EARLY-MEMBER",
-                        "얼리버드 등록 (IABSE 회원)", "Early Bird Registration — IABSE Member", 1_350_000L),
+                        "일반등록 (IABSE 회원)", "General Registration — IABSE Member", 1_350_000L),
                 reg("OPT-REG-EARLY-NM",
-                        "얼리버드 등록 (비IABSE 회원)", "Early Bird Registration — Non-IABSE Member", 1_550_000L),
+                        "일반등록 (비IABSE 회원)", "General Registration — Non-IABSE Member", 1_550_000L),
                 reg("OPT-REG-EARLY-NMP",
-                        "얼리버드 등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
-                        "Early Bird Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_650_000L),
-                reg("OPT-REG-EARLY-YE",
-                        "얼리버드 등록 (Young Engineer)", "Early Bird Registration — Young Engineer", 700_000L),
-                reg("OPT-REG-EARLY-EXH",
-                        "얼리버드 등록 (전시자 추가 배지)",
-                        "Early Bird Registration — Additional Badge for Exhibitors", 450_000L),
-
-                // ── 등록비: 일반등록 (9/14~) ─────────────────────────────────────
-                reg("OPT-REG-MEMBER",
-                        "일반등록 (IABSE 회원)", "Regular Registration — IABSE Member", 1_500_000L),
-                reg("OPT-REG-NONMEMBER",
-                        "일반등록 (비IABSE 회원)", "Regular Registration — Non-IABSE Member", 1_700_000L),
-                reg("OPT-REG-NONMEMBER-PLUS",
                         "일반등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
-                        "Regular Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_800_000L),
-                reg("OPT-REG-YE",
-                        "일반등록 (Young Engineer)", "Regular Registration — Young Engineer", 900_000L),
-                reg("OPT-REG-EXH",
+                        "General Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_650_000L),
+                reg("OPT-REG-EARLY-YE",
+                        "일반등록 (Young Engineer)", "General Registration — Young Engineer", 700_000L),
+                reg("OPT-REG-EARLY-EXH",
                         "일반등록 (전시자 추가 배지)",
-                        "Regular Registration — Additional Badge for Exhibitors", 550_000L),
+                        "General Registration — Additional Badge for Exhibitors", 450_000L),
+
+                // ── 등록비: 현장등록 (9/14~) ─────────────────────────────────────
+                reg("OPT-REG-MEMBER",
+                        "현장등록 (IABSE 회원)", "On-site Registration — IABSE Member", 1_500_000L),
+                reg("OPT-REG-NONMEMBER",
+                        "현장등록 (비IABSE 회원)", "On-site Registration — Non-IABSE Member", 1_700_000L),
+                reg("OPT-REG-NONMEMBER-PLUS",
+                        "현장등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
+                        "On-site Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_800_000L),
+                reg("OPT-REG-YE",
+                        "현장등록 (Young Engineer)", "On-site Registration — Young Engineer", 900_000L),
+                reg("OPT-REG-EXH",
+                        "현장등록 (전시자 추가 배지)",
+                        "On-site Registration — Additional Badge for Exhibitors", 550_000L),
 
                 // ── 옵션비: 사회 행사 / 부대 프로그램 ────────────────────────────
                 new ConferenceOption(

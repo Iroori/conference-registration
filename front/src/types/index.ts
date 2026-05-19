@@ -137,7 +137,7 @@ export interface RegistrationTierConfig {
  */
 export const REG_TIER_CONFIG: Record<RegistrationTierKey, RegistrationTierConfig> = {
   PRE_REGISTRATION: {
-    label: 'Pre-Registration',
+    label: 'Early Bird',
     subtitle: 'Best rates — limited availability',
     color: 'teal',
     optionIds: {
@@ -149,7 +149,7 @@ export const REG_TIER_CONFIG: Record<RegistrationTierKey, RegistrationTierConfig
     },
   },
   EARLY_BIRD: {
-    label: 'Early Bird',
+    label: 'General',
     subtitle: 'Standard advance registration',
     color: 'amber',
     optionIds: {
@@ -161,7 +161,7 @@ export const REG_TIER_CONFIG: Record<RegistrationTierKey, RegistrationTierConfig
     },
   },
   REGULAR: {
-    label: 'Regular Registration',
+    label: 'On-site',
     subtitle: 'On-site & late registration',
     color: 'slate',
     optionIds: {
