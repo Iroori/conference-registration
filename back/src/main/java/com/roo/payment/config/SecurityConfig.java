@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/email/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/iasbse/check").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/iasbse/companies").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/options").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/config/**").permitAll()
                         // 관리자 JWT 전용
