@@ -28,16 +28,16 @@ public class User extends BaseEntity {
     @Column(name = "first_name", length = 100)
     private String firstName;
 
-    @Column(length = 200)
+    @Column(columnDefinition = "NVARCHAR(200)")
     private String affiliation;
 
-    @Column(length = 100)
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String position;
 
-    @Column(length = 100)
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String country;
 
-    @Column(length = 50)
+    @Column(columnDefinition = "NVARCHAR(50)")
     private String phone;
 
     @Column(nullable = false)
@@ -101,10 +101,11 @@ public class User extends BaseEntity {
     }
 
     /**
-     * Young Engineer 여부 (만 35세 이하)
+     * Young Engineer 여부 — 가입 시점 나이 판정 결과(memberType)를 기준으로 함.
+     * 가입 후 나이가 바뀌어도 회원 유형은 불변.
      */
     public boolean isYoungEngineer() {
-        return getAge() <= 35;
+        return this.memberType == MemberType.YOUNG_ENGINEER;
     }
 
     public void verifyEmail() {
