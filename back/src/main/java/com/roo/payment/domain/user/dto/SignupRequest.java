@@ -1,5 +1,6 @@
 package com.roo.payment.domain.user.dto;
 
+import com.roo.payment.domain.user.entity.DietaryRequirement;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
@@ -33,5 +34,11 @@ public record SignupRequest(
         @NotNull @Past
         LocalDate birthDate,
 
-        Boolean isPresenter
+        Boolean isPresenter,
+
+        @NotNull
+        DietaryRequirement dietaryRequirement,
+
+        @Size(max = 200)
+        String dietaryNote
 ) {}

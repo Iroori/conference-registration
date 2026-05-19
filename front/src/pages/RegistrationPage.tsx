@@ -6,14 +6,22 @@ import { StepAdditionalOptions } from '../components/StepAdditionalOptions';
 import { StepInvitationLetter } from '../components/StepInvitationLetter';
 import { StepSummary } from '../components/StepSummary';
 import { Step3Payment, Step4Complete } from '../components/Step3Payment';
-import { PaymentHistoryTab, CancelTab } from '../components/PaymentHistory';
+import { PaymentHistoryTab } from '../components/PaymentHistory';
 import { StepProgress } from '../components/Shared';
 import { useAuth } from '../context/AuthContext';
-import type { PaymentResponse, RegistrationStep, RegistrationTierKey } from '../types';
-import { ADDITIONAL_OPTION_IDS, INVITATION_OPTION_ID } from '../types';
+import type {
+  PaymentResponse,
+  RegistrationStep,
+  RegistrationTierKey,
+  RegistrationCategory,
+  AccompanyingPersonInfo,
+} from '../types';
+import { INVITATION_OPTION_ID, DEFAULT_SELECTED_OPTION_IDS } from '../types';
+
+const initialQuantities = (): Record<string, number> =>
+  Object.fromEntries(DEFAULT_SELECTED_OPTION_IDS.map((id) => [id, 1]));
 
 type NavTab = 'REGISTER' | 'HISTORY';
-type HistorySubTab = 'HISTORY' | 'CANCEL';
 
 const STEP_LABELS = ['Select', 'Option', 'Option2', 'Summary', 'Payment'];
 
@@ -31,15 +39,20 @@ export const RegistrationPage = () => {
   const navigate = useNavigate();
 
   const [navTab, setNavTab] = useState<NavTab>('REGISTER');
-  const [historySubTab, setHistorySubTab] = useState<HistorySubTab>('HISTORY');
   const [currentStep, setCurrentStep] = useState<RegistrationStep>('REG_TYPE');
 
-  // Step 1 — registration tier
+  // Step 1 — registration tier + category
   const [selectedTier, setSelectedTier] = useState<RegistrationTierKey | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<RegistrationCategory | null>(null);
   const [selectedRegOptionId, setSelectedRegOptionId] = useState<string | null>(null);
 
-  // Step 2 — additional programs
-  const [additionalQuantities, setAdditionalQuantities] = useState<Record<string, number>>({});
+  // Step 2 — additional programs (Welcome Reception selected by default)
+  const [additionalQuantities, setAdditionalQuantities] =
+    useState<Record<string, number>>(initialQuantities);
+  const [accompanyingPerson, setAccompanyingPerson] = useState<AccompanyingPersonInfo>({
+    lastName: '',
+    firstName: '',
+  });
 
   // Step 3 — invitation letter
   const [needsInvitationLetter, setNeedsInvitationLetter] = useState<boolean | null>(null);
@@ -59,8 +72,7 @@ export const RegistrationPage = () => {
       ids.push(selectedRegOptionId);
     }
 
-    (ADDITIONAL_OPTION_IDS as readonly string[]).forEach((id) => {
-      const qty = additionalQuantities[id] ?? 0;
+    Object.entries(additionalQuantities).forEach(([id, qty]) => {
       if (qty > 0) {
         ids.push(id);
         quantities[id] = qty;
@@ -91,8 +103,10 @@ export const RegistrationPage = () => {
   const resetRegistration = () => {
     setCurrentStep('REG_TYPE');
     setSelectedTier(null);
+    setSelectedCategory(null);
     setSelectedRegOptionId(null);
-    setAdditionalQuantities({});
+    setAdditionalQuantities(initialQuantities());
+    setAccompanyingPerson({ lastName: '', firstName: '' });
     setNeedsInvitationLetter(null);
     setPaymentResult(null);
   };
@@ -177,22 +191,26 @@ export const RegistrationPage = () => {
             {currentStep === 'REG_TYPE' && (
               <StepRegistrationType
                 memberType={memberType}
-                selectedTier={selectedTier}
-                onSelect={(tier, optionId) => {
+                selectedCategory={selectedCategory}
+                onSelect={(tier, category, optionId) => {
                   setSelectedTier(tier);
+                  setSelectedCategory(category);
                   setSelectedRegOptionId(optionId);
                 }}
                 onNext={() => setCurrentStep('ADD_OPTIONS')}
               />
             )}
 
-            {currentStep === 'ADD_OPTIONS' && (
+            {currentStep === 'ADD_OPTIONS' && selectedTier && (
               <StepAdditionalOptions
                 memberType={memberType}
+                selectedTier={selectedTier}
                 quantities={additionalQuantities}
                 onQuantityChange={(id, qty) =>
                   setAdditionalQuantities((prev) => ({ ...prev, [id]: qty }))
                 }
+                accompanyingPerson={accompanyingPerson}
+                onAccompanyingChange={setAccompanyingPerson}
                 onNext={() => setCurrentStep('INVITATION')}
                 onBack={() => setCurrentStep('REG_TYPE')}
               />
@@ -211,7 +229,9 @@ export const RegistrationPage = () => {
               <StepSummary
                 memberType={memberType}
                 selectedTier={selectedTier}
+                selectedRegOptionId={selectedRegOptionId}
                 additionalQuantities={additionalQuantities}
+                accompanyingPerson={accompanyingPerson}
                 needsInvitationLetter={needsInvitationLetter ?? false}
                 onEditPackage={() => setCurrentStep('REG_TYPE')}
                 onEditAddons={() => setCurrentStep('ADD_OPTIONS')}
@@ -226,6 +246,7 @@ export const RegistrationPage = () => {
                 memberType={memberType}
                 selectedOptionIds={paymentPayload.selectedOptionIds}
                 quantities={paymentPayload.quantities}
+                accompanyingPerson={accompanyingPerson}
                 totalAmount={totalAmount}
                 onComplete={(result) => {
                   setPaymentResult(result);
@@ -256,22 +277,7 @@ export const RegistrationPage = () => {
               </span>
             </div>
             <div className="p-6">
-              <div className="mb-5 flex gap-2">
-                {(['HISTORY', 'CANCEL'] as HistorySubTab[]).map((sub) => (
-                  <button
-                    key={sub}
-                    onClick={() => setHistorySubTab(sub)}
-                    className={`rounded-full border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] transition ${
-                      historySubTab === sub
-                        ? 'border-gold bg-gold text-navy'
-                        : 'border-slate-200 text-ink-muted hover:border-gold/40 hover:text-ink'
-                    }`}
-                  >
-                    {sub === 'HISTORY' ? 'Payment History' : 'Cancel Registration'}
-                  </button>
-                ))}
-              </div>
-              {historySubTab === 'HISTORY' ? <PaymentHistoryTab /> : <CancelTab />}
+              <PaymentHistoryTab />
             </div>
           </div>
         )}

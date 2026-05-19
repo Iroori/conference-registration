@@ -389,6 +389,7 @@ docs/
 | 2026-04-16 | [aws-deployment.md](docs/progress/2026-04-16_aws-deployment.md) | AWS Lightsail 인프라 구성 + MSSQL + SES + GitHub Actions CI/CD + 도메인/SSL 설정 |
 | 2026-04-17 | [iabse-incheon-redesign.md](docs/progress/2026-04-17_iabse-incheon-redesign.md) | KSSC→IABSE 리브랜딩 + SES 발신주소 변경 + 회원 4분류(YOUNG_ENGINEER) + 기간 설정 기반 관리 + 관리자 계정/ROLE_ADMIN + 옵션 수량UI 제거 + 잔여티켓 관리자 전용 |
 | 2026-04-29 | [lastname-firstname-and-logo.md](docs/progress/2026-04-29_lastname-firstname-and-logo.md) | 회원가입/사용자 도메인 nameKr·nameEn → lastName·firstName 분리 (DB 컬럼 포함) + 헤더 로고를 `logo_IABSE_white.png`로 교체. IABSE XLS 임포트는 원본 파일에 이메일 컬럼 부재로 보류 → 재공급 후 후속 작업으로 정리 |
+| 2026-05-19 | [registration-fees-and-options-update.md](docs/progress/2026-05-19_registration-fees-and-options-update.md) | 등록비 카테고리 5종(전시자 추가 배지 포함)·기간 3티어 금액 개편 + 등록비 카테고리 사용자 선택 UI(IABSE Member 잠금) + 옵션비 재구성(Gala 일반/YE 분리, Technical Tour 3종, Accompanying Person 기간별) + 동반자 이름 별도 저장(`AccompanyingPerson` 엔티티) + 옵션 시드 기동 시 동기화 |
 
 > 새 세션에서 기능을 추가·변경할 때마다 해당 날짜의 progress 파일을 생성하거나 업데이트합니다.
 

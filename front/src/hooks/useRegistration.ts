@@ -3,10 +3,9 @@ import {
   apiFetchOptions,
   apiCreatePayment,
   apiFetchMyPayments,
-  apiCancelPayment,
   apiFetchRegistrationPeriods,
 } from '../lib/api';
-import type { MemberType, PaymentRequest, CancelRequest } from '../types';
+import type { MemberType, PaymentRequest } from '../types';
 
 export const QUERY_KEYS = {
   options: (memberType: MemberType) => ['options', memberType] as const,
@@ -45,13 +44,3 @@ export const usePaymentHistory = () =>
     queryFn: apiFetchMyPayments,
     staleTime: 60 * 1000,
   });
-
-export const useCancelPayment = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (req: CancelRequest) => apiCancelPayment(req),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.paymentHistory });
-    },
-  });
-};

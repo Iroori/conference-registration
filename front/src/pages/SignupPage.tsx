@@ -2,6 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { apiSignup, apiSendCode, apiVerifyCode } from '../lib/api';
+import type { DietaryRequirement } from '../types';
+
+const DIETARY_OPTIONS: { value: DietaryRequirement; label: string }[] = [
+  { value: 'NONE', label: 'None' },
+  { value: 'VEGETARIAN', label: 'Vegetarian' },
+  { value: 'HALAL', label: 'Halal' },
+  { value: 'OTHER', label: 'Other' },
+];
 
 const COUNTRIES = [
   'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Australia', 'Austria',
@@ -62,6 +70,8 @@ export const SignupPage = () => {
     phone: '',
     birthDate: '',
     isPresenter: false,
+    dietaryRequirement: 'NONE' as DietaryRequirement,
+    dietaryNote: '',
   });
   const [error, setError] = useState('');
   const [privacyAgreed, setPrivacyAgreed] = useState<boolean | null>(null);
@@ -175,6 +185,10 @@ export const SignupPage = () => {
     }
     if (!form.birthDate) {
       setError('Please enter your date of birth.');
+      return;
+    }
+    if (form.dietaryRequirement === 'OTHER' && !form.dietaryNote.trim()) {
+      setError('Please specify your dietary requirement.');
       return;
     }
     if (privacyAgreed !== true) {
@@ -446,6 +460,40 @@ export const SignupPage = () => {
                   className="input-base"
                   placeholder="+82-10-0000-0000"
                 />
+              </div>
+
+              {/* Dietary Requirements */}
+              <div className="mb-3 rounded-lg border border-slate-200 bg-slate-50 p-3.5">
+                <p className="text-xs font-medium text-ink">Dietary Requirements</p>
+                <p className="text-[11px] text-ink-faint mt-0.5 mb-2.5">
+                  Please indicate if you have any special dietary requirements.
+                </p>
+                <div className="space-y-2">
+                  {DIETARY_OPTIONS.map((opt) => (
+                    <label key={opt.value} className="flex items-center gap-2.5 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="dietaryRequirement"
+                        checked={form.dietaryRequirement === opt.value}
+                        onChange={() =>
+                          setForm((f) => ({ ...f, dietaryRequirement: opt.value }))
+                        }
+                        className="h-4 w-4 border-slate-300 text-gold focus:ring-gold"
+                      />
+                      <span className="text-xs text-ink">{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+                {form.dietaryRequirement === 'OTHER' && (
+                  <input
+                    type="text"
+                    value={form.dietaryNote}
+                    onChange={set('dietaryNote')}
+                    className="input-base mt-2.5"
+                    placeholder="Please specify"
+                    maxLength={200}
+                  />
+                )}
               </div>
 
               {/* Paper Presenter */}

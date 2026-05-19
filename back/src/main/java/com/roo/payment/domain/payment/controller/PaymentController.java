@@ -1,7 +1,6 @@
 package com.roo.payment.domain.payment.controller;
 
 import com.roo.payment.common.response.ApiResponse;
-import com.roo.payment.domain.payment.dto.CancelRequest;
 import com.roo.payment.domain.payment.dto.PaymentFailureRequest;
 import com.roo.payment.domain.payment.dto.PaymentRequest;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
@@ -14,7 +13,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payments")

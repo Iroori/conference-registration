@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { usePaymentHistory, useCancelPayment } from '../hooks/useRegistration';
+import { usePaymentHistory } from '../hooks/useRegistration';
 import { ErrorBanner, LoadingSpinner, SectionLabel, StatusPill, MemberTypePill, formatKRW } from './Shared';
 
 export const PaymentHistoryTab = () => {
@@ -78,110 +77,6 @@ export const PaymentHistoryTab = () => {
           </div>
         ))}
       </div>
-    </div>
-  );
-};
-
-export const CancelTab = () => {
-  const [regNum, setRegNum] = useState('');
-  const [reason, setReason] = useState('');
-  const [isDone, setIsDone] = useState(false);
-
-  const { mutate: cancelPayment, isPending, error, reset } = useCancelPayment();
-
-  const handleCancel = () => {
-    if (!regNum.trim()) return;
-    cancelPayment(
-      { registrationNumber: regNum.trim(), reason: reason || 'Cancellation requested' },
-      { onSuccess: () => setIsDone(true) }
-    );
-  };
-
-  const errMsg = error
-    ? ((error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      ?? 'An error occurred during cancellation.')
-    : null;
-
-  if (isDone) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gold-soft">
-          <svg className="h-6 w-6 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-        </div>
-        <div>
-          <p className="font-semibold text-ink">Cancellation Request Submitted</p>
-          <p className="mt-1 text-sm text-ink-muted">Refund will be processed within 3–5 business days.</p>
-        </div>
-        <button
-          onClick={() => {
-            setIsDone(false);
-            setRegNum('');
-            setReason('');
-            reset();
-          }}
-          className="rounded-lg border border-slate-200 px-4 py-2 text-sm text-ink-muted hover:border-gold/40 hover:text-ink"
-        >
-          Submit Another Request
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-xl">
-      <SectionLabel>Payment Cancellation Request</SectionLabel>
-
-      <div className="mb-5 rounded-lg border border-amber-100 bg-amber-50 p-4">
-        <p className="label-section text-amber-800 mb-2">Cancellation &amp; Refund Policy</p>
-        <ul className="space-y-1 text-xs leading-relaxed text-amber-800 list-disc ml-4">
-          <li>Full refund if cancellation is submitted <strong>more than 30 days</strong> before the Congress opening date.</li>
-          <li>50% refund if cancellation is submitted <strong>8–30 days</strong> before the Congress opening date.</li>
-          <li><strong>No refund</strong> for cancellations submitted <strong>7 days or fewer</strong> before the Congress opening date.</li>
-          <li>Refunds will be processed within <strong>3–5 business days</strong> via the original payment method.</li>
-          <li>Cancellations must be submitted through this portal. Email cancellation requests will not be accepted.</li>
-        </ul>
-      </div>
-
-      <div className="mb-4">
-        <label className="mb-1.5 block label-section">Registration Number</label>
-        <input
-          type="text"
-          value={regNum}
-          onChange={(e) => setRegNum(e.target.value)}
-          placeholder="IABSE-2026-XXXXX"
-          className="h-10 w-full rounded-lg border border-slate-200 px-3 font-mono text-sm text-ink outline-none transition focus:border-gold focus:ring-2 focus:ring-gold-soft placeholder:text-slate-300"
-        />
-      </div>
-
-      <div className="mb-5">
-        <label className="mb-1.5 block label-section">
-          Reason for Cancellation <span className="normal-case tracking-normal text-ink-faint">(optional)</span>
-        </label>
-        <textarea
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          rows={3}
-          placeholder="Please describe the reason for cancellation"
-          className="w-full resize-none rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-ink outline-none transition focus:border-gold focus:ring-2 focus:ring-gold-soft placeholder:text-slate-300"
-        />
-      </div>
-
-      {errMsg && (
-        <div className="mb-4">
-          <ErrorBanner message={errMsg} onRetry={() => reset()} />
-        </div>
-      )}
-
-      <button
-        onClick={handleCancel}
-        disabled={isPending || !regNum.trim()}
-        className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-medium text-red-700 transition hover:bg-red-100 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {isPending && <LoadingSpinner size="sm" />}
-        {isPending ? 'Processing…' : 'Submit Cancellation Request'}
-      </button>
     </div>
   );
 };
