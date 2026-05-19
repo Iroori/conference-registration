@@ -35,6 +35,7 @@ public enum ErrorCode {
     // Option
     OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "선택한 옵션을 찾을 수 없습니다."),
     OPTION_CAPACITY_EXCEEDED(HttpStatus.BAD_REQUEST, "선택한 프로그램의 정원이 초과되었습니다."),
+    ACCOMPANYING_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "동반자 이름(성/이름)을 입력해 주세요."),
 
     // Common
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),

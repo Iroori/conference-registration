@@ -89,12 +89,40 @@ export interface ConferenceOption {
 // ─── Registration Tiers ──────────────────────────────────────────────────────
 export type RegistrationTierKey = 'PRE_REGISTRATION' | 'EARLY_BIRD' | 'REGULAR';
 
+/** 등록비 카테고리 — 회원 4유형 + 전시자 추가 배지 */
+export type RegistrationCategory = MemberType | 'EXHIBITOR';
+
+export interface RegistrationCategoryMeta {
+  key: RegistrationCategory;
+  label: string;
+  /** IABSE 회원만 선택 가능 — 로그인 유저가 IABSE 회원이 아니면 잠금 */
+  iabseMemberOnly?: boolean;
+  /** 전시자 추가 배지 — 별도 안내 문구 영역 확보 (문구 미정) */
+  hasReservedNote?: boolean;
+}
+
+/** Registration 탭에 노출되는 등록비 카테고리 (표시 순서) */
+export const REGISTRATION_CATEGORIES: RegistrationCategoryMeta[] = [
+  { key: 'MEMBER', label: 'IABSE Member', iabseMemberOnly: true },
+  { key: 'NON_MEMBER', label: 'Non-IABSE Member' },
+  {
+    key: 'NON_MEMBER_PLUS',
+    label: 'IABSE-Non Member Plus (includes 1 year IABSE membership)',
+  },
+  { key: 'YOUNG_ENGINEER', label: 'Young Engineer' },
+  {
+    key: 'EXHIBITOR',
+    label: 'Additional Badge for Exhibitors',
+    hasReservedNote: true,
+  },
+];
+
 export interface RegistrationTierConfig {
   label: string;
   subtitle: string;
   color: 'teal' | 'amber' | 'slate';
-  /** optionId mapping per member type — 4 categories */
-  optionIds: Record<MemberType, string>;
+  /** optionId mapping per registration category — 5 categories */
+  optionIds: Record<RegistrationCategory, string>;
 }
 
 /**
@@ -111,6 +139,7 @@ export const REG_TIER_CONFIG: Record<RegistrationTierKey, RegistrationTierConfig
       NON_MEMBER: 'OPT-REG-PRE-NM',
       NON_MEMBER_PLUS: 'OPT-REG-PRE-NMP',
       YOUNG_ENGINEER: 'OPT-REG-PRE-YE',
+      EXHIBITOR: 'OPT-REG-PRE-EXH',
     },
   },
   EARLY_BIRD: {
@@ -122,6 +151,7 @@ export const REG_TIER_CONFIG: Record<RegistrationTierKey, RegistrationTierConfig
       NON_MEMBER: 'OPT-REG-EARLY-NM',
       NON_MEMBER_PLUS: 'OPT-REG-EARLY-NMP',
       YOUNG_ENGINEER: 'OPT-REG-EARLY-YE',
+      EXHIBITOR: 'OPT-REG-EARLY-EXH',
     },
   },
   REGULAR: {
@@ -133,6 +163,7 @@ export const REG_TIER_CONFIG: Record<RegistrationTierKey, RegistrationTierConfig
       NON_MEMBER: 'OPT-REG-NONMEMBER',
       NON_MEMBER_PLUS: 'OPT-REG-NONMEMBER-PLUS',
       YOUNG_ENGINEER: 'OPT-REG-YE',
+      EXHIBITOR: 'OPT-REG-EXH',
     },
   },
 };
@@ -148,14 +179,54 @@ export interface RegistrationPeriods {
   regular: TierPeriod;
 }
 
-/** Option IDs shown in the Additional Programs step */
-export const ADDITIONAL_OPTION_IDS = [
-  'OPT-WELCOME',
-  'OPT-GALA-DINNER',
-  'OPT-TECH-TOUR',
-  'OPT-ACCOMPANYING',
-  'OPT-PRE-WORKSHOP',
+// ─── Option Tab (Additional Programs) ────────────────────────────────────────
+export const TECH_TOUR_OPTION_IDS = [
+  'OPT-TECH-TOUR-1',
+  'OPT-TECH-TOUR-2',
+  'OPT-TECH-TOUR-3',
 ] as const;
+
+/** Gala Dinner has separate pricing/capacity for Young Engineers */
+export const galaOptionId = (memberType: MemberType): string =>
+  memberType === 'YOUNG_ENGINEER' ? 'OPT-GALA-DINNER-YE' : 'OPT-GALA-DINNER';
+
+/** Accompanying Person fee depends on the current registration period */
+export const accompanyingOptionId = (tier: RegistrationTierKey): string =>
+  ({
+    PRE_REGISTRATION: 'OPT-ACCOMP-PRE',
+    EARLY_BIRD: 'OPT-ACCOMP-EARLY',
+    REGULAR: 'OPT-ACCOMP-REGULAR',
+  }[tier]);
+
+export const ACCOMPANYING_OPTION_IDS = [
+  'OPT-ACCOMP-PRE',
+  'OPT-ACCOMP-EARLY',
+  'OPT-ACCOMP-REGULAR',
+] as const;
+
+export const isAccompanyingOption = (id: string): boolean =>
+  (ACCOMPANYING_OPTION_IDS as readonly string[]).includes(id);
+
+/** Ordered list of program option IDs shown in the Option tab */
+export const programOptionIds = (
+  memberType: MemberType,
+  tier: RegistrationTierKey
+): string[] => [
+  'OPT-WELCOME',
+  galaOptionId(memberType),
+  ...TECH_TOUR_OPTION_IDS,
+  accompanyingOptionId(tier),
+];
+
+/** Program options that show an explicit "I will not attend" decline checkbox */
+export const DECLINE_LABELS: Record<string, string> = {
+  'OPT-WELCOME': 'I will not attend the Welcome reception',
+  'OPT-GALA-DINNER': 'I will not attend the Gala dinner',
+  'OPT-GALA-DINNER-YE': 'I will not attend the Gala dinner',
+};
+
+/** Program options pre-selected by default (attendance assumed unless declined) */
+export const DEFAULT_SELECTED_OPTION_IDS = ['OPT-WELCOME'] as const;
 
 /** Invitation letter option ID (ADMIN category, free) */
 export const INVITATION_OPTION_ID = 'OPT-VISA';
@@ -164,6 +235,11 @@ export const INVITATION_OPTION_ID = 'OPT-VISA';
 export type PaymentMethod = 'CARD' | 'KAKAO_PAY' | 'BANK_TRANSFER' | 'PAYPAL';
 export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'FAILED';
 
+export interface AccompanyingPersonInfo {
+  lastName: string;
+  firstName: string;
+}
+
 export interface PaymentRequest {
   selectedOptionIds: string[];
   /** optionId → quantity; defaults to 1 if absent */
@@ -171,6 +247,8 @@ export interface PaymentRequest {
   paymentMethod: PaymentMethod;
   tid?: string;
   replycode?: string;
+  /** 동반자 등록 옵션 선택 시 동반자 이름 */
+  accompanyingPerson?: AccompanyingPersonInfo;
 }
 
 export interface PaymentResponse {
@@ -188,6 +266,7 @@ export interface PaymentResponse {
   totalAmount: number;
   paidAt: string | null;
   selectedOptions: ConferenceOption[];
+  accompanyingPerson?: AccompanyingPersonInfo | null;
 }
 
 export interface CancelRequest {

@@ -2,13 +2,22 @@ import { useMemo, useEffect } from 'react';
 import { useConferenceOptions, useRegistrationPeriods } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, MemberTypePill, SectionLabel, formatKRW } from './Shared';
-import type { MemberType, RegistrationTierKey, RegistrationPeriods } from '../types';
-import { REG_TIER_CONFIG } from '../types';
+import type {
+  MemberType,
+  RegistrationTierKey,
+  RegistrationCategory,
+  RegistrationPeriods,
+} from '../types';
+import { REG_TIER_CONFIG, REGISTRATION_CATEGORIES } from '../types';
 
 interface StepRegistrationTypeProps {
   memberType: MemberType;
-  selectedTier: RegistrationTierKey | null;
-  onSelect: (tier: RegistrationTierKey, optionId: string) => void;
+  selectedCategory: RegistrationCategory | null;
+  onSelect: (
+    tier: RegistrationTierKey,
+    category: RegistrationCategory,
+    optionId: string
+  ) => void;
   onNext: () => void;
 }
 
@@ -32,29 +41,9 @@ function deadlineLabel(p: { endDate: string | null }): string {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-const MEMBER_TYPE_LABELS: Record<MemberType, string> = {
-  MEMBER:          'IABSE Member',
-  NON_MEMBER:      'Non-Member',
-  NON_MEMBER_PLUS: 'Non-Member Plus',
-  YOUNG_ENGINEER:  'Young Engineer (< 36)',
-};
-
-const TIER_ORDER: RegistrationTierKey[] = ['PRE_REGISTRATION', 'EARLY_BIRD', 'REGULAR'];
-
-// All tiers share the same gold accent — distinguished only by labels.
-const TIER_STYLES = {
-  active: {
-    border: 'border-gold-soft',
-    bg: 'bg-gold-tint',
-    badge: 'bg-gold-soft text-gold border border-gold-soft',
-    label: 'text-gold',
-    price: 'text-gold',
-  },
-};
-
 export const StepRegistrationType = ({
   memberType,
-  selectedTier,
+  selectedCategory,
   onSelect,
   onNext,
 }: StepRegistrationTypeProps) => {
@@ -62,30 +51,35 @@ export const StepRegistrationType = ({
   const { data: options, isLoading, error, refetch } = useConferenceOptions(memberType);
   const { data: periods } = useRegistrationPeriods();
   const currentTier = getCurrentTier(periods);
+  const tierCfg = REG_TIER_CONFIG[currentTier];
   const periodByKey: Record<RegistrationTierKey, { endDate: string | null }> = {
     PRE_REGISTRATION: periods?.preRegistration ?? { endDate: null },
     EARLY_BIRD:       periods?.earlyBird        ?? { endDate: null },
     REGULAR:          periods?.regular          ?? { endDate: null },
   };
 
-  const optionsByTier = useMemo(() => {
-    if (!options) return {} as Record<RegistrationTierKey, { id: string; price: number } | undefined>;
-    return Object.fromEntries(
-      TIER_ORDER.map((tierKey) => {
-        const optId = REG_TIER_CONFIG[tierKey].optionIds[memberType];
-        const opt = options.find((o) => o.id === optId);
-        return [tierKey, opt ? { id: opt.id, price: opt.price } : undefined];
-      })
-    ) as Record<RegistrationTierKey, { id: string; price: number } | undefined>;
-  }, [options, memberType]);
+  /** 카테고리 → 현재 티어의 옵션 price 매핑 */
+  const priceByCategory = useMemo(() => {
+    const map = {} as Record<RegistrationCategory, number | undefined>;
+    REGISTRATION_CATEGORIES.forEach(({ key }) => {
+      const opt = options?.find((o) => o.id === tierCfg.optionIds[key]);
+      map[key] = opt?.price;
+    });
+    return map;
+  }, [options, tierCfg]);
 
-  // 현재 기간에 해당하는 옵션을 자동 선택
+  const isLocked = (category: RegistrationCategory) => {
+    const meta = REGISTRATION_CATEGORIES.find((c) => c.key === category);
+    return Boolean(meta?.iabseMemberOnly) && memberType !== 'MEMBER';
+  };
+
+  // 로그인 유저의 회원 유형에 해당하는 카테고리를 기본 선택
   useEffect(() => {
-    const tierOpt = optionsByTier[currentTier];
-    if (tierOpt) {
-      onSelect(currentTier, tierOpt.id);
-    }
-  }, [optionsByTier, currentTier]);
+    if (selectedCategory || !options) return;
+    if (isLocked(memberType)) return;
+    onSelect(currentTier, memberType, tierCfg.optionIds[memberType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options, currentTier]);
 
   if (isLoading) {
     return (
@@ -103,79 +97,101 @@ export const StepRegistrationType = ({
     );
   }
 
+  const selectedPrice = selectedCategory ? priceByCategory[selectedCategory] : undefined;
+
   return (
     <div className="grid grid-cols-1 gap-0 lg:grid-cols-[1fr_300px]">
-      {/* Left — tier selection */}
+      {/* Left — category selection */}
       <div className="border-b border-slate-100 p-6 lg:border-b-0 lg:border-r">
-        <SectionLabel>Select Registration Package</SectionLabel>
+        <SectionLabel>Select Registration Category</SectionLabel>
 
-        {/* 현재 등록 기간 표시 (사용자 선택 불가) */}
-        {(() => {
-          const cfg = REG_TIER_CONFIG[currentTier];
-          const tierOpt = optionsByTier[currentTier];
-          const styles = TIER_STYLES.active;
-          return (
-            <div className={`mb-6 rounded-xl border ${styles.border} ${styles.bg} p-4`}>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <p className={`text-sm font-semibold ${styles.label}`}>{cfg.label}</p>
-                    <span className={`text-[10px] font-semibold uppercase tracking-[0.1em] rounded-full px-2 py-0.5 ${styles.badge}`}>
-                      Current Period
-                    </span>
-                  </div>
-                  <p className="text-xs text-ink-muted">{cfg.subtitle}</p>
-                  <p className="text-[11px] text-ink-faint mt-1">
-                    Deadline: <span className="font-medium text-ink-muted">{deadlineLabel(periodByKey[currentTier])}</span>
-                  </p>
-                </div>
-                <div className="flex-shrink-0 text-right">
-                  {tierOpt ? (
-                    <p className="amount-total">{formatKRW(tierOpt.price)}</p>
-                  ) : (
-                    <p className="text-sm text-slate-300">N/A</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Registration Fee Comparison (KRW) — 현재 기간 기준 */}
-        <div className="rounded-xl border border-slate-100 overflow-hidden">
-          <div className="bg-slate-50 px-4 py-2.5 flex items-center justify-between">
-            <p className="label-section">
-              Registration Fee Comparison (KRW)
-            </p>
-            <span className="text-[10px] text-ink-faint">{REG_TIER_CONFIG[currentTier].label}</span>
+        {/* 현재 등록 기간 표시 (날짜 기준 자동 결정) */}
+        <div className="mb-5 rounded-xl border border-gold-soft bg-gold-tint p-4">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <p className="text-sm font-semibold text-gold">{tierCfg.label}</p>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.1em] rounded-full bg-gold-soft px-2 py-0.5 text-gold border border-gold-soft">
+              Current Period
+            </span>
           </div>
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-slate-100">
-                <th className="px-4 py-2.5 text-left text-ink-faint font-medium">Category</th>
-                <th className="px-4 py-2.5 text-right text-ink-faint font-medium">Fee (KRW)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {(['MEMBER', 'NON_MEMBER', 'NON_MEMBER_PLUS', 'YOUNG_ENGINEER'] as MemberType[]).map((mt) => {
-                const optId = REG_TIER_CONFIG[currentTier].optionIds[mt];
-                const opt = options?.find((o) => o.id === optId);
-                return (
-                  <tr key={mt} className={memberType === mt ? 'bg-gold-tint' : ''}>
-                    <td className="px-4 py-2.5 font-medium text-ink-muted">
-                      {MEMBER_TYPE_LABELS[mt]}
-                      {memberType === mt && (
-                        <span className="ml-1.5 text-[10px] text-gold font-semibold uppercase tracking-[0.1em]">(you)</span>
+          <p className="text-[11px] text-ink-faint">
+            Deadline:{' '}
+            <span className="font-medium text-ink-muted">
+              {deadlineLabel(periodByKey[currentTier])}
+            </span>
+          </p>
+        </div>
+
+        <p className="text-xs text-ink-muted mb-3 leading-relaxed">
+          All fees are shown in Korean Won (KRW). Select the category that applies to you.
+        </p>
+
+        <div className="space-y-2.5">
+          {REGISTRATION_CATEGORIES.map((cat) => {
+            const locked = isLocked(cat.key);
+            const selected = selectedCategory === cat.key;
+            const price = priceByCategory[cat.key];
+            const optionId = tierCfg.optionIds[cat.key];
+            const handleClick = () => {
+              if (locked) return;
+              onSelect(currentTier, cat.key, optionId);
+            };
+            return (
+              <div key={cat.key}>
+                <button
+                  type="button"
+                  onClick={handleClick}
+                  disabled={locked}
+                  className={`w-full text-left rounded-xl border p-4 transition ${
+                    selected
+                      ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
+                      : locked
+                      ? 'border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed'
+                      : 'border-slate-200 bg-white hover:border-gold/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span
+                        className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border transition ${
+                          selected ? 'border-gold' : 'border-slate-300'
+                        }`}
+                        aria-hidden="true"
+                      >
+                        {selected && <span className="h-2 w-2 rounded-full bg-gold" />}
+                      </span>
+                      <p className="text-sm font-medium text-ink">{cat.label}</p>
+                      {locked && (
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-faint">
+                          IABSE Members Only
+                        </span>
                       )}
-                    </td>
-                    <td className="px-4 py-2.5 text-right text-ink-muted">
-                      {opt ? formatKRW(opt.price) : '—'}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    </div>
+                    <p
+                      className={`flex-shrink-0 text-sm font-semibold ${
+                        selected ? 'text-gold' : 'text-ink-muted'
+                      }`}
+                    >
+                      {price !== undefined ? formatKRW(price) : '—'}
+                    </p>
+                  </div>
+
+                  {/* 전시자 추가 배지 — 별도 안내 문구 영역 (문구 미정) */}
+                  {cat.hasReservedNote && (
+                    <p className="mt-2 ml-7 text-[11px] italic text-ink-faint">
+                      Additional details for exhibitors will be announced.
+                    </p>
+                  )}
+                </button>
+
+                {locked && (
+                  <p className="mt-1 ml-7 text-[11px] text-ink-faint">
+                    Your account is not registered as an IABSE member, so this
+                    category cannot be selected.
+                  </p>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -196,30 +212,26 @@ export const StepRegistrationType = ({
         )}
 
         <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4">
-          <p className="label-section mb-2">Selected Package</p>
-          {selectedTier ? (
+          <p className="label-section mb-2">Selected Category</p>
+          {selectedCategory ? (
             <div>
-              <p className="text-sm font-semibold text-gold">{REG_TIER_CONFIG[selectedTier].label}</p>
-              <p className="text-xs text-ink-faint mt-0.5">
-                Deadline: {deadlineLabel(periodByKey[selectedTier])}
+              <p className="text-sm font-semibold text-gold">
+                {REGISTRATION_CATEGORIES.find((c) => c.key === selectedCategory)?.label}
               </p>
-              {optionsByTier[selectedTier] && (
-                <p className="amount-total mt-2">
-                  {formatKRW(optionsByTier[selectedTier]!.price)}
-                </p>
+              <p className="text-xs text-ink-faint mt-0.5">
+                {tierCfg.label} · Deadline {deadlineLabel(periodByKey[currentTier])}
+              </p>
+              {selectedPrice !== undefined && (
+                <p className="amount-total mt-2">{formatKRW(selectedPrice)}</p>
               )}
             </div>
           ) : (
-            <p className="text-xs text-ink-faint">No package selected yet</p>
+            <p className="text-xs text-ink-faint">No category selected yet</p>
           )}
         </div>
 
         <div className="mt-auto">
-          <button
-            onClick={onNext}
-            disabled={!selectedTier}
-            className="btn-primary"
-          >
+          <button onClick={onNext} disabled={!selectedCategory} className="btn-primary">
             Continue to Additional Options
           </button>
         </div>

@@ -2,13 +2,20 @@ import { useMemo } from 'react';
 import { useConferenceOptions } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { LoadingSpinner, MemberTypePill, SectionLabel, formatKRW } from './Shared';
-import type { MemberType, RegistrationTierKey } from '../types';
-import { REG_TIER_CONFIG, ADDITIONAL_OPTION_IDS, INVITATION_OPTION_ID } from '../types';
+import type {
+  MemberType,
+  RegistrationTierKey,
+  ConferenceOption,
+  AccompanyingPersonInfo,
+} from '../types';
+import { REG_TIER_CONFIG, INVITATION_OPTION_ID, isAccompanyingOption } from '../types';
 
 interface StepSummaryProps {
   memberType: MemberType;
   selectedTier: RegistrationTierKey;
+  selectedRegOptionId: string | null;
   additionalQuantities: Record<string, number>;
+  accompanyingPerson: AccompanyingPersonInfo;
   needsInvitationLetter: boolean;
   onEditPackage: () => void;
   onEditAddons: () => void;
@@ -20,7 +27,9 @@ interface StepSummaryProps {
 export const StepSummary = ({
   memberType,
   selectedTier,
+  selectedRegOptionId,
   additionalQuantities,
+  accompanyingPerson,
   needsInvitationLetter,
   onEditPackage,
   onEditAddons,
@@ -31,26 +40,29 @@ export const StepSummary = ({
   const { user } = useAuth();
   const { data: options, isLoading } = useConferenceOptions(memberType);
 
-  const regOption = useMemo(() => {
-    const optId = REG_TIER_CONFIG[selectedTier].optionIds[memberType];
-    return options?.find((o) => o.id === optId);
-  }, [options, selectedTier, memberType]);
+  const regOption = useMemo(
+    () => options?.find((o) => o.id === selectedRegOptionId),
+    [options, selectedRegOptionId]
+  );
 
   const additionalSelected = useMemo(() => {
-    if (!options) return [];
-    return (ADDITIONAL_OPTION_IDS as readonly string[])
-      .map((id) => {
+    if (!options) return [] as { opt: ConferenceOption; qty: number }[];
+    return Object.entries(additionalQuantities)
+      .filter(([, qty]) => qty > 0)
+      .map(([id, qty]) => {
         const opt = options.find((o) => o.id === id);
-        const qty = additionalQuantities[id] ?? 0;
-        if (!opt || qty === 0) return null;
-        return { opt, qty };
+        return opt ? { opt, qty } : null;
       })
-      .filter((x): x is { opt: typeof options[0]; qty: number } => x !== null);
+      .filter((x): x is { opt: ConferenceOption; qty: number } => x !== null);
   }, [options, additionalQuantities]);
 
   const invitationOption = useMemo(
     () => options?.find((o) => o.id === INVITATION_OPTION_ID),
     [options]
+  );
+
+  const hasAccompanying = additionalSelected.some(({ opt }) =>
+    isAccompanyingOption(opt.id)
   );
 
   const pricing = useMemo(() => {
@@ -107,9 +119,7 @@ export const StepSummary = ({
         {/* Registration Package */}
         <div className="rounded-xl border border-gold-soft bg-white p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="label-section">
-              Registration Package
-            </p>
+            <p className="label-section">Registration Category</p>
             <button
               onClick={onEditPackage}
               className="text-[10px] font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
@@ -121,7 +131,6 @@ export const StepSummary = ({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-ink">{regOption.nameEn}</p>
-                <p className="text-xs text-ink-faint mt-0.5">{regOption.description}</p>
                 <p className="text-xs text-gold mt-1 font-semibold uppercase tracking-[0.1em]">
                   {REG_TIER_CONFIG[selectedTier].label}
                 </p>
@@ -131,16 +140,14 @@ export const StepSummary = ({
               </p>
             </div>
           ) : (
-            <p className="text-xs text-ink-faint">No package selected</p>
+            <p className="text-xs text-ink-faint">No category selected</p>
           )}
         </div>
 
         {/* Additional Programs */}
         <div className="rounded-xl border border-slate-100 bg-white p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="label-section">
-              Additional Programs
-            </p>
+            <p className="label-section">Additional Programs</p>
             <button
               onClick={onEditAddons}
               className="text-[10px] font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
@@ -156,13 +163,22 @@ export const StepSummary = ({
                 <div key={opt.id} className="flex items-start justify-between gap-3 text-xs">
                   <div>
                     <p className="font-medium text-ink">{opt.nameEn}</p>
-                    <p className="text-ink-faint mt-0.5">{opt.description}</p>
+                    {opt.description && (
+                      <p className="text-ink-faint mt-0.5">{opt.description}</p>
+                    )}
+                    {isAccompanyingOption(opt.id) && (
+                      <p className="text-ink-muted mt-0.5">
+                        Accompanying person:{' '}
+                        <span className="font-medium text-ink">
+                          {accompanyingPerson.firstName} {accompanyingPerson.lastName}
+                        </span>
+                      </p>
+                    )}
                   </div>
                   <div className="flex-shrink-0 text-right">
                     <p className="font-semibold text-ink">
                       {opt.isFree ? 'Free' : formatKRW(opt.price * qty)}
                     </p>
-                    <p className="text-ink-faint">{qty} × {opt.isFree ? 'Free' : formatKRW(opt.price)}</p>
                   </div>
                 </div>
               ))}
@@ -173,9 +189,7 @@ export const StepSummary = ({
         {/* Invitation Letter */}
         <div className="rounded-xl border border-slate-100 bg-white p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="label-section">
-              Invitation Letter
-            </p>
+            <p className="label-section">Invitation Letter</p>
             <button
               onClick={onEditInvitation}
               className="text-[10px] font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"
@@ -202,25 +216,23 @@ export const StepSummary = ({
         <SectionLabel>Payment Breakdown</SectionLabel>
 
         <div className="mb-5 space-y-2.5">
-          {/* Registration */}
           <div className="flex justify-between text-xs">
-            <span className="text-ink-muted">
-              {REG_TIER_CONFIG[selectedTier].label}
-            </span>
+            <span className="text-ink-muted">{REG_TIER_CONFIG[selectedTier].label}</span>
             <span className="font-medium text-ink">{formatKRW(pricing.regPrice)}</span>
           </div>
 
-          {/* Add-ons */}
           {additionalSelected.map(({ opt, qty }) => (
             <div key={opt.id} className="flex justify-between text-xs">
-              <span className="text-ink-muted">{opt.nameEn} × {qty}</span>
+              <span className="text-ink-muted">
+                {opt.nameEn}
+                {qty > 1 ? ` × ${qty}` : ''}
+              </span>
               <span className="font-medium text-ink">
                 {opt.isFree ? 'Free' : formatKRW(opt.price * qty)}
               </span>
             </div>
           ))}
 
-          {/* Invitation letter */}
           {needsInvitationLetter && (
             <div className="flex justify-between text-xs">
               <span className="text-ink-muted">Invitation Letter</span>
@@ -245,7 +257,10 @@ export const StepSummary = ({
         </div>
 
         <div className="mt-auto space-y-2">
-          <button onClick={onNext} className="btn-primary">
+          <button onClick={onNext} disabled={hasAccompanying && (
+            accompanyingPerson.lastName.trim() === '' ||
+            accompanyingPerson.firstName.trim() === ''
+          )} className="btn-primary">
             Proceed to Payment
           </button>
           <button

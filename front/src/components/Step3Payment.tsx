@@ -3,12 +3,14 @@ import { useCreatePayment } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, SectionLabel, MemberTypePill, formatKRW } from './Shared';
 import { apiReportPaymentFailure } from '../lib/api';
-import type { MemberType, PaymentResponse } from '../types';
+import type { MemberType, PaymentResponse, AccompanyingPersonInfo } from '../types';
+import { isAccompanyingOption } from '../types';
 
 interface Step3PaymentProps {
   memberType: MemberType;
   selectedOptionIds: string[];
   quantities: Record<string, number>;
+  accompanyingPerson: AccompanyingPersonInfo;
   totalAmount: number;
   onComplete: (result: PaymentResponse) => void;
   onBack: () => void;
@@ -26,6 +28,7 @@ export const Step3Payment = ({
   memberType,
   selectedOptionIds,
   quantities,
+  accompanyingPerson,
   totalAmount,
   onComplete,
   onBack,
@@ -53,13 +56,15 @@ export const Step3Payment = ({
 
       // 0000: 상용 결제 성공, NPS016: 데모 거래 성공 알림코드
       if (replycode === "0000" || replycode === "NPS000" || replycode === "NPS016") {
+        const needsAccompanying = selectedOptionIds.some(isAccompanyingOption);
         createPayment(
           {
             selectedOptionIds,
             quantities: Object.keys(quantities).length > 0 ? quantities : undefined,
             paymentMethod: 'CARD',
             tid: (form.elements.namedItem('tid') as HTMLInputElement)?.value,
-            replycode: replycode
+            replycode: replycode,
+            accompanyingPerson: needsAccompanying ? accompanyingPerson : undefined,
           },
           {
             onSuccess: (result) => onComplete(result),
@@ -77,7 +82,7 @@ export const Step3Payment = ({
         });
       }
     };
-  }, [createPayment, selectedOptionIds, quantities, onComplete]);
+  }, [createPayment, selectedOptionIds, quantities, accompanyingPerson, onComplete]);
 
   const handlePay = () => {
     if (isSubmitting || isPending) return;
@@ -294,6 +299,14 @@ export const Step4Complete = ({ result, onGoHistory }: Step4CompleteProps) => (
             <span className="text-ink">{opt.isFree ? 'Free' : formatKRW(opt.price)}</span>
           </div>
         ))}
+        {result.accompanyingPerson && (
+          <div className="mb-1.5 flex justify-between text-xs">
+            <span className="text-ink-muted">Accompanying Person</span>
+            <span className="text-ink">
+              {result.accompanyingPerson.firstName} {result.accompanyingPerson.lastName}
+            </span>
+          </div>
+        )}
         <div className="mt-2 flex justify-between items-baseline border-t border-gold-soft pt-2">
           <span className="label-section">Total</span>
           <span className="amount-total">{formatKRW(result.totalAmount)}</span>

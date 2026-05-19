@@ -19,6 +19,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class DataInitializer implements ApplicationRunner {
@@ -46,185 +48,144 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 컨퍼런스 옵션 초기 데이터
+    // 컨퍼런스 옵션 시드 — 시작 시 항상 desiredOptions() 기준으로 동기화한다.
+    //   · 신규 옵션: insert
+    //   · 기존 옵션: 가격·정원·문구 등 갱신 (판매 수량 currentCount는 보존)
+    //   · 목록에서 빠진 옵션: 비활성화 (결제 이력 FK 보존을 위해 삭제하지 않음)
     // ─────────────────────────────────────────────────────────────────────────
     private void seedOptions() {
-        if (optionRepository.count() > 0) return;
+        List<ConferenceOption> desired = desiredOptions();
+        Set<String> desiredIds = desired.stream()
+                .map(ConferenceOption::getId)
+                .collect(Collectors.toSet());
 
-        optionRepository.saveAll(List.of(
+        for (ConferenceOption d : desired) {
+            optionRepository.findById(d.getId())
+                    .ifPresentOrElse(
+                            existing -> existing.syncFrom(d),
+                            () -> optionRepository.save(d));
+        }
 
-                // ── Pre-Registration (4 categories) ──────────────────────────────────
-                new ConferenceOption(
-                        "OPT-REG-PRE-MEMBER",
-                        OptionCategory.REGISTRATION,
-                        "사전등록 (IABSE 회원)",
-                        "Pre-Registration — IABSE Member",
-                        null,
-                        1_200_000L, false, true, false,
-                        MemberType.MEMBER, null
-                ),
-                new ConferenceOption(
-                        "OPT-REG-PRE-NM",
-                        OptionCategory.REGISTRATION,
-                        "사전등록 (비회원)",
-                        "Pre-Registration — Non-Member",
-                        null,
-                        1_400_000L, false, true, false,
-                        MemberType.NON_MEMBER, null
-                ),
-                new ConferenceOption(
-                        "OPT-REG-PRE-NMP",
-                        OptionCategory.REGISTRATION,
-                        "사전등록 (비회원 Plus)",
-                        "Pre-Registration — Non-Member Plus",
-                        null,
-                        1_500_000L, false, true, false,
-                        MemberType.NON_MEMBER_PLUS, null
-                ),
-                new ConferenceOption(
-                        "OPT-REG-PRE-YE",
-                        OptionCategory.REGISTRATION,
-                        "사전등록 (Young Engineer)",
-                        "Pre-Registration — Young Engineer",
-                        null,
-                        700_000L, false, true, false,
-                        MemberType.YOUNG_ENGINEER, null
-                ),
+        optionRepository.findAll().forEach(o -> {
+            if (!desiredIds.contains(o.getId()) && o.isActive()) {
+                o.deactivate();
+            }
+        });
+    }
 
-                // ── Early Bird (+20% 임의 가격, 실제 가격 미정) ─────────────────────
-                new ConferenceOption(
-                        "OPT-REG-EARLY-MEMBER",
-                        OptionCategory.REGISTRATION,
-                        "얼리버드 등록 (IABSE 회원)",
-                        "Early Bird Registration — IABSE Member",
-                        null,
-                        1_440_000L, false, true, false,
-                        MemberType.MEMBER, null
-                ),
-                new ConferenceOption(
-                        "OPT-REG-EARLY-NM",
-                        OptionCategory.REGISTRATION,
-                        "얼리버드 등록 (비회원)",
-                        "Early Bird Registration — Non-Member",
-                        null,
-                        1_680_000L, false, true, false,
-                        MemberType.NON_MEMBER, null
-                ),
-                new ConferenceOption(
-                        "OPT-REG-EARLY-NMP",
-                        OptionCategory.REGISTRATION,
-                        "얼리버드 등록 (비회원 Plus)",
-                        "Early Bird Registration — Non-Member Plus",
-                        null,
-                        1_800_000L, false, true, false,
-                        MemberType.NON_MEMBER_PLUS, null
-                ),
-                new ConferenceOption(
-                        "OPT-REG-EARLY-YE",
-                        OptionCategory.REGISTRATION,
-                        "얼리버드 등록 (Young Engineer)",
-                        "Early Bird Registration — Young Engineer",
-                        null,
-                        840_000L, false, true, false,
-                        MemberType.YOUNG_ENGINEER, null
-                ),
+    /**
+     * 등록비·옵션비 기준 데이터.
+     * 등록비 카테고리 5종(IABSE Member / Non-IABSE Member / Non-Member Plus /
+     * Young Engineer / Additional Badge for Exhibitors)을 기간 3티어로 구성한다.
+     * 등록비 옵션은 모든 회원 유형에 노출하고(allowedMemberType = null), 카테고리 잠금은
+     * 프론트엔드에서 처리한다.
+     */
+    private List<ConferenceOption> desiredOptions() {
+        return List.of(
+                // ── 등록비: 사전등록 (~6/30) ──────────────────────────────────────
+                reg("OPT-REG-PRE-MEMBER",
+                        "사전등록 (IABSE 회원)", "Pre-Registration — IABSE Member", 1_200_000L),
+                reg("OPT-REG-PRE-NM",
+                        "사전등록 (비IABSE 회원)", "Pre-Registration — Non-IABSE Member", 1_400_000L),
+                reg("OPT-REG-PRE-NMP",
+                        "사전등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
+                        "Pre-Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_500_000L),
+                reg("OPT-REG-PRE-YE",
+                        "사전등록 (Young Engineer)", "Pre-Registration — Young Engineer", 700_000L),
+                reg("OPT-REG-PRE-EXH",
+                        "사전등록 (전시자 추가 배지)",
+                        "Pre-Registration — Additional Badge for Exhibitors", 450_000L),
 
-                // ── Regular Registration (+40% 임의 가격, 실제 가격 미정) ──────────
-                new ConferenceOption(
-                        "OPT-REG-MEMBER",
-                        OptionCategory.REGISTRATION,
-                        "일반등록 (IABSE 회원)",
-                        "Regular Registration — IABSE Member",
-                        null,
-                        1_680_000L, false, true, false,
-                        MemberType.MEMBER, null
-                ),
-                new ConferenceOption(
-                        "OPT-REG-NONMEMBER",
-                        OptionCategory.REGISTRATION,
-                        "일반등록 (비회원)",
-                        "Regular Registration — Non-Member",
-                        null,
-                        1_960_000L, false, true, false,
-                        MemberType.NON_MEMBER, null
-                ),
-                new ConferenceOption(
-                        "OPT-REG-NONMEMBER-PLUS",
-                        OptionCategory.REGISTRATION,
-                        "일반등록 (비회원 Plus)",
-                        "Regular Registration — Non-Member Plus",
-                        null,
-                        2_100_000L, false, true, false,
-                        MemberType.NON_MEMBER_PLUS, null
-                ),
-                new ConferenceOption(
-                        "OPT-REG-YE",
-                        OptionCategory.REGISTRATION,
-                        "일반등록 (Young Engineer)",
-                        "Regular Registration — Young Engineer",
-                        null,
-                        980_000L, false, true, false,
-                        MemberType.YOUNG_ENGINEER, null
-                ),
+                // ── 등록비: 얼리버드 (7/1~8/31) ──────────────────────────────────
+                reg("OPT-REG-EARLY-MEMBER",
+                        "얼리버드 등록 (IABSE 회원)", "Early Bird Registration — IABSE Member", 1_350_000L),
+                reg("OPT-REG-EARLY-NM",
+                        "얼리버드 등록 (비IABSE 회원)", "Early Bird Registration — Non-IABSE Member", 1_550_000L),
+                reg("OPT-REG-EARLY-NMP",
+                        "얼리버드 등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
+                        "Early Bird Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_650_000L),
+                reg("OPT-REG-EARLY-YE",
+                        "얼리버드 등록 (Young Engineer)", "Early Bird Registration — Young Engineer", 700_000L),
+                reg("OPT-REG-EARLY-EXH",
+                        "얼리버드 등록 (전시자 추가 배지)",
+                        "Early Bird Registration — Additional Badge for Exhibitors", 450_000L),
 
-                // ── Social Events / Additional Programs ───────────────────────────────
-                new ConferenceOption(
-                        "OPT-WELCOME",
-                        OptionCategory.PROGRAM,
-                        "환영 리셉션",
-                        "Welcome Reception (Sep 16)",
-                        null,
-                        0L, true, false, false,
-                        null, null
-                ),
-                new ConferenceOption(
-                        "OPT-GALA-DINNER",
-                        OptionCategory.PROGRAM,
-                        "갈라 디너",
-                        "Gala Dinner (Sep 17)",
-                        null,
-                        200_000L, false, false, false,
-                        null, 230
-                ),
-                new ConferenceOption(
-                        "OPT-TECH-TOUR",
-                        OptionCategory.PROGRAM,
-                        "기술 투어",
-                        "Technical Tour (Sep 19)",
-                        null,
-                        100_000L, false, false, false,
-                        null, 40
-                ),
-                new ConferenceOption(
-                        "OPT-ACCOMPANYING",
-                        OptionCategory.PROGRAM,
-                        "동반자 워킹 투어 (날짜·금액 미정)",
-                        "Accompanying Persons Walking Tour (Date & Fee TBD)",
-                        null,
-                        0L, false, false, false,
-                        null, null
-                ),
-                new ConferenceOption(
-                        "OPT-PRE-WORKSHOP",
-                        OptionCategory.PROGRAM,
-                        "프리 워크숍 (날짜·금액 미정)",
-                        "Pre-Workshop (Date & Fee TBD)",
-                        null,
-                        0L, false, false, false,
-                        null, null
-                ),
+                // ── 등록비: 일반등록 (9/14~) ─────────────────────────────────────
+                reg("OPT-REG-MEMBER",
+                        "일반등록 (IABSE 회원)", "Regular Registration — IABSE Member", 1_500_000L),
+                reg("OPT-REG-NONMEMBER",
+                        "일반등록 (비IABSE 회원)", "Regular Registration — Non-IABSE Member", 1_700_000L),
+                reg("OPT-REG-NONMEMBER-PLUS",
+                        "일반등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
+                        "Regular Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_800_000L),
+                reg("OPT-REG-YE",
+                        "일반등록 (Young Engineer)", "Regular Registration — Young Engineer", 900_000L),
+                reg("OPT-REG-EXH",
+                        "일반등록 (전시자 추가 배지)",
+                        "Regular Registration — Additional Badge for Exhibitors", 550_000L),
 
-                // ── Administrative Services ───────────────────────────────────────────
+                // ── 옵션비: 사회 행사 / 부대 프로그램 ────────────────────────────
                 new ConferenceOption(
-                        "OPT-VISA",
-                        OptionCategory.ADMIN,
-                        "초청장 (비자용)",
-                        "Official Invitation Letter (Visa)",
-                        null,
-                        0L, true, false, false,
-                        null, null
-                )
-        ));
+                        "OPT-WELCOME", OptionCategory.PROGRAM,
+                        "환영 리셉션", "Welcome Reception",
+                        "I would like to attend the Welcome reception at the Congress Venue",
+                        0L, true, false, false, null, null),
+                new ConferenceOption(
+                        "OPT-GALA-DINNER", OptionCategory.PROGRAM,
+                        "갈라 디너", "Gala Dinner",
+                        "I would like to attend the Gala dinner at the Gyeongwonjae",
+                        250_000L, false, false, false, null, 200),
+                new ConferenceOption(
+                        "OPT-GALA-DINNER-YE", OptionCategory.PROGRAM,
+                        "갈라 디너 (Young Engineer)", "Gala Dinner (Young Engineer)",
+                        "I would like to attend the Gala dinner at the Gyeongwonjae",
+                        200_000L, false, false, false, MemberType.YOUNG_ENGINEER, 80),
+                new ConferenceOption(
+                        "OPT-TECH-TOUR-1", OptionCategory.PROGRAM,
+                        "기술 투어 1", "Technical Tour 1 — Cheongna Sky Bridge",
+                        "I would like to attend the Cheongna Sky Bridge tour",
+                        70_000L, false, false, false, null, 40),
+                new ConferenceOption(
+                        "OPT-TECH-TOUR-2", OptionCategory.PROGRAM,
+                        "기술 투어 2", "Technical Tour 2 — Gimpo-Paju Tunnel",
+                        "I would like to attend the Gimpo-Paju Tunnel tour",
+                        0L, false, false, false, null, 40),
+                new ConferenceOption(
+                        "OPT-TECH-TOUR-3", OptionCategory.PROGRAM,
+                        "기술 투어 3", "Technical Tour 3 — Yeongdong-daero Underground Complex",
+                        "I would like to attend the Underground Complex Site at Yeongdong-daero tour",
+                        0L, false, false, false, null, 40),
+
+                // ── 옵션비: 동반자 등록 (기간별 금액 상이) ───────────────────────
+                new ConferenceOption(
+                        "OPT-ACCOMP-PRE", OptionCategory.PROGRAM,
+                        "동반자 등록 (사전등록)", "Accompanying Person",
+                        "I would like to register an accompanying person",
+                        350_000L, false, false, false, null, null),
+                new ConferenceOption(
+                        "OPT-ACCOMP-EARLY", OptionCategory.PROGRAM,
+                        "동반자 등록 (얼리버드)", "Accompanying Person",
+                        "I would like to register an accompanying person",
+                        350_000L, false, false, false, null, null),
+                new ConferenceOption(
+                        "OPT-ACCOMP-REGULAR", OptionCategory.PROGRAM,
+                        "동반자 등록 (일반등록)", "Accompanying Person",
+                        "I would like to register an accompanying person",
+                        400_000L, false, false, false, null, null),
+
+                // ── 행정 서비스 ──────────────────────────────────────────────────
+                new ConferenceOption(
+                        "OPT-VISA", OptionCategory.ADMIN,
+                        "초청장 (비자용)", "Official Invitation Letter (Visa)",
+                        null, 0L, true, false, false, null, null)
+        );
+    }
+
+    /** 등록비 옵션 — 모든 회원 유형 노출, 정원 무제한, 필수 항목. */
+    private ConferenceOption reg(String id, String nameKr, String nameEn, long price) {
+        return new ConferenceOption(
+                id, OptionCategory.REGISTRATION, nameKr, nameEn, null,
+                price, false, true, false, null, null);
     }
 
     // ─────────────────────────────────────────────────────────────────────────

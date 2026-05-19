@@ -73,6 +73,28 @@ public class ConferenceOption extends BaseEntity {
         return maxCapacity == null || currentCount < maxCapacity;
     }
 
+    public void deactivate() {
+        this.active = false;
+    }
+
+    /**
+     * 시드 데이터 동기화 — 가격·정원 등 편집 가능한 필드를 갱신한다.
+     * 판매 이력에 해당하는 currentCount는 보존한다.
+     */
+    public void syncFrom(ConferenceOption source) {
+        this.category = source.category;
+        this.nameKr = source.nameKr;
+        this.nameEn = source.nameEn;
+        this.description = source.description;
+        this.price = source.price;
+        this.free = source.free;
+        this.required = source.required;
+        this.requiresUpload = source.requiresUpload;
+        this.allowedMemberType = source.allowedMemberType;
+        this.maxCapacity = source.maxCapacity;
+        this.active = source.active;
+    }
+
     public void increaseCount() {
         this.currentCount++;
     }

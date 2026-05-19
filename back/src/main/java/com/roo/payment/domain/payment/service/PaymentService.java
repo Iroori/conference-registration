@@ -41,6 +41,9 @@ public class PaymentService {
     /** 등록번호 prefix — IABSE 브랜딩 */
     private static final String REG_NUMBER_PREFIX = "IABSE-2026-";
 
+    /** 동반자 등록 옵션 ID 접두사 */
+    private static final String ACCOMPANYING_OPTION_PREFIX = "OPT-ACCOMP";
+
     private final PaymentRepository paymentRepository;
     private final ConferenceOptionRepository optionRepository;
     private final UserRepository userRepository;
@@ -92,6 +95,13 @@ public class PaymentService {
             throw new BusinessException(ErrorCode.OPTION_NOT_FOUND);
         }
 
+        // 동반자 등록 옵션이 선택된 경우 동반자 이름 필수
+        boolean hasAccompanying = uniqueIds.stream()
+                .anyMatch(id -> id.startsWith(ACCOMPANYING_OPTION_PREFIX));
+        if (hasAccompanying && request.accompanyingPerson() == null) {
+            throw new BusinessException(ErrorCode.ACCOMPANYING_NAME_REQUIRED);
+        }
+
         Map<String, Integer> quantities = request.quantities() != null ? request.quantities() : Map.of();
 
         // 정원 초과 검증
@@ -127,6 +137,13 @@ public class PaymentService {
         // PayGate TID 저장 — 환불 API 호출 시 사용
         if (request.tid() != null && !request.tid().isBlank()) {
             payment.storeTid(request.tid());
+        }
+
+        // 동반자 정보 저장 (cascade로 결제와 함께 영속화)
+        if (hasAccompanying && request.accompanyingPerson() != null) {
+            payment.assignAccompanyingPerson(
+                    request.accompanyingPerson().lastName(),
+                    request.accompanyingPerson().firstName());
         }
 
         payment.complete();

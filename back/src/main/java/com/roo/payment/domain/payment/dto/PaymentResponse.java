@@ -1,6 +1,7 @@
 package com.roo.payment.domain.payment.dto;
 
 import com.roo.payment.domain.option.dto.ConferenceOptionResponse;
+import com.roo.payment.domain.payment.entity.AccompanyingPerson;
 import com.roo.payment.domain.payment.entity.Payment;
 import com.roo.payment.domain.payment.entity.PaymentMethod;
 import com.roo.payment.domain.payment.entity.PaymentStatus;
@@ -23,10 +24,18 @@ public record PaymentResponse(
         long tax,
         long totalAmount,
         String paidAt,
-        List<ConferenceOptionResponse> selectedOptions
+        List<ConferenceOptionResponse> selectedOptions,
+        AccompanyingPersonInfo accompanyingPerson
 ) {
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public record AccompanyingPersonInfo(String lastName, String firstName) {
+        static AccompanyingPersonInfo from(AccompanyingPerson ap) {
+            return ap == null ? null
+                    : new AccompanyingPersonInfo(ap.getLastName(), ap.getFirstName());
+        }
+    }
 
     public static PaymentResponse from(Payment payment) {
         return new PaymentResponse(
@@ -45,7 +54,8 @@ public record PaymentResponse(
                 payment.getPaidAt() != null ? payment.getPaidAt().format(FORMATTER) : null,
                 payment.getSelectedOptions().stream()
                         .map(ConferenceOptionResponse::from)
-                        .toList()
+                        .toList(),
+                AccompanyingPersonInfo.from(payment.getAccompanyingPerson())
         );
     }
 }
