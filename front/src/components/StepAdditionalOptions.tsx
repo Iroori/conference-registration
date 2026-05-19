@@ -66,10 +66,10 @@ export const StepAdditionalOptions = ({
 
   const programOptions: ConferenceOption[] = useMemo(() => {
     if (!options) return [];
-    return programOptionIds(memberType, selectedTier)
+    return programOptionIds(selectedTier)
       .map((id) => options.find((o) => o.id === id))
       .filter((o): o is ConferenceOption => o !== undefined);
-  }, [options, memberType, selectedTier]);
+  }, [options, selectedTier]);
 
   const isSelected = (id: string) => (quantities[id] ?? 0) > 0;
 

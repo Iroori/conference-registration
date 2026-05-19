@@ -192,10 +192,6 @@ export const TECH_TOUR_OPTION_IDS = [
   'OPT-TECH-TOUR-3',
 ] as const;
 
-/** Gala Dinner has separate pricing/capacity for Young Engineers */
-export const galaOptionId = (memberType: MemberType): string =>
-  memberType === 'YOUNG_ENGINEER' ? 'OPT-GALA-DINNER-YE' : 'OPT-GALA-DINNER';
-
 /** Accompanying Person fee depends on the current registration period */
 export const accompanyingOptionId = (tier: RegistrationTierKey): string =>
   ({
@@ -215,11 +211,11 @@ export const isAccompanyingOption = (id: string): boolean =>
 
 /** Ordered list of program option IDs shown in the Option tab */
 export const programOptionIds = (
-  memberType: MemberType,
   tier: RegistrationTierKey
 ): string[] => [
   'OPT-WELCOME',
-  galaOptionId(memberType),
+  'OPT-GALA-DINNER',
+  'OPT-GALA-DINNER-YE',
   ...TECH_TOUR_OPTION_IDS,
   accompanyingOptionId(tier),
 ];
