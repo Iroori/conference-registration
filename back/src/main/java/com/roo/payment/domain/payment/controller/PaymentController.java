@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,13 +34,13 @@ public class PaymentController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<PaymentResponse>> createPayment(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal String email,
             @Valid @RequestBody PaymentRequest request) {
         log.info("[PAYMENT_CTRL] Payment request received — email={} options={}",
-                userDetails.getUsername(), request.selectedOptionIds());
-        PaymentResponse response = paymentService.createPayment(userDetails.getUsername(), request);
+                email, request.selectedOptionIds());
+        PaymentResponse response = paymentService.createPayment(email, request);
         log.info("[PAYMENT_CTRL] Payment completed — email={} regNo={}",
-                userDetails.getUsername(), response.registrationNumber());
+                email, response.registrationNumber());
         return ResponseEntity.ok(ApiResponse.ok("Payment completed successfully.", response));
     }
 
@@ -51,8 +50,8 @@ public class PaymentController {
      */
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<List<PaymentResponse>>> getMyPayments(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        List<PaymentResponse> payments = paymentService.getMyPayments(userDetails.getUsername());
+            @AuthenticationPrincipal String email) {
+        List<PaymentResponse> payments = paymentService.getMyPayments(email);
         return ResponseEntity.ok(ApiResponse.ok(payments));
     }
 
@@ -62,13 +61,13 @@ public class PaymentController {
      */
     @PostMapping("/cancel")
     public ResponseEntity<ApiResponse<Map<String, Object>>> cancelPayment(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal String email,
             @Valid @RequestBody CancelRequest request) {
         log.info("[PAYMENT_CTRL] Cancellation request received — email={} regNo={}",
-                userDetails.getUsername(), request.registrationNumber());
-        Map<String, Object> result = paymentService.cancelPayment(userDetails.getUsername(), request);
+                email, request.registrationNumber());
+        Map<String, Object> result = paymentService.cancelPayment(email, request);
         log.info("[PAYMENT_CTRL] Cancellation completed — email={} regNo={} refund={}",
-                userDetails.getUsername(), request.registrationNumber(), result.get("refundAmount"));
+                email, request.registrationNumber(), result.get("refundAmount"));
         return ResponseEntity.ok(ApiResponse.ok((String) result.get("message"), result));
     }
 
@@ -78,10 +77,10 @@ public class PaymentController {
      */
     @PostMapping("/failure")
     public ResponseEntity<ApiResponse<Void>> recordPaymentFailure(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal String email,
             @Valid @RequestBody PaymentFailureRequest request) {
         log.warn("[PAYMENT_CTRL] Payment failure event received — email={} replycode={} replyMsg={} tid={}",
-                userDetails.getUsername(),
+                email,
                 request.replycode(),
                 request.replyMsg(),
                 request.tid() != null ? request.tid() : "N/A");
