@@ -209,64 +209,40 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void seedTestAccounts() {
-        if (userRepository.count() > 0) return;
-
-        // Store BCrypt(SHA-256("Test1234!")) to match the client-side hashing scheme
         String pw = passwordEncoder.encode(sha256("Test1234!"));
 
-        // 1) IASBSE 회원 등록 (member@test.com 연동 용이 아님, 이름과 소속 기준)
-        iasbseMemberRepository.save(
-                new IasbseMember("Hoewon", "Kim", "POSTECH", "Active")
-        );
+        // 1) IASBSE 회원 등록
+        if (iasbseMemberRepository.count() == 0) {
+            iasbseMemberRepository.save(new IasbseMember("Hoewon", "Kim", "POSTECH", "Active"));
+        }
 
-        // 2) MEMBER 계정 (IASBSE 회원, 이메일 인증 완료)
-        User member = new User(
-                "member@test.com", pw,
-                "Kim", "Hoewon",
-                "POSTECH", "Professor",
-                "South Korea", "+82-10-1111-0001",
-                LocalDate.of(1975, 5, 10),
-                MemberType.MEMBER
-        );
-        member.verifyEmail();
-        userRepository.save(member);
+        // 2) MEMBER 계정 (IASBSE 회원, 이메일 인증 완료, 국내 계정)
+        seedUser("member@test.com", pw, "Kim", "Hoewon", "POSTECH", "Professor", "KR", "+82-10-1111-0001", LocalDate.of(1975, 5, 10), MemberType.MEMBER, false);
 
-        // 3) YOUNG_ENGINEER 계정 (비회원, 만 30세)
-        User youngEngineer = new User(
-                "young@test.com", pw,
-                "Lee", "Cheongnyeon",
-                "KAIST", "Ph.D. Candidate",
-                "South Korea", "+82-10-2222-0002",
-                LocalDate.of(1995, 8, 20),
-                MemberType.YOUNG_ENGINEER
-        );
-        youngEngineer.verifyEmail();
-        userRepository.save(youngEngineer);
+        // 3) YOUNG_ENGINEER 계정 (비회원, 만 30세, 해외 계정)
+        seedUser("young@test.com", pw, "Lee", "Cheongnyeon", "KAIST", "Ph.D. Candidate", "US", "+1-555-0199", LocalDate.of(1995, 8, 20), MemberType.YOUNG_ENGINEER, false);
 
-        // 4) NON_MEMBER 계정 (일반 비회원, 만 47세)
-        User senior = new User(
-                "senior@test.com", pw,
-                "Park", "Senior",
-                "KICT", "Principal Researcher",
-                "South Korea", "+82-10-3333-0003",
-                LocalDate.of(1978, 3, 15),
-                MemberType.NON_MEMBER
-        );
-        senior.verifyEmail();
-        userRepository.save(senior);
+        // 4) NON_MEMBER 계정 (일반 비회원, 만 47세, 해외 계정)
+        seedUser("senior@test.com", pw, "Park", "Senior", "KICT", "Principal Researcher", "JP", "+81-90-1111-2222", LocalDate.of(1978, 3, 15), MemberType.NON_MEMBER, false);
 
         // 5) 관리자 계정 (admin@kibse.or.kr / Admin2026!)
-        //    잔여 티켓 조회 등 관리자 전용 엔드포인트 접근용.
-        User admin = new User(
-                "admin@kibse.or.kr", passwordEncoder.encode(sha256("Admin2026!")),
-                "System", "Administrator",
-                "KIBSE", "Admin",
-                "South Korea", "+82-2-0000-0000",
-                LocalDate.of(1985, 1, 1),
-                MemberType.MEMBER
+        seedUser("admin@kibse.or.kr", passwordEncoder.encode(sha256("Admin2026!")), "System", "Administrator", "KIBSE", "Admin", "KR", "+82-2-0000-0000", LocalDate.of(1985, 1, 1), MemberType.MEMBER, true);
+    }
+
+    private void seedUser(String email, String pw, String lastName, String firstName,
+                          String affiliation, String position, String country, String phone,
+                          LocalDate birthDate, MemberType type, boolean isAdmin) {
+        userRepository.findByEmailAndActiveTrue(email).ifPresentOrElse(
+                user -> {
+                    user.updateProfile(affiliation, country, position, phone, birthDate);
+                    userRepository.save(user);
+                },
+                () -> {
+                    User newUser = new User(email, pw, lastName, firstName, affiliation, position, country, phone, birthDate, type);
+                    newUser.verifyEmail();
+                    if (isAdmin) newUser.promoteToAdmin();
+                    userRepository.save(newUser);
+                }
         );
-        admin.verifyEmail();
-        admin.promoteToAdmin();
-        userRepository.save(admin);
     }
 }

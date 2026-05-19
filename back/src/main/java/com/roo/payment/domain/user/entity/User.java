@@ -145,4 +145,12 @@ public class User extends BaseEntity {
     public boolean isPresenter() { return presenter; }
     public boolean isAdmin() { return admin; }
     public void promoteToAdmin() { this.admin = true; }
+
+    public void updateProfile(String affiliation, String country, String position, String phone, LocalDate birthDate) {
+        this.affiliation = affiliation;
+        this.country = country;
+        this.position = position;
+        this.phone = phone;
+        this.birthDate = birthDate;
+    }
 }
