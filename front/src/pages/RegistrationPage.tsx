@@ -6,7 +6,7 @@ import { StepAdditionalOptions } from '../components/StepAdditionalOptions';
 import { StepInvitationLetter } from '../components/StepInvitationLetter';
 import { StepSummary } from '../components/StepSummary';
 import { Step3Payment, Step4Complete } from '../components/Step3Payment';
-import { PaymentHistoryTab, CancelTab } from '../components/PaymentHistory';
+import { PaymentHistoryTab } from '../components/PaymentHistory';
 import { StepProgress } from '../components/Shared';
 import { useAuth } from '../context/AuthContext';
 import type {
@@ -22,7 +22,6 @@ const initialQuantities = (): Record<string, number> =>
   Object.fromEntries(DEFAULT_SELECTED_OPTION_IDS.map((id) => [id, 1]));
 
 type NavTab = 'REGISTER' | 'HISTORY';
-type HistorySubTab = 'HISTORY' | 'CANCEL';
 
 const STEP_LABELS = ['Select', 'Option', 'Option2', 'Summary', 'Payment'];
 
@@ -40,7 +39,6 @@ export const RegistrationPage = () => {
   const navigate = useNavigate();
 
   const [navTab, setNavTab] = useState<NavTab>('REGISTER');
-  const [historySubTab, setHistorySubTab] = useState<HistorySubTab>('HISTORY');
   const [currentStep, setCurrentStep] = useState<RegistrationStep>('REG_TYPE');
 
   // Step 1 — registration tier + category
@@ -279,22 +277,7 @@ export const RegistrationPage = () => {
               </span>
             </div>
             <div className="p-6">
-              <div className="mb-5 flex gap-2">
-                {(['HISTORY', 'CANCEL'] as HistorySubTab[]).map((sub) => (
-                  <button
-                    key={sub}
-                    onClick={() => setHistorySubTab(sub)}
-                    className={`rounded-full border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] transition ${
-                      historySubTab === sub
-                        ? 'border-gold bg-gold text-navy'
-                        : 'border-slate-200 text-ink-muted hover:border-gold/40 hover:text-ink'
-                    }`}
-                  >
-                    {sub === 'HISTORY' ? 'Payment History' : 'Cancel Registration'}
-                  </button>
-                ))}
-              </div>
-              {historySubTab === 'HISTORY' ? <PaymentHistoryTab /> : <CancelTab />}
+              <PaymentHistoryTab />
             </div>
           </div>
         )}

@@ -226,18 +226,6 @@ public class EmailService {
                 buildPaymentConfirmationHtml(fullName, registrationNumber, totalAmount, paidAt));
     }
 
-    @Async
-    public void sendCancellationConfirmation(String to, String fullName,
-                                              String registrationNumber, long refundAmount) {
-        if (appProperties.isDevMode()) {
-            log.info("[DEV] Cancellation Confirmed → {} | Reg#{} | Refund ₩{}",
-                    to, registrationNumber, String.format("%,d", refundAmount));
-            return;
-        }
-        sendHtmlMail(to, "[IABSE 2026] Registration Cancellation Confirmed",
-                buildCancellationHtml(fullName, registrationNumber, refundAmount));
-    }
-
     // ─── private helpers ─────────────────────────────────────────────────
 
     private void sendHtmlMail(String to, String subject, String htmlBody) {
@@ -300,28 +288,6 @@ public class EmailService {
                   </div>
                 </body></html>
                 """.formatted(fullName, registrationNumber, totalAmount, paidAt);
-    }
-
-    private String buildCancellationHtml(String fullName, String registrationNumber, long refundAmount) {
-        return """
-                <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head>
-                <body style="font-family:'Segoe UI',sans-serif;background:#f8fafc;padding:40px 0">
-                  <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
-                    <div style="background:#1e293b;padding:24px 32px">
-                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">IABSE 2026</p>
-                      <h1 style="color:#fff;font-size:20px;margin:4px 0 0">Cancellation Confirmed</h1>
-                    </div>
-                    <div style="padding:32px">
-                      <p style="color:#1e293b;margin:0 0 24px">Dear %s, your registration has been cancelled.</p>
-                      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:20px;margin-bottom:24px">
-                        <p style="margin:0;color:#94a3b8;font-size:13px">Registration No: <strong style="color:#1e293b">%s</strong></p>
-                        <p style="margin:8px 0 0;color:#94a3b8;font-size:13px">Expected Refund: <strong style="color:#1e293b">₩%,d</strong></p>
-                      </div>
-                      <p style="color:#94a3b8;font-size:12px;margin:0">Refunds are processed within 3–5 business days.</p>
-                    </div>
-                  </div>
-                </body></html>
-                """.formatted(fullName, registrationNumber, refundAmount);
     }
 
     // ─── Inner record ────────────────────────────────────────────────────

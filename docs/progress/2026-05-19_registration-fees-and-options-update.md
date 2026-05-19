@@ -89,6 +89,15 @@
   `dto/AuthResponse.java`, `service/AuthService.java`
 - 프론트엔드 수정: `types/index.ts`, `pages/SignupPage.tsx`, `components/Step3Payment.tsx`
 
+### 결제 취소 기능 제거
+- 취소는 PayGate 관리자에서 직접 처리하므로 사이트 내 취소 기능을 제거
+- 백엔드: `PaymentService.cancelPayment`/`calculateRefundAmount`/`callPaygateCancelApi`,
+  `POST /api/payments/cancel` 엔드포인트, `CancelRequest` DTO,
+  `EmailService.sendCancellationConfirmation`, 취소 전용 `ErrorCode` 3종 삭제
+- 프론트엔드: 취소 탭(`CancelTab`), `useCancelPayment`, `apiCancelPayment`,
+  `CancelRequest`/`CancelResult` 타입 삭제 — My Payments 탭은 결제 내역 조회만 유지
+- 엔티티의 취소 상태(`PaymentStatus.CANCELLED` 등)는 스키마 호환을 위해 보존
+
 ## 참고 — 옵션 ID
 - 등록비: `OPT-REG-PRE-*`, `OPT-REG-EARLY-*`, `OPT-REG-*` (MEMBER/NM/NMP/YE/EXH)
 - 옵션비: `OPT-WELCOME`, `OPT-GALA-DINNER`, `OPT-GALA-DINNER-YE`,

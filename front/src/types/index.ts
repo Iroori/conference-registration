@@ -275,17 +275,6 @@ export interface PaymentResponse {
   accompanyingPerson?: AccompanyingPersonInfo | null;
 }
 
-export interface CancelRequest {
-  registrationNumber: string;
-  reason: string;
-}
-
-export interface CancelResult {
-  success: boolean;
-  refundAmount: number;
-  message: string;
-}
-
 // ─── Pricing (프론트엔드 계산용) ─────────────────────────────────────────────
 export interface PricingSummary {
   subtotal: number;

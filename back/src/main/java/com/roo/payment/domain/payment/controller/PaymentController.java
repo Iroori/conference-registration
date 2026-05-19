@@ -1,7 +1,6 @@
 package com.roo.payment.domain.payment.controller;
 
 import com.roo.payment.common.response.ApiResponse;
-import com.roo.payment.domain.payment.dto.CancelRequest;
 import com.roo.payment.domain.payment.dto.PaymentFailureRequest;
 import com.roo.payment.domain.payment.dto.PaymentRequest;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
@@ -15,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -54,22 +52,6 @@ public class PaymentController {
             @AuthenticationPrincipal UserDetails userDetails) {
         List<PaymentResponse> payments = paymentService.getMyPayments(userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.ok(payments));
-    }
-
-    /**
-     * Request payment cancellation — partial refund policy applied
-     * POST /api/payments/cancel
-     */
-    @PostMapping("/cancel")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> cancelPayment(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody CancelRequest request) {
-        log.info("[PAYMENT_CTRL] Cancellation request received — email={} regNo={}",
-                userDetails.getUsername(), request.registrationNumber());
-        Map<String, Object> result = paymentService.cancelPayment(userDetails.getUsername(), request);
-        log.info("[PAYMENT_CTRL] Cancellation completed — email={} regNo={} refund={}",
-                userDetails.getUsername(), request.registrationNumber(), result.get("refundAmount"));
-        return ResponseEntity.ok(ApiResponse.ok((String) result.get("message"), result));
     }
 
     /**

@@ -9,8 +9,6 @@ import type {
   MemberType,
   PaymentRequest,
   PaymentResponse,
-  CancelRequest,
-  CancelResult,
   RegistrationPeriods,
 } from '../types';
 
@@ -90,15 +88,6 @@ export const apiCreatePayment = async (req: PaymentRequest): Promise<PaymentResp
 export const apiFetchMyPayments = async (): Promise<PaymentResponse[]> => {
   const res = await apiClient.get<{ data: PaymentResponse[] }>('/payments/me');
   return res.data.data;
-};
-
-export const apiCancelPayment = async (req: CancelRequest): Promise<CancelResult> => {
-  const res = await apiClient.post<{ data: { success: boolean; refundAmount: number; message: string } }>(
-    '/payments/cancel',
-    req
-  );
-  const d = res.data.data;
-  return { success: d.success, refundAmount: d.refundAmount, message: d.message };
 };
 
 export const apiReportPaymentFailure = async (payload: {

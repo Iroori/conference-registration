@@ -5,7 +5,6 @@ import com.roo.payment.common.exception.ErrorCode;
 import com.roo.payment.config.AppProperties;
 import com.roo.payment.domain.option.entity.ConferenceOption;
 import com.roo.payment.domain.option.repository.ConferenceOptionRepository;
-import com.roo.payment.domain.payment.dto.CancelRequest;
 import com.roo.payment.domain.payment.dto.PaymentRequest;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
 import com.roo.payment.domain.payment.entity.Payment;
@@ -19,18 +18,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -134,7 +127,7 @@ public class PaymentService {
                 o.increaseCount();
         });
 
-        // PayGate TID 저장 — 환불 API 호출 시 사용
+        // PayGate TID 저장 — 거래 식별/조회용
         if (request.tid() != null && !request.tid().isBlank()) {
             payment.storeTid(request.tid());
         }
@@ -174,167 +167,6 @@ public class PaymentService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         return paymentRepository.findByUserWithOptions(user)
                 .stream().map(PaymentResponse::from).toList();
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // 결제 취소 — 부분 환불 정책 + PayGate Cancel API 연동
-    // ─────────────────────────────────────────────────────────────────────────
-
-    @Transactional
-    public Map<String, Object> cancelPayment(String email, CancelRequest request) {
-        log.info("[PAYMENT] Cancel requested — email={} regNo={}",
-                maskEmail(email), request.registrationNumber());
-
-        User user = userRepository.findByEmailAndActiveTrue(email)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-        Payment payment = paymentRepository
-                .findByRegistrationNumber(request.registrationNumber())
-                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_REGISTRATION_NUMBER));
-
-        // 본인 확인
-        if (!payment.getUser().getId().equals(user.getId())) {
-            log.warn("[PAYMENT] Unauthorized cancel attempt — requestEmail={} paymentOwner={}",
-                    maskEmail(email), maskEmail(payment.getUser().getEmail()));
-            throw new BusinessException(ErrorCode.FORBIDDEN);
-        }
-
-        if (payment.getStatus() == PaymentStatus.CANCELLED) {
-            throw new BusinessException(ErrorCode.PAYMENT_ALREADY_CANCELLED);
-        }
-        if (payment.getStatus() != PaymentStatus.COMPLETED) {
-            throw new BusinessException(ErrorCode.PAYMENT_CANCEL_NOT_ALLOWED);
-        }
-
-        // 부분 환불 금액 계산
-        long refundAmount = calculateRefundAmount(payment.getTotalAmount());
-        boolean isPartial = refundAmount < payment.getTotalAmount();
-
-        log.info("[PAYMENT] Refund policy applied — total={} refund={} partial={}",
-                payment.getTotalAmount(), refundAmount, isPartial);
-
-        // PayGate Cancel API 호출 (tid가 있는 경우)
-        String tid = payment.getTid();
-        if (tid != null && !tid.isBlank()) {
-            callPaygateCancelApi(tid, refundAmount, isPartial);
-        } else {
-            log.warn("[PAYMENT] No tid stored — skipping PayGate cancel API call. regNo={}",
-                    request.registrationNumber());
-        }
-
-        // 정원 복구 및 상태 변경
-        payment.getSelectedOptions().forEach(ConferenceOption::decreaseCount);
-        payment.cancel(request.reason());
-
-        log.info("[PAYMENT] Cancellation completed — email={} regNo={} refund={}",
-                maskEmail(email), request.registrationNumber(), refundAmount);
-
-        try {
-            emailService.sendCancellationConfirmation(
-                    user.getEmail(), user.getFullName(),
-                    request.registrationNumber(), refundAmount);
-        } catch (Exception e) {
-            log.error("[PAYMENT] Cancellation email failed — email={} error={}",
-                    maskEmail(email), e.getMessage());
-        }
-
-        String policyMessage = isPartial
-                ? "Cancellation request accepted. A 50% refund (" + refundAmount
-                        + " KRW) will be processed within 3–5 business days."
-                : "Cancellation request accepted. Full refund will be processed within 3–5 business days.";
-
-        return Map.of(
-                "success", true,
-                "refundAmount", refundAmount,
-                "message", policyMessage);
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // 부분 환불 금액 계산
-    // 행사 30일 초과 전: 100% 환불
-    // 행사 8~30일 전: 50% 환불
-    // 행사 7일 이내: 0원 환불 (No Refund)
-    // ─────────────────────────────────────────────────────────────────────────
-
-    long calculateRefundAmount(long totalAmount) {
-        LocalDate today = LocalDate.now();
-        LocalDate eventDate;
-        try {
-            eventDate = LocalDate.parse(appProperties.getPaygate().getEventDate());
-        } catch (Exception e) {
-            log.error("[PAYMENT] Invalid eventDate config — defaulting to full refund. error={}", e.getMessage());
-            return totalAmount;
-        }
-
-        long daysUntilEvent = today.until(eventDate).getDays();
-
-        if (daysUntilEvent > 30) {
-            log.info("[PAYMENT] Refund: FULL ({}+ days before event)", daysUntilEvent);
-            return totalAmount;
-        } else if (daysUntilEvent >= 8) {
-            long halfRefund = Math.round(totalAmount * 0.5);
-            log.info("[PAYMENT] Refund: 50% ({} days before event) → {} KRW", daysUntilEvent, halfRefund);
-            return halfRefund;
-        } else {
-            log.info("[PAYMENT] Refund: NONE ({} days before event or past event)", daysUntilEvent);
-            return 0L;
-        }
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // PayGate Cancel API 호출
-    // amount = "F" → 전액 환불
-    // amount = 숫자 → 부분 환불 금액 (KRW)
-    // ─────────────────────────────────────────────────────────────────────────
-
-    private void callPaygateCancelApi(String tid, long refundAmount, boolean isPartial) {
-        // MID는 AppProperties(application.yaml: app.paygate.mid-domestic)에서 읽기
-        String mid = appProperties.getPaygate().getMidDomestic();
-
-        if (mid == null || mid.isBlank()) {
-            log.warn(
-                    "[PAYMENT] app.paygate.mid-domestic not configured — skipping cancel API call (manual refund required). tid={}",
-                    tid);
-            return;
-        }
-
-        String amountParam = isPartial ? String.valueOf(refundAmount) : "F";
-
-        try {
-            String urlStr = String.format("%s?callback=callback&mid=%s&tid=%s&amount=%s",
-                    appProperties.getPaygate().getCancelUrl(),
-                    URLEncoder.encode(mid, StandardCharsets.UTF_8),
-                    URLEncoder.encode(tid, StandardCharsets.UTF_8),
-                    URLEncoder.encode(amountParam, StandardCharsets.UTF_8));
-
-            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
-            conn.setRequestMethod("GET");
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(10000);
-
-            int httpStatus = conn.getResponseCode();
-            String body;
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
-                body = reader.lines().collect(Collectors.joining("\n"));
-            }
-
-            log.info("[PAYMENT] PayGate Cancel API response — tid={} httpStatus={} body={}", tid, httpStatus, body);
-
-            // PayGate Cancel API: replycode=0000 → 성공
-            if (!body.contains("\"replycode\":\"0000\"") && !body.contains("replycode=0000")) {
-                log.error("[PAYMENT] PayGate Cancel API returned failure — tid={} body={}", tid, body);
-                throw new BusinessException(ErrorCode.PAYGATE_VERIFICATION_FAILED,
-                        "PayGate cancel API returned failure for tid=" + tid);
-            }
-
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("[PAYMENT] PayGate Cancel API communication error — tid={} error={}", tid, e.getMessage());
-            throw new BusinessException(ErrorCode.PAYGATE_VERIFICATION_FAILED,
-                    "PayGate cancel API communication error: " + e.getMessage());
-        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
