@@ -92,13 +92,50 @@ export const Step3Payment = ({
       setPgError('Please agree to the Cancellation and Refund Policy before proceeding.');
       return;
     }
-    setPgError(null); // 이전 에러 초기화
+    setPgError(null);
+
     if (typeof (window as any).doTransaction === 'function') {
-      const form = document.forms.namedItem('PGIOForm');
+      setIsSubmitting(true);
+
+      // React의 내부 속성(__reactFiber 등)이 PG 스크립트에 의해 직렬화되는 것을 방지하기 위해 순수 DOM으로 폼 생성
+      let form = document.forms.namedItem('PGIOForm') as HTMLFormElement;
       if (form) {
-        setIsSubmitting(true);
-        (window as any).doTransaction(form);
+        form.remove(); // 기존 폼 제거
       }
+
+      form = document.createElement('form');
+      form.name = 'PGIOForm';
+      form.style.display = 'none';
+
+      const addInput = (name: string, value: string) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      };
+
+      addInput('mid', mid);
+      addInput('paymethod', paymethod);
+      addInput('goodname', 'IABSE 2026 Registration');
+      addInput('unitprice', String(unitprice));
+      addInput('goodcurrency', goodcurrency);
+      addInput('langcode', domestic ? 'KR' : 'US');
+      addInput('cardquota', '00');
+      addInput('replycode', '');
+      addInput('replyMsg', '');
+      addInput('tid', '');
+      addInput('cardauthcode', '');
+      addInput('cardtype', '');
+      addInput('cardnumber', '');
+
+      if (user) {
+        addInput('receipttoname', `${user.firstName || ''} ${user.lastName || ''}`.trim());
+        addInput('receipttoemail', user.email);
+      }
+
+      document.body.appendChild(form);
+      (window as any).doTransaction(form);
     } else {
       setPgError("Payment module is not loaded. Please refresh the page and try again.");
     }
@@ -312,27 +349,6 @@ export const Step3Payment = ({
       </div>
 
       <div id="PGIOscreen" className="mt-4 w-full flex justify-center"></div>
-      <form name="PGIOForm" style={{ display: 'none' }}>
-        <input type="hidden" name="mid" value={mid} />
-        <input type="hidden" name="paymethod" value={paymethod} />
-        <input type="hidden" name="goodname" value="IABSE 2026 Registration" />
-        <input type="hidden" name="unitprice" value={unitprice} />
-        <input type="hidden" name="goodcurrency" value={goodcurrency} />
-        <input type="hidden" name="langcode" value={domestic ? "KR" : "US"} />
-        <input type="hidden" name="cardquota" value="00" />
-        <input type="hidden" name="replycode" value="" />
-        <input type="hidden" name="replyMsg" value="" />
-        <input type="hidden" name="tid" value="" />
-        <input type="hidden" name="cardauthcode" value="" />
-        <input type="hidden" name="cardtype" value="" />
-        <input type="hidden" name="cardnumber" value="" />
-        {user && (
-          <>
-            <input type="hidden" name="receipttoname" value={`${user.firstName} ${user.lastName}`} />
-            <input type="hidden" name="receipttoemail" value={user.email} />
-          </>
-        )}
-      </form>
     </>
   );
 };
