@@ -53,21 +53,7 @@ public class PaymentController {
         return ResponseEntity.ok(ApiResponse.ok(payments));
     }
 
-    /**
-     * Request payment cancellation — partial refund policy applied
-     * POST /api/payments/cancel
-     */
-    @PostMapping("/cancel")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> cancelPayment(
-            @AuthenticationPrincipal String email,
-            @Valid @RequestBody CancelRequest request) {
-        log.info("[PAYMENT_CTRL] Cancellation request received — email={} regNo={}",
-                email, request.registrationNumber());
-        Map<String, Object> result = paymentService.cancelPayment(email, request);
-        log.info("[PAYMENT_CTRL] Cancellation completed — email={} regNo={} refund={}",
-                email, request.registrationNumber(), result.get("refundAmount"));
-        return ResponseEntity.ok(ApiResponse.ok((String) result.get("message"), result));
-    }
+
 
     /**
      * Receive payment failure event from frontend (PayGate popup failure)
