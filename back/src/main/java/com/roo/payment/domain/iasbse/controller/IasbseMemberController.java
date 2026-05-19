@@ -56,7 +56,8 @@ public class IasbseMemberController {
             return ResponseEntity.status(403)
                     .body(ApiResponse.fail("Admin authentication required."));
         }
-        int imported = iasbseMemberService.importFromExcel(file.getInputStream());
+
+        int imported = iasbseMemberService.importFromExcel(file);
         return ResponseEntity.ok(ApiResponse.ok(
                 "IASBSE member data upload complete",
                 Map.of("imported", imported)
