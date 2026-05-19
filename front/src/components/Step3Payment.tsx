@@ -317,7 +317,7 @@ export const Step3Payment = ({
         <input type="hidden" name="goodname" value="IABSE 2026 Registration" />
         <input type="hidden" name="unitprice" value={unitprice} />
         <input type="hidden" name="goodcurrency" value={goodcurrency} />
-        <input type="hidden" name="langcode" value="KR" />
+        <input type="hidden" name="langcode" value="US" />
         <input type="hidden" name="cardquota" value="00" />
         <input type="hidden" name="replycode" value="" />
         <input type="hidden" name="replyMsg" value="" />
