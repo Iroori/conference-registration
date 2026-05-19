@@ -4,40 +4,40 @@ import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
     // Auth
-    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."),
-    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
-    TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
-    EMAIL_NOT_VERIFIED(HttpStatus.FORBIDDEN, "이메일 인증이 필요합니다."),
-    EMAIL_ALREADY_VERIFIED(HttpStatus.BAD_REQUEST, "이미 인증된 이메일입니다."),
-    VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "인증 코드가 만료되었습니다."),
-    VERIFICATION_CODE_INVALID(HttpStatus.BAD_REQUEST, "인증 코드가 올바르지 않습니다."),
-    REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
-    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 만료되었습니다. 다시 로그인해주세요."),
-    VERIFICATION_CODE_COOLDOWN(HttpStatus.TOO_MANY_REQUESTS, "인증 코드 재발송은 잠시 후에 가능합니다."),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Invalid email or password."),
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "The token has expired."),
+    TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "Invalid token."),
+    EMAIL_NOT_VERIFIED(HttpStatus.FORBIDDEN, "Email verification is required."),
+    EMAIL_ALREADY_VERIFIED(HttpStatus.BAD_REQUEST, "This email is already verified."),
+    VERIFICATION_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "The verification code has expired."),
+    VERIFICATION_CODE_INVALID(HttpStatus.BAD_REQUEST, "Invalid verification code."),
+    REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "Invalid refresh token."),
+    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Refresh token expired. Please log in again."),
+    VERIFICATION_CODE_COOLDOWN(HttpStatus.TOO_MANY_REQUESTS, "Please wait a moment before requesting another code."),
 
     // User
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
-    EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found."),
+    EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "This email is already in use."),
 
     // IASBSE
-    IASBSE_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "IASBSE 등록된 이메일이 아닙니다."),
+    IASBSE_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "Email not found in IASBSE registry."),
 
     // Payment
-    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "결제 내역을 찾을 수 없습니다."),
-    PAYMENT_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 완료된 결제 내역이 존재합니다."),
-    PAYGATE_VERIFICATION_FAILED(HttpStatus.BAD_REQUEST, "결제 상태 검증에 실패했습니다."),
-    PAYGATE_BODY_INVALID(HttpStatus.BAD_REQUEST, "PG사 검증 응답이 유효하지 않습니다."),
-    PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "결제 금액이 서버 계산 금액과 일치하지 않습니다."),
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Payment history not found."),
+    PAYMENT_ALREADY_EXISTS(HttpStatus.CONFLICT, "A completed payment already exists."),
+    PAYGATE_VERIFICATION_FAILED(HttpStatus.BAD_REQUEST, "Payment verification failed."),
+    PAYGATE_BODY_INVALID(HttpStatus.BAD_REQUEST, "Invalid PG verification response."),
+    PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "Payment amount does not match the calculated amount."),
 
     // Option
-    OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "선택한 옵션을 찾을 수 없습니다."),
-    OPTION_CAPACITY_EXCEEDED(HttpStatus.BAD_REQUEST, "선택한 프로그램의 정원이 초과되었습니다."),
-    ACCOMPANYING_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "동반자 이름(성/이름)을 입력해 주세요."),
+    OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Selected option not found."),
+    OPTION_CAPACITY_EXCEEDED(HttpStatus.BAD_REQUEST, "The selected program's capacity has been exceeded."),
+    ACCOMPANYING_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "Accompanying person's name (First/Last) is required."),
 
     // Common
-    INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+    INVALID_INPUT(HttpStatus.BAD_REQUEST, "Invalid input value."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "Access denied."),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "An internal server error occurred.");
 
     private final HttpStatus status;
     private final String message;

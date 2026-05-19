@@ -52,12 +52,12 @@ public class IasbseMemberController {
 
         if (!appProperties.getAdmin().getSecretKey().equals(adminKey)) {
             return ResponseEntity.status(403)
-                    .body(ApiResponse.fail("관리자 인증이 필요합니다."));
+                    .body(ApiResponse.fail("Admin authentication required."));
         }
 
         int imported = iasbseMemberService.importFromExcel(file);
         return ResponseEntity.ok(ApiResponse.ok(
-                "IASBSE 회원 데이터 업로드 완료",
+                "IASBSE member data upload complete",
                 Map.of("imported", imported)
         ));
     }
