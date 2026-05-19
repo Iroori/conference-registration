@@ -45,6 +45,7 @@ export const Step3Payment = ({
   // 통화 및 금액: 해외 MID의 통화·환율 변환은 PayGate가 자체 처리 — 항상 KRW(WON) 원화 금액 전달
   const goodcurrency = 'WON';
   const unitprice = totalAmount;
+  const paymethod = domestic ? 'card' : '104';
 
   const { mutate: createPayment, isPending, error: serverError } = useCreatePayment();
 
@@ -313,7 +314,7 @@ export const Step3Payment = ({
       <div id="PGIOscreen" className="mt-4 w-full flex justify-center"></div>
       <form name="PGIOForm" style={{ display: 'none' }}>
         <input type="hidden" name="mid" value={mid} />
-        <input type="hidden" name="paymethod" value={import.meta.env.VITE_PAYGATE_METHOD || 'card'} />
+        <input type="hidden" name="paymethod" value={paymethod} />
         <input type="hidden" name="goodname" value="IABSE 2026 Registration" />
         <input type="hidden" name="unitprice" value={unitprice} />
         <input type="hidden" name="goodcurrency" value={goodcurrency} />
