@@ -16,7 +16,7 @@ public class ConferenceOption extends BaseEntity {
     @Column(nullable = false, length = 20)
     private OptionCategory category;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 200, columnDefinition = "nvarchar(200)")
     private String nameKr;
 
     @Column(nullable = false, length = 200)
