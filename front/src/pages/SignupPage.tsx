@@ -290,6 +290,10 @@ export const SignupPage = () => {
                 )}
               </div>
 
+              {verifyError && verifyState !== 'SENT' && (
+                <p className="mt-1.5 text-[11px] text-red-600">{verifyError}</p>
+              )}
+
               {/* Verification code input (shown after [Verify] clicked) */}
               {verifyState === 'SENT' && (
                 <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
