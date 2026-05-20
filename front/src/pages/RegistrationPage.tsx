@@ -205,6 +205,8 @@ export const RegistrationPage = () => {
               <StepAdditionalOptions
                 memberType={memberType}
                 selectedTier={selectedTier}
+                selectedCategory={selectedCategory}
+                selectedRegOptionId={selectedRegOptionId}
                 quantities={additionalQuantities}
                 onQuantityChange={(id, qty) =>
                   setAdditionalQuantities((prev) => ({ ...prev, [id]: qty }))

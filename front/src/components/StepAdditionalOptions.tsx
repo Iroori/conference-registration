@@ -1,23 +1,45 @@
 import { useMemo } from 'react';
-import { useConferenceOptions } from '../hooks/useRegistration';
+import { useConferenceOptions, useRegistrationPeriods } from '../hooks/useRegistration';
 import { ErrorBanner, LoadingSpinner, SectionLabel, formatKRW } from './Shared';
 import type {
   MemberType,
   ConferenceOption,
   RegistrationTierKey,
+  RegistrationCategory,
+  RegistrationPeriods,
   AccompanyingPersonInfo,
 } from '../types';
-import { programOptionIds, DECLINE_LABELS, isAccompanyingOption } from '../types';
+import {
+  programOptionIds,
+  DECLINE_LABELS,
+  isAccompanyingOption,
+  REGISTRATION_CATEGORIES,
+  REG_TIER_CONFIG,
+} from '../types';
 
 interface StepAdditionalOptionsProps {
   memberType: MemberType;
   selectedTier: RegistrationTierKey;
+  selectedCategory: RegistrationCategory | null;
+  selectedRegOptionId: string | null;
   quantities: Record<string, number>;
   onQuantityChange: (optionId: string, qty: number) => void;
   accompanyingPerson: AccompanyingPersonInfo;
   onAccompanyingChange: (info: AccompanyingPersonInfo) => void;
   onNext: () => void;
   onBack: () => void;
+}
+
+function deadlineLabel(periods: RegistrationPeriods | undefined, tier: RegistrationTierKey): string {
+  const p =
+    tier === 'PRE_REGISTRATION'
+      ? periods?.preRegistration
+      : tier === 'EARLY_BIRD'
+      ? periods?.earlyBird
+      : periods?.regular;
+  if (!p?.endDate) return 'TBD';
+  const d = new Date(p.endDate + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
 }
 
 interface CheckRowProps {
@@ -55,6 +77,8 @@ const CheckRow = ({ checked, label, disabled, onToggle }: CheckRowProps) => (
 export const StepAdditionalOptions = ({
   memberType,
   selectedTier,
+  selectedCategory,
+  selectedRegOptionId,
   quantities,
   onQuantityChange,
   accompanyingPerson,
@@ -63,6 +87,17 @@ export const StepAdditionalOptions = ({
   onBack,
 }: StepAdditionalOptionsProps) => {
   const { data: options, isLoading, error, refetch } = useConferenceOptions(memberType);
+  const { data: periods } = useRegistrationPeriods();
+  const tierCfg = REG_TIER_CONFIG[selectedTier];
+
+  const registrationOption = useMemo(
+    () => (selectedRegOptionId ? options?.find((o) => o.id === selectedRegOptionId) : undefined),
+    [options, selectedRegOptionId]
+  );
+  const registrationPrice = registrationOption?.price ?? 0;
+  const categoryLabel = selectedCategory
+    ? REGISTRATION_CATEGORIES.find((c) => c.key === selectedCategory)?.label
+    : null;
 
   const programOptions: ConferenceOption[] = useMemo(() => {
     if (!options) return [];
@@ -79,6 +114,7 @@ export const StepAdditionalOptions = ({
   const selectedOptions = programOptions.filter((o) => isSelected(o.id));
   const selectedCount = selectedOptions.length;
   const subtotal = selectedOptions.reduce((sum, o) => sum + o.price, 0);
+  const grandTotal = registrationPrice + subtotal;
 
   const accompanyingSelected = programOptions.some(
     (o) => isAccompanyingOption(o.id) && isSelected(o.id)
@@ -240,10 +276,29 @@ export const StepAdditionalOptions = ({
         </div>
       </div>
 
-      {/* Right sidebar */}
-      <div className="bg-gold-tint p-6 flex flex-col">
-        <SectionLabel>Programs Selected</SectionLabel>
+      {/* Right sidebar — sticky on both mobile (top) and desktop (side) */}
+      <div className="order-first lg:order-none sticky top-0 z-20 lg:top-6 lg:self-start bg-gold-tint p-6 flex flex-col max-h-screen lg:max-h-[calc(100vh-3rem)] overflow-y-auto">
+        {/* Registration section */}
+        <SectionLabel>Registration</SectionLabel>
+        <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4">
+          {categoryLabel ? (
+            <div>
+              <p className="text-sm font-semibold text-gold">{categoryLabel}</p>
+              <p className="text-xs text-ink-faint mt-0.5">
+                {tierCfg.label} · Deadline {deadlineLabel(periods, selectedTier)}
+              </p>
+              <div className="mt-2 flex justify-between items-baseline">
+                <span className="text-[11px] text-ink-faint">Registration fee</span>
+                <span className="text-sm font-semibold text-ink">{formatKRW(registrationPrice)}</span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-ink-faint">No category selected.</p>
+          )}
+        </div>
 
+        {/* Programs Selected section */}
+        <SectionLabel>Programs Selected</SectionLabel>
         {selectedCount === 0 ? (
           <p className="text-xs text-ink-faint mb-4">No additional programs selected.</p>
         ) : (
@@ -270,16 +325,17 @@ export const StepAdditionalOptions = ({
                 </div>
               )}
             <div className="border-t border-gold-soft pt-2 flex justify-between items-baseline">
-              <span className="label-section">Programs subtotal</span>
-              <span className="amount-total">{formatKRW(subtotal)}</span>
+              <span className="text-[11px] text-ink-faint">Programs subtotal</span>
+              <span className="text-sm font-semibold text-ink">{formatKRW(subtotal)}</span>
             </div>
           </div>
         )}
 
-        <p className="text-[11px] text-ink-faint mb-6 leading-relaxed">
-          Additional charges will be combined with your registration fee on the
-          summary screen.
-        </p>
+        {/* Grand total */}
+        <div className="mb-4 rounded-lg border border-gold-soft bg-white p-4 flex justify-between items-baseline">
+          <span className="label-section">TOTAL</span>
+          <span className="amount-total">{formatKRW(grandTotal)}</span>
+        </div>
 
         <div className="mt-auto space-y-2">
           <button onClick={onNext} disabled={accompanyingNameMissing} className="btn-primary">
