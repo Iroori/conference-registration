@@ -52,6 +52,11 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void seedIasbseMembersFromExcel() {
+        if (iasbseMemberRepository.count() > 0) {
+            org.slf4j.LoggerFactory.getLogger(DataInitializer.class)
+                    .info("IABSE members database already contains records. Skipping excel seeding to preserve data.");
+            return;
+        }
         String defaultPath = "2026-04-28 Members IABSE (1).xls";
         int imported = iasbseMemberService.importFromResource(defaultPath);
         if (imported > 0) {

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 로그 파일 경로 및 이름 설정 -->
+    <!-- LOG_PATH 환경변수가 있으면 사용하고, 없으면 './logs' 디렉토리에 기록합니다. -->
+    <property name="LOG_PATH" value="${LOG_PATH:-./logs}" />
+    <property name="LOG_FILE" value="app" />
+
+    <!-- 1. 콘솔 로그 출력 (Console Appender) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 2. 파일 로그 출력 및 일자별 백업 (Rolling File Appender) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 현재 기록할 로그 파일 이름 -->
+        <file>${LOG_PATH}/${LOG_FILE}.log</file>
+
+        <!-- 일자별 및 크기별 롤링 정책 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 하루(1일)마다 로그 파일을 백업하고, 파일이 10MB를 넘으면 넘버링하여 분할 저장합니다. -->
+            <!-- 파일 패턴 예: logs/backup/app.2026-05-20.0.log -->
+            <fileNamePattern>${LOG_PATH}/backup/${LOG_FILE}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+            <!-- 개별 로그 파일의 최대 용량 (10MB 초과 시 롤링 백업) -->
+            <maxFileSize>10MB</maxFileSize>
+
+            <!-- 백업 로그 파일 최대 보관 기간 (30일 보관, 지나면 자동 삭제) -->
+            <maxHistory>30</maxHistory>
+
+            <!-- 보관할 전체 로그 파일 크기 제한 (최대 3GB) -->
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 3. 결제 및 주문 도메인 상세 로깅 수준 설정 -->
+    <!-- com.roo.payment.domain.payment 패키지의 로그는 INFO 레벨 이상으로 항상 파일과 콘솔에 자세히 남깁니다. -->
+    <logger name="com.roo.payment.domain.payment" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </logger>
+
+    <!-- 스프링 프레임워크 로깅 수준 -->
+    <logger name="org.springframework" level="INFO" />
+    
+    <!-- 하이버네이트 SQL 로깅 수준 (dev 프로파일이나 디버그 시 필요에 따라 지정 가능) -->
+    <logger name="org.hibernate.SQL" level="INFO" />
+    <logger name="org.hibernate.type.descriptor.sql" level="OFF" />
+
+    <!-- 4. 루트 로거 설정 (기본 로깅 레벨 및 아웃풋) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>
