@@ -113,7 +113,7 @@ public class PaymentService {
         long subtotal = options.stream()
                 .mapToLong(o -> o.getPrice() * quantities.getOrDefault(o.getId(), 1))
                 .sum();
-        long tax = Math.round(subtotal * 0.1);
+        long tax = 0;
 
         String regNumber = generateRegistrationNumber();
 
