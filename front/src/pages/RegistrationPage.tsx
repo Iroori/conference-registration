@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { AdminDashboardPage } from '../components/AdminDashboardPage';
 import { useConferenceOptions } from '../hooks/useRegistration';
 import { StepRegistrationType } from '../components/StepRegistrationType';
 import { StepAdditionalOptions } from '../components/StepAdditionalOptions';
@@ -21,7 +22,7 @@ import { INVITATION_OPTION_ID, DEFAULT_SELECTED_OPTION_IDS } from '../types';
 const initialQuantities = (): Record<string, number> =>
   Object.fromEntries(DEFAULT_SELECTED_OPTION_IDS.map((id) => [id, 1]));
 
-type NavTab = 'REGISTER' | 'HISTORY';
+type NavTab = 'REGISTER' | 'HISTORY' | 'ADMIN';
 
 const STEP_LABELS = ['Select', 'Option', 'Option2', 'Summary', 'Payment'];
 
@@ -37,8 +38,10 @@ const STEP_INDEX: Record<RegistrationStep, number> = {
 export const RegistrationPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  const [navTab, setNavTab] = useState<NavTab>('REGISTER');
+  const location = useLocation();
+  const [navTab, setNavTab] = useState<NavTab>(
+    location.pathname === '/admin' ? 'ADMIN' : 'REGISTER'
+  );
   const [currentStep, setCurrentStep] = useState<RegistrationStep>('REG_TYPE');
 
   // Step 1 — registration tier + category
@@ -147,17 +150,28 @@ export const RegistrationPage = () => {
               </span>
             </div>
             <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-0.5">
-              {(['REGISTER', 'HISTORY'] as NavTab[]).map((tab) => (
+              {(['REGISTER', 'HISTORY', ...(user.admin ? ['ADMIN'] : [])] as NavTab[]).map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setNavTab(tab)}
+                  onClick={() => {
+                    setNavTab(tab);
+                    if (tab === 'ADMIN') {
+                      navigate('/admin');
+                    } else {
+                      navigate('/');
+                    }
+                  }}
                   className={`rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-[0.1em] transition ${
                     navTab === tab
                       ? 'bg-gold text-navy'
                       : 'text-white/70 hover:text-white'
                   }`}
                 >
-                  {tab === 'REGISTER' ? 'Registration' : 'My Payments'}
+                  {tab === 'REGISTER'
+                    ? 'Registration'
+                    : tab === 'HISTORY'
+                    ? 'My Payments'
+                    : 'Admin Panel'}
                 </button>
               ))}
             </div>
@@ -282,6 +296,11 @@ export const RegistrationPage = () => {
               <PaymentHistoryTab />
             </div>
           </div>
+        )}
+
+        {/* Admin Dashboard */}
+        {navTab === 'ADMIN' && user.admin && (
+          <AdminDashboardPage />
         )}
 
         <p className="mt-6 text-center text-[11px] tracking-wide text-ink-faint">

@@ -79,13 +79,13 @@ public class AuthService {
             throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
-        // Young Engineer 최우선 — 만 35세 이하(생년월일 기준 Western age)이면 다른 조건 무관하게 YE
+        // IABSE 회원 여부를 최우선으로 검증. 엑셀에 있으면 만 나이에 상관없이 MEMBER
         int age = java.time.Period.between(req.birthDate(), java.time.LocalDate.now()).getYears();
         MemberType memberType;
-        if (age <= 35) {
-            memberType = MemberType.YOUNG_ENGINEER;
-        } else if (iasbseMemberService.isIasbseMember(req.firstName(), req.lastName(), req.affiliation())) {
+        if (iasbseMemberService.isIasbseMember(req.firstName(), req.lastName(), req.affiliation())) {
             memberType = MemberType.MEMBER;
+        } else if (age <= 35) {
+            memberType = MemberType.YOUNG_ENGINEER;
         } else {
             memberType = MemberType.NON_MEMBER_PLUS;
         }

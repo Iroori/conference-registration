@@ -17,7 +17,8 @@ public record AuthResponse(
         boolean isYoungEngineer,
         boolean isPresenter,
         DietaryRequirement dietaryRequirement,
-        String dietaryNote
+        String dietaryNote,
+        boolean admin
 ) {
     public static AuthResponse of(String accessToken, String refreshToken, User user) {
         return new AuthResponse(
@@ -33,7 +34,8 @@ public record AuthResponse(
                 user.isYoungEngineer(),
                 user.isPresenter(),
                 user.getDietaryRequirement(),
-                user.getDietaryNote()
+                user.getDietaryNote(),
+                user.isAdmin()
         );
     }
 }

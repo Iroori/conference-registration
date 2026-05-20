@@ -29,22 +29,38 @@ public class DataInitializer implements ApplicationRunner {
     private final UserRepository userRepository;
     private final IasbseMemberRepository iasbseMemberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final com.roo.payment.domain.iasbse.service.IasbseMemberService iasbseMemberService;
 
     public DataInitializer(ConferenceOptionRepository optionRepository,
                            UserRepository userRepository,
                            IasbseMemberRepository iasbseMemberRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           com.roo.payment.domain.iasbse.service.IasbseMemberService iasbseMemberService) {
         this.optionRepository = optionRepository;
         this.userRepository = userRepository;
         this.iasbseMemberRepository = iasbseMemberRepository;
         this.passwordEncoder = passwordEncoder;
+        this.iasbseMemberService = iasbseMemberService;
     }
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        seedIasbseMembersFromExcel();
         seedOptions();
         seedTestAccounts();
+    }
+
+    private void seedIasbseMembersFromExcel() {
+        String defaultPath = "/Users/roor2i/Desktop/sw/conference-registration/docs/payment/2026-04-28 Members IABSE (1).xls";
+        int imported = iasbseMemberService.importFromLocalFile(defaultPath);
+        if (imported > 0) {
+            org.slf4j.LoggerFactory.getLogger(DataInitializer.class)
+                    .info("Successfully seeded " + imported + " IABSE members from local excel: " + defaultPath);
+        } else {
+            org.slf4j.LoggerFactory.getLogger(DataInitializer.class)
+                    .warn("Skipped seeding IABSE members. Excel file not found or empty: " + defaultPath);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

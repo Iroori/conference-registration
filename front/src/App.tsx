@@ -18,6 +18,11 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
+const AdminRoute = ({ children }: { children: ReactNode }) => {
+  const { isAuthenticated, user } = useAuth();
+  return isAuthenticated && user?.admin ? <>{children}</> : <Navigate to="/" replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -31,6 +36,14 @@ const App = () => (
               <ProtectedRoute>
                 <RegistrationPage />
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <RegistrationPage />
+              </AdminRoute>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />

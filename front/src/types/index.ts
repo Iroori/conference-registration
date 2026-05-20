@@ -37,6 +37,7 @@ export interface AuthUser {
   isPresenter: boolean;
   dietaryRequirement: DietaryRequirement;
   dietaryNote?: string | null;
+  admin: boolean;
 }
 
 export interface IasbseCheckResponse {
@@ -286,3 +287,32 @@ export type RegistrationStep =
   | 'SUMMARY'
   | 'PAYMENT'
   | 'COMPLETE';
+
+// ─── Admin Dashboard ─────────────────────────────────────────────────────────
+export interface AdminUser {
+  id: number;
+  email: string;
+  lastName: string;
+  firstName: string;
+  affiliation: string;
+  position: string;
+  country: string;
+  phone: string;
+  birthDate: string; // ISO yyyy-MM-dd
+  memberType: MemberType;
+  emailVerified: boolean;
+  presenter: boolean;
+  admin: boolean;
+  createdAt: string; // ISO datetime
+}
+
+export interface IasbseMember {
+  id: number;
+  firstName: string;
+  lastName: string;
+  company: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+

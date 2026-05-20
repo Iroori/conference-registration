@@ -9,6 +9,8 @@ import type {
   PaymentRequest,
   PaymentResponse,
   RegistrationPeriods,
+  AdminUser,
+  IasbseMember,
 } from '../types';
 
 // ─── Password hashing ────────────────────────────────────────────────────────
@@ -105,4 +107,24 @@ export const apiReportPaymentFailure = async (payload: {
   } catch {
     console.warn('[Payment] Failed to report payment failure to server');
   }
+};
+
+// ─── Admin ───────────────────────────────────────────────────────────────────
+export const apiGetAdminUsers = async (): Promise<AdminUser[]> => {
+  const res = await apiClient.get<{ data: AdminUser[] }>('/admin/users');
+  return res.data.data;
+};
+
+export const apiUpdateUserMemberType = async (userId: number, memberType: MemberType): Promise<void> => {
+  await apiClient.put(`/admin/users/${userId}/member-type`, { memberType });
+};
+
+export const apiGetAdminIasbseMembers = async (): Promise<IasbseMember[]> => {
+  const res = await apiClient.get<{ data: IasbseMember[] }>('/admin/iasbse-members');
+  return res.data.data;
+};
+
+export const apiGetAdminPayments = async (): Promise<PaymentResponse[]> => {
+  const res = await apiClient.get<{ data: PaymentResponse[] }>('/admin/payments');
+  return res.data.data;
 };

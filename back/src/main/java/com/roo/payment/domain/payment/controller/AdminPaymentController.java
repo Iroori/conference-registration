@@ -10,11 +10,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+
 import java.util.List;
 
 /**
  * 관리자 전용 결제 조회 API.
- * X-Admin-Key 헤더가 App Properties의 admin.secretKey와 일치해야 접근 가능.
+ * X-Admin-Key 헤더가 App Properties의 admin.secretKey와 일치하거나,
+ * JWT 토큰을 통한 ROLE_ADMIN 권한을 가질 시 접근 가능.
  */
 @RestController
 @RequestMapping("/api/admin/payments")
@@ -70,6 +74,13 @@ public class AdminPaymentController {
     }
 
     private void validateAdminKey(String adminKey) {
+        // 1. Spring Security Context 에서 ROLE_ADMIN 권한이 있는지 확인
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return; // ROLE_ADMIN 권한을 소지하고 있으므로 X-Admin-Key 헤더 검증 패스
+        }
+
+        // 2. 권한이 없을 경우 기존 X-Admin-Key 검증 진행
         String expected = appProperties.getAdmin().getSecretKey();
         if (expected == null || !expected.equals(adminKey)) {
             log.warn("[ADMIN] 유효하지 않은 관리자 키로 접근 시도");

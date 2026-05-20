@@ -1,0 +1,54 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MSSQLServer
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  mail:
+    host: localhost
+    port: 25
+    test-connection: false
+  sql:
+    init:
+      mode: never
+
+email:
+  provider: smtp
+  from: iabse2026@kibse.or.kr
+
+app:
+  jwt:
+    secret: kssc2026-conference-registration-secret-key-very-long-string-for-security
+    expiration-ms: 86400000
+    refresh-expiration-ms: 604800000
+  email-verification:
+    expiration-minutes: 10
+  cors:
+    allowed-origins: http://localhost:5173
+  admin:
+    secret-key: admin-secret-2026
+  registration:
+    pre-registration:
+      start-date: 2026-05-01
+      end-date:   2026-06-30
+    early-bird:
+      start-date: 2026-07-01
+      end-date:   2026-08-31
+    regular:
+      start-date: 2026-09-14
+      end-date:   2026-10-31
+  paygate:
+    mid-domestic: kibse
+    mid-overseas: kibse0us
+    verify-url: https://service.paygate.net/admin/settle/verifyReceived.jsp?tid=%s&verifyNum=100
+    cancel-url:  https://service.paygate.net/service/cancelAPI.json
+    event-date:  2026-09-16
+  dev-mode: true
