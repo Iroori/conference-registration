@@ -119,8 +119,9 @@ export const apiUpdateUserMemberType = async (userId: number, memberType: Member
   await apiClient.put(`/admin/users/${userId}/member-type`, { memberType });
 };
 
-export const apiGetAdminIasbseMembers = async (): Promise<IasbseMember[]> => {
-  const res = await apiClient.get<{ data: IasbseMember[] }>('/admin/iasbse-members');
+export const apiGetAdminIasbseMembers = async (search?: string): Promise<IasbseMember[]> => {
+  const url = search ? `/admin/iasbse-members?search=${encodeURIComponent(search)}` : '/admin/iasbse-members';
+  const res = await apiClient.get<{ data: IasbseMember[] }>(url);
   return res.data.data;
 };
 

@@ -44,12 +44,13 @@ public class AdminUserController {
     }
 
     /**
-     * IABSE 원본 회원 리스트 조회
+     * IABSE 원본 회원 리스트 조회 및 검색
      * GET /api/admin/iasbse-members
      */
     @GetMapping("/iasbse-members")
-    public ResponseEntity<ApiResponse<List<IasbseMember>>> getAllIasbseMembers() {
-        List<IasbseMember> members = adminUserService.getAllIasbseMembers();
+    public ResponseEntity<ApiResponse<List<IasbseMember>>> getAllIasbseMembers(
+            @RequestParam(required = false) String search) {
+        List<IasbseMember> members = adminUserService.getAllIasbseMembers(search);
         return ResponseEntity.ok(ApiResponse.ok(members));
     }
 }

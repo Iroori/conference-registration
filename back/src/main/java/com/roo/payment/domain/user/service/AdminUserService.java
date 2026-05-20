@@ -57,7 +57,17 @@ public class AdminUserService {
      * IABSE 엑셀 로드 정회원 전체 조회
      */
     public List<IasbseMember> getAllIasbseMembers() {
-        log.info("[ADMIN] Request to fetch all IABSE members");
-        return iasbseMemberRepository.findAll();
+        return getAllIasbseMembers(null);
+    }
+
+    /**
+     * IABSE 엑셀 로드 정회원 조회 및 검색
+     */
+    public List<IasbseMember> getAllIasbseMembers(String search) {
+        log.info("[ADMIN] Request to fetch all IABSE members with search={}", search);
+        if (search == null || search.trim().isEmpty()) {
+            return iasbseMemberRepository.findAll();
+        }
+        return iasbseMemberRepository.searchMembers(search.trim());
     }
 }

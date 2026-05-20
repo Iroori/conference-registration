@@ -13,4 +13,10 @@ public interface IasbseMemberRepository extends JpaRepository<IasbseMember, Long
 
     @Query("SELECT m.company FROM IasbseMember m WHERE m.company IS NOT NULL AND m.company != '' GROUP BY m.company ORDER BY m.company ASC")
     List<String> findDistinctCompanies();
+
+    @Query("SELECT m FROM IasbseMember m WHERE " +
+           "LOWER(m.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(m.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(m.company) LIKE LOWER(CONCAT('%', :search, '%'))")
+    List<IasbseMember> searchMembers(String search);
 }
