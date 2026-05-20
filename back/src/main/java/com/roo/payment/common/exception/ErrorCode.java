@@ -17,7 +17,7 @@ public enum ErrorCode {
 
     // User
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found."),
-    EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "This email is already in use."),
+    EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "This email is already registered. Please sign in instead."),
 
     // IASBSE
     IASBSE_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "Email not found in IASBSE registry."),
