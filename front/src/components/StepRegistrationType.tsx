@@ -184,10 +184,46 @@ export const StepRegistrationType = ({
                 </button>
 
                 {locked && (
-                  <p className="mt-1 ml-7 text-[11px] text-ink-faint">
-                    Your account is not registered as an IABSE member, so this
-                    category cannot be selected.
-                  </p>
+                  <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <svg
+                        className="h-4 w-4 flex-shrink-0 text-amber-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                        />
+                      </svg>
+                      <p className="text-sm font-semibold text-amber-800">
+                        Membership Verification Notice
+                      </p>
+                    </div>
+                    <div className="space-y-2 text-xs leading-relaxed text-amber-800">
+                      <p>Membership Status Unverified.</p>
+                      <p>
+                        If you believe you are a current member and wish to receive the
+                        discounted member rate, please do not proceed with the payment.
+                        Instead, kindly contact the Secretariat at{' '}
+                        <span className="font-bold text-amber-900">
+                          iabse2026@kibse.or.kr
+                        </span>{' '}
+                        to verify your membership status. We will update your profile as
+                        soon as your status is confirmed.
+                      </p>
+                      <p>
+                        <span className="font-bold">Note:</span> Please ensure your
+                        membership is verified before completing the payment, as refunds
+                        for rate differences may not be issued after the transaction is
+                        processed.
+                      </p>
+                    </div>
+                  </div>
                 )}
               </div>
             );

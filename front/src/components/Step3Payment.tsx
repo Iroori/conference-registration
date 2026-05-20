@@ -195,6 +195,45 @@ export const Step3Payment = ({
             </div>
           </div>
 
+          {/* Bank transfer notice */}
+          <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <svg
+                className="h-4 w-4 flex-shrink-0 text-amber-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                />
+              </svg>
+              <p className="text-sm font-semibold text-amber-800">
+                Notice for Registration Payment
+              </p>
+            </div>
+            <div className="space-y-2 text-xs leading-relaxed text-amber-800">
+              <p>
+                Currently, our online registration system only accepts Credit Card payments.
+              </p>
+              <p>
+                If you prefer to pay via Bank Transfer, please do not proceed with the online
+                payment. Instead, kindly contact the Secretariat directly at{' '}
+                <span className="font-bold text-amber-900">iabse2026@kibse.or.kr</span> with
+                your registration details. We will provide you with the official invoice and
+                bank account details required for the transfer.
+              </p>
+              <p>
+                <span className="font-bold">Note:</span> Any bank remittance fees incurred
+                during the wire transfer must be covered by the participant.
+              </p>
+            </div>
+          </div>
+
           {/* Cancellation & Refund Policy */}
           <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4">
             <p className="label-section text-sm mb-2">Cancellation &amp; Refund Policy</p>
