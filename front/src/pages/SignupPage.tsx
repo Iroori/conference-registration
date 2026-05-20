@@ -6,6 +6,16 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import type { DietaryRequirement } from '../types';
 
+const POSITION_OPTIONS = [
+  'Professor',
+  'Dr.',
+  'Mr.',
+  'Ms.',
+  'Mx.',
+  'Student',
+  'Other',
+];
+
 const DIETARY_OPTIONS: { value: DietaryRequirement; label: string }[] = [
   { value: 'NONE', label: 'None' },
   { value: 'VEGETARIAN', label: 'Vegetarian' },
@@ -80,6 +90,9 @@ export const SignupPage = () => {
 
   const [isOtherCompany, setIsOtherCompany] = useState(false);
   const [customCompany, setCustomCompany] = useState('');
+
+  const [isOtherPosition, setIsOtherPosition] = useState(false);
+  const [customPosition, setCustomPosition] = useState('');
 
   const { data: companies = [] } = useQuery({
     queryKey: ['iasbseCompanies'],
@@ -210,9 +223,14 @@ export const SignupPage = () => {
     void _;
     const formattedDate = birthDate ? birthDate.toISOString().split('T')[0] : '';
     const finalAffiliation = isOtherCompany ? customCompany : form.affiliation;
+    const finalPosition = isOtherPosition ? customPosition : form.position;
 
     if (isOtherCompany && !customCompany.trim()) {
       setError('Please specify your affiliation.');
+      return;
+    }
+    if (!finalPosition.trim()) {
+      setError(isOtherPosition ? 'Please specify your position.' : 'Please select your title.');
       return;
     }
 
@@ -220,6 +238,7 @@ export const SignupPage = () => {
       ...rest,
       birthDate: formattedDate,
       affiliation: finalAffiliation,
+      position: finalPosition,
     });
   };
 
@@ -241,7 +260,7 @@ export const SignupPage = () => {
     <div className="min-h-screen bg-cream py-12 px-4">
       <div className="mx-auto max-w-lg">
         <div className="text-center mb-8">
-          <p className="label-section text-gold mb-1">IABSE 2026</p>
+          <p className="label-section text-gold mb-1">IABSE Congress Incheon 2026</p>
           <h1 className="text-2xl font-semibold text-ink">Create Account</h1>
           <p className="mt-2 text-sm text-ink-muted">Register to participate in the Annual Conference</p>
         </div>
@@ -418,56 +437,80 @@ export const SignupPage = () => {
                 </div>
               </div>
 
-              {/* Affiliation / Position */}
-              <div className="grid grid-cols-2 gap-3 mb-3">
-                <div>
-                  <label className="block label-section mb-1.5">
-                    Affiliation <span className="text-red-400">*</span>
-                  </label>
-                  <select
-                    value={isOtherCompany ? 'OTHER' : form.affiliation}
-                    onChange={(e) => {
-                      if (e.target.value === 'OTHER') {
-                        setIsOtherCompany(true);
-                        setForm((f) => ({ ...f, affiliation: '' }));
-                      } else {
-                        setIsOtherCompany(false);
-                        setForm((f) => ({ ...f, affiliation: e.target.value }));
-                      }
-                    }}
-                    className="input-base"
-                    required
-                  >
-                    <option value="" disabled>Select your affiliation</option>
-                    {companies.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                    <option value="OTHER">Other (Please specify)</option>
-                  </select>
-                  {isOtherCompany && (
-                    <input
-                      type="text"
-                      value={customCompany}
-                      onChange={(e) => setCustomCompany(e.target.value)}
-                      className="input-base mt-2"
-                      placeholder="Please specify your affiliation"
-                      required
-                    />
-                  )}
-                </div>
-                <div>
-                  <label className="block label-section mb-1.5">
-                    Position / Title <span className="text-red-400">*</span>
-                  </label>
+              {/* Affiliation */}
+              <div className="mb-3">
+                <label className="block label-section mb-1.5">
+                  Affiliation <span className="text-red-400">*</span>
+                </label>
+                <select
+                  value={isOtherCompany ? 'OTHER' : form.affiliation}
+                  onChange={(e) => {
+                    if (e.target.value === 'OTHER') {
+                      setIsOtherCompany(true);
+                      setForm((f) => ({ ...f, affiliation: '' }));
+                    } else {
+                      setIsOtherCompany(false);
+                      setForm((f) => ({ ...f, affiliation: e.target.value }));
+                    }
+                  }}
+                  className="input-base"
+                  required
+                >
+                  <option value="" disabled>Select your affiliation</option>
+                  {companies.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                  <option value="OTHER">Other (Please specify)</option>
+                </select>
+                {isOtherCompany && (
                   <input
                     type="text"
-                    value={form.position}
-                    onChange={set('position')}
-                    className="input-base"
-                    placeholder="Professor / Researcher"
+                    value={customCompany}
+                    onChange={(e) => setCustomCompany(e.target.value)}
+                    className="input-base mt-2"
+                    placeholder="Please specify your affiliation"
                     required
                   />
-                </div>
+                )}
+              </div>
+
+              {/* Position / Title */}
+              <div className="mb-3">
+                <label className="block label-section mb-1.5">
+                  Position / Title <span className="text-red-400">*</span>
+                </label>
+                <select
+                  value={isOtherPosition ? 'OTHER' : form.position}
+                  onChange={(e) => {
+                    if (e.target.value === 'OTHER') {
+                      setIsOtherPosition(true);
+                      setForm((f) => ({ ...f, position: '' }));
+                    } else {
+                      setIsOtherPosition(false);
+                      setForm((f) => ({ ...f, position: e.target.value }));
+                    }
+                  }}
+                  className="input-base"
+                  required
+                >
+                  <option value="" disabled>Select your title</option>
+                  {POSITION_OPTIONS.map((p) => (
+                    <option key={p} value={p === 'Other' ? 'OTHER' : p}>
+                      {p === 'Other' ? 'Other (Please specify)' : p}
+                    </option>
+                  ))}
+                </select>
+                {isOtherPosition && (
+                  <input
+                    type="text"
+                    value={customPosition}
+                    onChange={(e) => setCustomPosition(e.target.value)}
+                    className="input-base mt-2"
+                    placeholder="Please specify your position"
+                    maxLength={100}
+                    required
+                  />
+                )}
               </div>
 
               {/* Date of Birth / Country */}
@@ -559,7 +602,7 @@ export const SignupPage = () => {
                   />
                   <div>
                     <p className="text-xs font-medium text-ink">
-                      I am presenting a paper at IABSE 2026
+                      I am presenting a paper at IABSE Congress Incheon 2026
                     </p>
                     <p className="text-[11px] text-ink-faint mt-0.5">
                       Check this box if you are an author or co-author presenting a paper at the conference.
