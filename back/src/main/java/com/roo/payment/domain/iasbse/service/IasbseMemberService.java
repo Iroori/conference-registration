@@ -93,6 +93,55 @@ public class IasbseMemberService {
     }
 
     /**
+     * 클래스패스 리소스로부터 직접 IABSE 회원 데이터를 일괄 적재 (서버 기동 시 사용)
+     */
+    @Transactional
+    public int importFromResource(String resourcePath) {
+        org.springframework.core.io.ClassPathResource resource = new org.springframework.core.io.ClassPathResource(resourcePath);
+        if (!resource.exists()) {
+            return 0;
+        }
+
+        List<IasbseMember> toSave = new ArrayList<>();
+        try (java.io.InputStream is = resource.getInputStream();
+             Workbook workbook = WorkbookFactory.create(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // 1행은 헤더 → 2행부터 처리
+            for (int rowIdx = 1; rowIdx <= sheet.getLastRowNum(); rowIdx++) {
+                Row row = sheet.getRow(rowIdx);
+                if (row == null) continue;
+
+                String firstName = getCellString(row, 0);
+                String lastName = getCellString(row, 1);
+                String company = getCellString(row, 2);
+                String status = getCellString(row, 6);
+
+                if (firstName == null || firstName.isBlank() || 
+                    lastName == null || lastName.isBlank()) {
+                    continue;
+                }
+
+                if (company == null) {
+                    company = "";
+                }
+
+                toSave.add(new IasbseMember(firstName.trim(), lastName.trim(), company.trim(), status));
+            }
+
+            if (!toSave.isEmpty()) {
+                iasbseMemberRepository.deleteAll(); // Truncate existing data
+                iasbseMemberRepository.saveAll(toSave);
+            }
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(IasbseMemberService.class)
+                    .error("Failed to seed IABSE members from resource: " + resourcePath, e);
+        }
+
+        return toSave.size();
+    }
+
+    /**
      * 엑셀 파일로 IASBSE 회원 데이터 일괄 업로드 (Truncate and Insert)
      * 컬럼 순서: First name | Last name | Company | Country | Fellowship | Membership level | Membership status
      */

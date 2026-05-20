@@ -52,14 +52,14 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void seedIasbseMembersFromExcel() {
-        String defaultPath = "/Users/roor2i/Desktop/sw/conference-registration/docs/payment/2026-04-28 Members IABSE (1).xls";
-        int imported = iasbseMemberService.importFromLocalFile(defaultPath);
+        String defaultPath = "2026-04-28 Members IABSE (1).xls";
+        int imported = iasbseMemberService.importFromResource(defaultPath);
         if (imported > 0) {
             org.slf4j.LoggerFactory.getLogger(DataInitializer.class)
-                    .info("Successfully seeded " + imported + " IABSE members from local excel: " + defaultPath);
+                    .info("Successfully seeded " + imported + " IABSE members from classpath resource: " + defaultPath);
         } else {
             org.slf4j.LoggerFactory.getLogger(DataInitializer.class)
-                    .warn("Skipped seeding IABSE members. Excel file not found or empty: " + defaultPath);
+                    .warn("Skipped seeding IABSE members. Classpath resource not found or empty: " + defaultPath);
         }
     }
 
