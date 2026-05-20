@@ -25,9 +25,18 @@ public class IasbseMemberService {
      * 이름과 소속으로 IASBSE 회원 여부 확인
      */
     public boolean isIasbseMember(String firstName, String lastName, String company) {
-        if (firstName == null || lastName == null || company == null) return false;
+        if (firstName == null || lastName == null) return false;
+        
+        // 1) First name + Last name + Company exact match (case-insensitive)
+        if (company != null && !company.trim().isEmpty()) {
+            boolean exactMatch = iasbseMemberRepository.existsByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndCompanyIgnoreCase(
+                    firstName.trim(), lastName.trim(), company.trim());
+            if (exactMatch) return true;
+        }
+        
+        // 2) If no exact match, check if there's a seeded member with same name but empty company ""
         return iasbseMemberRepository.existsByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndCompanyIgnoreCase(
-                firstName.trim(), lastName.trim(), company.trim());
+                firstName.trim(), lastName.trim(), "");
     }
 
     public List<String> getDistinctCompanies() {
@@ -60,9 +69,12 @@ public class IasbseMemberService {
                 String status = getCellString(row, 6);
 
                 if (firstName == null || firstName.isBlank() || 
-                    lastName == null || lastName.isBlank() || 
-                    company == null || company.isBlank()) {
+                    lastName == null || lastName.isBlank()) {
                     continue;
+                }
+
+                if (company == null) {
+                    company = "";
                 }
 
                 toSave.add(new IasbseMember(firstName.trim(), lastName.trim(), company.trim(), status));
@@ -102,9 +114,12 @@ public class IasbseMemberService {
                 String status = getCellString(row, 6);
 
                 if (firstName == null || firstName.isBlank() || 
-                    lastName == null || lastName.isBlank() || 
-                    company == null || company.isBlank()) {
+                    lastName == null || lastName.isBlank()) {
                     continue;
+                }
+
+                if (company == null) {
+                    company = "";
                 }
 
                 toSave.add(new IasbseMember(firstName.trim(), lastName.trim(), company.trim(), status));

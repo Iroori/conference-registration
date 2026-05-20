@@ -56,6 +56,20 @@ public class IasbseMemberServiceTest {
     }
 
     @Test
+    public void testIsIasbseMember_emptyCompanySeeded() {
+        // Save a member with empty company ""
+        iasbseMemberRepository.save(new IasbseMember("Ming", "Chen", "", "Active"));
+        
+        // Match when registering with a custom affiliation
+        boolean resultCustomCompany = iasbseMemberService.isIasbseMember("Ming", "Chen", "Tsinghua University");
+        assertThat(resultCustomCompany).isTrue();
+        
+        // Match when registering with no company / empty string
+        boolean resultEmptyCompany = iasbseMemberService.isIasbseMember("Ming", "Chen", "");
+        assertThat(resultEmptyCompany).isTrue();
+    }
+
+    @Test
     public void testImportFromLocalFile() {
         String testExcelPath = "/Users/roor2i/Desktop/sw/conference-registration/docs/payment/2026-04-28 Members IABSE (1).xls";
         int imported = iasbseMemberService.importFromLocalFile(testExcelPath);

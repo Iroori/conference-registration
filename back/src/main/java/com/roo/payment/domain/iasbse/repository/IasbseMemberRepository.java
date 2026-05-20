@@ -11,6 +11,6 @@ public interface IasbseMemberRepository extends JpaRepository<IasbseMember, Long
 
     boolean existsByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndCompanyIgnoreCase(String firstName, String lastName, String company);
 
-    @Query("SELECT m.company FROM IasbseMember m GROUP BY m.company ORDER BY m.company ASC")
+    @Query("SELECT m.company FROM IasbseMember m WHERE m.company IS NOT NULL AND m.company != '' GROUP BY m.company ORDER BY m.company ASC")
     List<String> findDistinctCompanies();
 }

@@ -397,6 +397,8 @@ docs/
 | 2026-03-31 | registration-payment-redesign.md | 회원가입 개선 + 결제 플로우 전면 재설계 + 영어 UI 전환 + 비밀번호 SHA-256 |
 | 2026-04-16 | aws-deployment.md | AWS Lightsail 인프라 구성 + MSSQL + SES + GitHub Actions CI/CD |
 | 2026-04-17 | iabse-incheon-redesign.md | KSSC→IABSE 리브랜딩 + 회원 4분류 + 기간 설정 기반 관리 + 관리자 계정 |
+| 2026-05-20 | iabse-members-excel-seeding-completed.md | IABSE 엑셀 회원 데이터베이스 자동 시딩 및 소속(company) 드롭다운 연동 |
+| 2026-05-20 | admin-dashboard-and-manual-role-control.md | 어드민 전용 3대 서브 탭 대시보드(가입 회원, IABSE, 전체 결제) 및 수동 등급 변경 기능 |
 
 ---
 

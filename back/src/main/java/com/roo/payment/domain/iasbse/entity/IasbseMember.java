@@ -27,16 +27,16 @@ public class IasbseMember extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "first_name", nullable = false, length = 100)
+    @Column(name = "first_name", nullable = false, columnDefinition = "NVARCHAR(100)")
     private String firstName;
-
-    @Column(name = "last_name", nullable = false, length = 100)
+ 
+    @Column(name = "last_name", nullable = false, columnDefinition = "NVARCHAR(100)")
     private String lastName;
-
-    @Column(name = "company", nullable = false, length = 200)
+ 
+    @Column(name = "company", nullable = false, columnDefinition = "NVARCHAR(200)")
     private String company;
-
-    @Column(name = "status", length = 50)
+ 
+    @Column(name = "status", columnDefinition = "NVARCHAR(50)")
     private String status;
 
     public IasbseMember(String firstName, String lastName, String company, String status) {
