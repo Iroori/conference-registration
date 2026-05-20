@@ -66,10 +66,13 @@ export const StepAdditionalOptions = ({
 
   const programOptions: ConferenceOption[] = useMemo(() => {
     if (!options) return [];
+    const hiddenIds =
+      memberType === 'YOUNG_ENGINEER' ? new Set(['OPT-GALA-DINNER']) : new Set<string>();
     return programOptionIds(selectedTier)
+      .filter((id) => !hiddenIds.has(id))
       .map((id) => options.find((o) => o.id === id))
       .filter((o): o is ConferenceOption => o !== undefined);
-  }, [options, selectedTier]);
+  }, [options, selectedTier, memberType]);
 
   const isSelected = (id: string) => (quantities[id] ?? 0) > 0;
 

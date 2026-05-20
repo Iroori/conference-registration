@@ -139,7 +139,7 @@ public class DataInitializer implements ApplicationRunner {
                         "OPT-GALA-DINNER-YE", OptionCategory.PROGRAM,
                         "갈라 디너 (Young Engineer)", "Gala Dinner (Young Engineer)",
                         "I would like to attend the Gala dinner at the Gyeongwonjae",
-                        200_000L, false, false, false, null, 80),
+                        200_000L, false, false, false, MemberType.YOUNG_ENGINEER, 80),
                 new ConferenceOption(
                         "OPT-TECH-TOUR-1", OptionCategory.PROGRAM,
                         "기술 투어 1", "Technical Tour 1 — Cheongna Sky Bridge",
