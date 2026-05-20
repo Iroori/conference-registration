@@ -14,6 +14,12 @@ export const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState<SubTab>('USERS');
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [expandedPaymentId, setExpandedPaymentId] = useState<number | null>(null);
+  
+  const toggleExpandPayment = (id: number) => {
+    setExpandedPaymentId((prev) => (prev === id ? null : id));
+  };
+
   const queryClient = useQueryClient();
 
   // Queries
@@ -388,6 +394,7 @@ export const AdminDashboardPage = () => {
                 <table className="w-full border-collapse text-left text-xs">
                   <thead>
                     <tr className="bg-slate-100 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                      <th className="px-4 py-3.5 w-[30px]"></th>
                       <th className="px-4 py-3.5">Reg No.</th>
                       <th className="px-4 py-3.5">Attendee / Contact</th>
                       <th className="px-4 py-3.5">Type & Affiliation</th>
@@ -399,52 +406,150 @@ export const AdminDashboardPage = () => {
                       <th className="px-4 py-3.5">Processed At</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {payments.map((p) => (
-                      <tr key={p.id} className="hover:bg-slate-50/50 transition">
-                        <td className="px-4 py-3.5 font-bold text-slate-800 uppercase tracking-wide">
-                          {p.registrationNumber}
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <div className="font-semibold text-slate-900">{`${p.firstName} ${p.lastName}`}</div>
-                          <div className="text-[10px] text-slate-500 font-medium">{p.email}</div>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <div className="font-semibold text-[9px] uppercase tracking-wider text-slate-500">
-                            {p.memberType}
-                          </div>
-                          <div className="text-[10px] text-slate-600 font-medium truncate max-w-[150px]">
-                            {p.affiliation}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3.5 text-right font-medium text-slate-500">
-                          {formatPrice(p.subtotal)}
-                        </td>
-                        <td className="px-4 py-3.5 text-right font-medium text-slate-500">
-                          {formatPrice(p.tax)}
-                        </td>
-                        <td className="px-4 py-3.5 text-right font-bold text-teal-600">
-                          {formatPrice(p.totalAmount)}
-                        </td>
-                        <td className="px-4 py-3.5 font-bold text-slate-600 text-[10px] uppercase">
-                          {p.paymentMethod.replace('_', ' ')}
-                        </td>
-                        <td className="px-4 py-3.5 text-center">
-                          <span className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
-                            p.status === 'COMPLETED'
-                              ? 'bg-green-100 border border-green-200 text-green-800'
-                              : p.status === 'PENDING'
-                              ? 'bg-amber-100 border border-amber-200 text-amber-800 animate-pulse'
-                              : 'bg-red-100 border border-red-200 text-red-800'
-                          }`}>
-                            {p.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5 text-slate-500 font-medium">
-                          {formatDate(p.paidAt)}
-                        </td>
-                      </tr>
-                    ))}
+                  <tbody className="divide-y divide-slate-150 text-slate-700">
+                    {payments.map((p) => {
+                      const isExpanded = expandedPaymentId === p.id;
+                      return (
+                        <tr key={p.id} className="divide-y divide-slate-100 bg-white">
+                          <td colSpan={10} className="p-0">
+                            <table className="w-full border-collapse text-left text-xs">
+                              <tbody>
+                                <tr 
+                                  onClick={() => toggleExpandPayment(p.id)}
+                                  className="hover:bg-slate-50/75 cursor-pointer transition select-none"
+                                >
+                                  <td className="px-4 py-3.5 w-[30px] text-center text-slate-400">
+                                    <svg 
+                                      className={`h-3 w-3 transform transition-transform duration-200 ${isExpanded ? 'rotate-90 text-teal-500' : ''}`} 
+                                      fill="none" 
+                                      stroke="currentColor" 
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                  </td>
+                                  <td className="px-4 py-3.5 font-bold text-slate-800 uppercase tracking-wide">
+                                    {p.registrationNumber}
+                                  </td>
+                                  <td className="px-4 py-3.5">
+                                    <div className="font-semibold text-slate-900">{`${p.firstName} ${p.lastName}`}</div>
+                                    <div className="text-[10px] text-slate-500 font-medium">{p.email}</div>
+                                  </td>
+                                  <td className="px-4 py-3.5">
+                                    <div className="font-semibold text-[9px] uppercase tracking-wider text-slate-500">
+                                      {p.memberType}
+                                    </div>
+                                    <div className="text-[10px] text-slate-600 font-medium truncate max-w-[150px]">
+                                      {p.affiliation}
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3.5 text-right font-medium text-slate-500">
+                                    {formatPrice(p.subtotal)}
+                                  </td>
+                                  <td className="px-4 py-3.5 text-right font-medium text-slate-500">
+                                    {formatPrice(p.tax)}
+                                  </td>
+                                  <td className="px-4 py-3.5 text-right font-bold text-teal-600">
+                                    {formatPrice(p.totalAmount)}
+                                  </td>
+                                  <td className="px-4 py-3.5 font-bold text-slate-600 text-[10px] uppercase">
+                                    {p.paymentMethod.replace('_', ' ')}
+                                  </td>
+                                  <td className="px-4 py-3.5 text-center">
+                                    <span className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                                      p.status === 'COMPLETED'
+                                        ? 'bg-green-100 border border-green-200 text-green-800'
+                                        : p.status === 'PENDING'
+                                        ? 'bg-amber-100 border border-amber-200 text-amber-800 animate-pulse'
+                                        : 'bg-red-100 border border-red-200 text-red-800'
+                                    }`}>
+                                      {p.status}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3.5 text-slate-500 font-medium">
+                                    {formatDate(p.paidAt)}
+                                  </td>
+                                </tr>
+                                {isExpanded && (
+                                  <tr className="bg-slate-50/50 border-t border-slate-100">
+                                    <td colSpan={10} className="px-6 py-4">
+                                      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
+                                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                                          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                                            <span className="h-1.5 w-1.5 rounded-full bg-teal-500"></span>
+                                            Detailed Payment Breakdown
+                                          </h4>
+                                          <span className="text-[10px] text-slate-400 font-mono">Reg No: {p.registrationNumber}</span>
+                                        </div>
+
+                                        {/* Accompanying Person Info */}
+                                        {p.accompanyingPerson && (
+                                          <div className="rounded-lg bg-teal-50 border border-teal-100/50 px-3 py-2 text-xs text-teal-800 flex items-center gap-2">
+                                            <svg className="h-4 w-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                            </svg>
+                                            <span className="font-semibold">Accompanying Person:</span> 
+                                            <span className="font-medium text-slate-800">{p.accompanyingPerson.firstName} {p.accompanyingPerson.lastName}</span>
+                                          </div>
+                                        )}
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                          {/* Options List */}
+                                          <div className="space-y-3">
+                                            <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Selected Option Items</h5>
+                                            <div className="divide-y divide-slate-100 border border-slate-150 rounded-lg overflow-hidden bg-white">
+                                              {p.selectedOptions && p.selectedOptions.map((opt) => (
+                                                <div key={opt.id} className="flex justify-between items-center p-3 text-xs hover:bg-slate-50/50 transition">
+                                                  <div className="flex items-center gap-2">
+                                                    <span className={`inline-block rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide ${
+                                                      opt.category === 'REGISTRATION' 
+                                                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                                                        : opt.category === 'PROGRAM'
+                                                        ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                                        : 'bg-slate-100 text-slate-700 border border-slate-200'
+                                                    }`}>
+                                                      {opt.category === 'REGISTRATION' ? 'Registration' : opt.category === 'PROGRAM' ? 'Program' : 'Admin'}
+                                                    </span>
+                                                    <div>
+                                                      <div className="font-semibold text-slate-850">{opt.nameEn}</div>
+                                                      {opt.nameKr && <div className="text-[9px] text-slate-400 font-medium">{opt.nameKr}</div>}
+                                                    </div>
+                                                  </div>
+                                                  <span className="font-mono font-bold text-slate-700">{formatPrice(opt.price)}</span>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+
+                                          {/* Financial calculations */}
+                                          <div className="space-y-3">
+                                            <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tax &amp; Price Breakdown</h5>
+                                            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2.5">
+                                              <div className="flex justify-between text-xs text-slate-650 font-medium">
+                                                <span>Supply Net Value (Subtotal):</span>
+                                                <span className="font-mono text-slate-800 font-semibold">{formatPrice(p.subtotal)}</span>
+                                              </div>
+                                              <div className="flex justify-between text-xs text-slate-650 font-medium">
+                                                <span>VAT (10% Tax):</span>
+                                                <span className="font-mono text-slate-800 font-semibold">{formatPrice(p.tax)}</span>
+                                              </div>
+                                              <div className="border-t border-slate-200 pt-2 flex justify-between text-sm font-bold text-slate-850">
+                                                <span>Gross Total Amount:</span>
+                                                <span className="font-mono text-teal-600 text-base">{formatPrice(p.totalAmount)}</span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )}
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
