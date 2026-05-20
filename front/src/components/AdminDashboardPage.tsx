@@ -512,7 +512,6 @@ export const AdminDashboardPage = () => {
                                                     </span>
                                                     <div>
                                                       <div className="font-semibold text-slate-850">{opt.nameEn}</div>
-                                                      {opt.nameKr && <div className="text-[9px] text-slate-400 font-medium">{opt.nameKr}</div>}
                                                     </div>
                                                   </div>
                                                   <span className="font-mono font-bold text-slate-700">{formatPrice(opt.price)}</span>

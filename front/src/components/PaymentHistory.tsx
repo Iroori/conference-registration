@@ -135,7 +135,6 @@ export const PaymentHistoryTab = () => {
                               </span>
                               <div>
                                 <div className="font-semibold text-slate-800">{opt.nameEn}</div>
-                                {opt.nameKr && <div className="text-[9px] text-slate-400">{opt.nameKr}</div>}
                               </div>
                             </div>
                             <span className="font-mono font-semibold text-slate-700">{formatKRW(opt.price)}</span>
