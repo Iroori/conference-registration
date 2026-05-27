@@ -63,7 +63,7 @@ export const RegistrationPage = () => {
   // Step 5 — payment result
   const [paymentResult, setPaymentResult] = useState<PaymentResponse | null>(null);
 
-  const memberType = user?.memberType ?? 'NON_MEMBER_PLUS';
+  const memberType = user?.memberType ?? 'NON_MEMBER';
   const { data: options } = useConferenceOptions(memberType);
 
   /** Compute the final list of unique option IDs and quantities map for the payment API */
@@ -146,7 +146,9 @@ export const RegistrationPage = () => {
                   ? 'MEMBER'
                   : user.isYoungEngineer
                     ? 'YOUNG ENGINEER'
-                    : 'NON-MEMBER PLUS'}
+                    : user.memberType === 'NON_MEMBER'
+                      ? 'NON-MEMBER'
+                      : 'NON-MEMBER PLUS'}
               </span>
             </div>
             <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-0.5">

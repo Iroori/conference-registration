@@ -162,7 +162,6 @@ export const AdminDashboardPage = () => {
                 <table className="w-full border-collapse text-left text-xs">
                   <thead>
                     <tr className="bg-slate-100 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-600">
-                      <th className="px-4 py-3.5">ID</th>
                       <th className="px-4 py-3.5">Attendee Name</th>
                       <th className="px-4 py-3.5">Email</th>
                       <th className="px-4 py-3.5">Affiliation & Position</th>
@@ -175,7 +174,6 @@ export const AdminDashboardPage = () => {
                   <tbody className="divide-y divide-slate-100 text-slate-700">
                     {users.map((u) => (
                       <tr key={u.id} className="hover:bg-slate-50/50 transition">
-                        <td className="px-4 py-3.5 font-semibold text-slate-500">{u.id}</td>
                         <td className="px-4 py-3.5">
                           <span className="font-semibold text-slate-900">{`${u.firstName} ${u.lastName}`}</span>
                           {u.admin && (
@@ -328,7 +326,6 @@ export const AdminDashboardPage = () => {
                 <table className="w-full border-collapse text-left text-xs">
                   <thead className="sticky top-0 bg-slate-100 border-b border-slate-200 z-10">
                     <tr className="text-[10px] font-bold uppercase tracking-wider text-slate-600 shadow-[inset_0_-1px_0_rgba(0,0,0,0.1)] bg-slate-100">
-                      <th className="px-4 py-3.5">ID</th>
                       <th className="px-4 py-3.5">First Name</th>
                       <th className="px-4 py-3.5">Last Name</th>
                       <th className="px-4 py-3.5">Company / Affiliation</th>
@@ -338,7 +335,6 @@ export const AdminDashboardPage = () => {
                   <tbody className="divide-y divide-slate-100 text-slate-700">
                     {iasbseMembers.map((m) => (
                       <tr key={m.id} className="hover:bg-slate-50/50 transition">
-                        <td className="px-4 py-3.5 font-semibold text-slate-500">{m.id}</td>
                         <td className="px-4 py-3.5 font-semibold text-slate-800">{m.firstName}</td>
                         <td className="px-4 py-3.5 font-semibold text-slate-800">{m.lastName}</td>
                         <td className="px-4 py-3.5 font-medium text-slate-600">{m.company}</td>

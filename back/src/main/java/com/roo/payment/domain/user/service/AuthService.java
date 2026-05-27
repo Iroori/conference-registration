@@ -87,7 +87,7 @@ public class AuthService {
         } else if (age <= 35) {
             memberType = MemberType.YOUNG_ENGINEER;
         } else {
-            memberType = MemberType.NON_MEMBER_PLUS;
+            memberType = MemberType.NON_MEMBER;
         }
 
         if (req.dietaryRequirement() == com.roo.payment.domain.user.entity.DietaryRequirement.OTHER

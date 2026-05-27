@@ -474,6 +474,16 @@ export const SignupPage = () => {
                 )}
               </div>
 
+              {/* IABSE Verification Alert Notice */}
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-4 mb-3 text-[11px] text-slate-600 leading-relaxed shadow-sm space-y-2">
+                <p>
+                  Please note that to successfully verify your IABSE membership and access the member registration rate, the <strong className="text-navy font-semibold">Full Name</strong> and <strong className="text-navy font-semibold">Affiliation</strong> you enter must exactly match the information registered in your official IABSE membership profile.
+                </p>
+                <p>
+                  If your membership verification fails or you encounter any issues during this process, please do not proceed with the payment. Instead, kindly contact the Secretariat directly at <a href="mailto:iabse2026@kibse.or.kr" className="text-gold hover:underline font-semibold">iabse2026@kibse.or.kr</a> for assistance, and we will promptly help verify your status.
+                </p>
+              </div>
+
               {/* Position / Title */}
               <div className="mb-3">
                 <label className="block label-section mb-1.5">

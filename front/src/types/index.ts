@@ -111,7 +111,7 @@ export interface RegistrationCategoryMeta {
 /** Registration 탭에 노출되는 등록비 카테고리 (표시 순서) */
 export const REGISTRATION_CATEGORIES: RegistrationCategoryMeta[] = [
   { key: 'MEMBER', label: 'IABSE Member', iabseMemberOnly: true },
-  { key: 'NON_MEMBER', label: 'Non-IABSE Member' },
+  { key: 'NON_MEMBER', label: 'Non-member' },
   {
     key: 'NON_MEMBER_PLUS',
     label: 'IABSE-Non Member Plus (includes 1 year IABSE membership)',

@@ -400,6 +400,7 @@ docs/
 | 2026-05-20 | iabse-members-excel-seeding-completed.md | IABSE 엑셀 회원 데이터베이스 자동 시딩 및 소속(company) 드롭다운 연동 |
 | 2026-05-20 | admin-dashboard-and-manual-role-control.md | 어드민 전용 3대 서브 탭 대시보드(가입 회원, IABSE, 전체 결제) 및 수동 등급 변경 기능 |
 | 2026-05-20 | remove-vat-tax-from-payment.md | 결제 시 부가세 10% 가산 로직 제거 및 1번 실결제 데이터 부가세/총액 보정 |
+| 2026-05-27 | registration-management-adjustments.md | 회원가입 소속 하단 매칭 안내문 추가 + 일반 비회원 등급(Non-member) 기본 적용 및 라벨 수정 + 어드민 ID 칼럼 UI 탈거 + 기술 투어 로마자 표기 및 유료 가격 갱신 |
 
 ---
 

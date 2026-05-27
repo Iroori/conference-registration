@@ -163,19 +163,19 @@ public class DataInitializer implements ApplicationRunner {
                         200_000L, false, false, false, MemberType.YOUNG_ENGINEER, 80),
                 new ConferenceOption(
                         "OPT-TECH-TOUR-1", OptionCategory.PROGRAM,
-                        "기술 투어 1", "Technical Tour 1 — Cheongna Sky Bridge",
+                        "기술 투어 Ⅰ", "Technical Tour Ⅰ — Cheongna Sky Bridge",
                         "I would like to attend the Cheongna Sky Bridge tour",
                         70_000L, false, false, false, null, 40),
                 new ConferenceOption(
                         "OPT-TECH-TOUR-2", OptionCategory.PROGRAM,
-                        "기술 투어 2", "Technical Tour 2 — Gimpo-Paju Tunnel",
+                        "기술 투어 Ⅱ", "Technical Tour Ⅱ — Gimpo-Paju Tunnel",
                         "I would like to attend the Gimpo-Paju Tunnel tour",
-                        0L, false, false, false, null, 40),
+                        71_000L, false, false, false, null, 40),
                 new ConferenceOption(
                         "OPT-TECH-TOUR-3", OptionCategory.PROGRAM,
-                        "기술 투어 3", "Technical Tour 3 — Yeongdong-daero Underground Complex",
+                        "기술 투어 Ⅲ", "Technical Tour Ⅲ — Yeongdong-daero Underground Complex",
                         "I would like to attend the Underground Complex Site at Yeongdong-daero tour",
-                        0L, false, false, false, null, 40),
+                        71_000L, false, false, false, null, 40),
 
                 // ── 옵션비: 동반자 등록 (기간별 금액 상이) ───────────────────────
                 new ConferenceOption(
