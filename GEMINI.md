@@ -301,7 +301,7 @@ cd front && npm run dev
 |--------|----------|----------|
 | member@test.com | Test1234! | MEMBER |
 | young@test.com | Test1234! | NON_MEMBER (YE) |
-| senior@test.com | Test1234! | NON_MEMBER_PLUS |
+| senior@test.com | Test1234! | NON_MEMBER |
 
 ### 8-3. 이메일 인증 (로컬 SMTP 없음)
 

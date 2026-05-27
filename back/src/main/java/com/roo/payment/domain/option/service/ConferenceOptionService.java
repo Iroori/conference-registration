@@ -35,4 +35,17 @@ public class ConferenceOptionService {
                 .map(AdminConferenceOptionResponse::from)
                 .toList();
     }
+
+    @Transactional
+    public void updateOptionCapacity(String optionId, Integer newCapacity) {
+        com.roo.payment.domain.option.entity.ConferenceOption option = optionRepository.findById(optionId)
+                .orElseThrow(() -> new com.roo.payment.common.exception.BusinessException(com.roo.payment.common.exception.ErrorCode.OPTION_NOT_FOUND));
+
+        if (newCapacity != null && newCapacity < option.getCurrentCount()) {
+            throw new com.roo.payment.common.exception.BusinessException(com.roo.payment.common.exception.ErrorCode.INVALID_INPUT,
+                    "New capacity cannot be less than the current count of sold tickets.");
+        }
+        option.updateMaxCapacity(newCapacity);
+        optionRepository.save(option);
+    }
 }

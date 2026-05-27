@@ -5,10 +5,69 @@ import {
   apiUpdateUserMemberType,
   apiGetAdminIasbseMembers,
   apiGetAdminPayments,
+  apiGetAdminOptions,
+  apiUpdateOptionCapacity,
 } from '../lib/api';
 import type { MemberType } from '../types';
 
-type SubTab = 'USERS' | 'IABSE' | 'PAYMENTS';
+type SubTab = 'USERS' | 'IABSE' | 'PAYMENTS' | 'OPTIONS';
+
+const OptionInventoryRow = ({
+  option,
+  onSave,
+  isPending,
+}: {
+  option: any;
+  onSave: (id: string, cap: number) => void;
+  isPending: boolean;
+}) => {
+  const [cap, setCap] = useState<number>(option.maxCapacity ?? 0);
+  const isValid = cap >= (option.currentCount ?? 0);
+
+  return (
+    <tr className="hover:bg-slate-50/50 transition">
+      <td className="px-4 py-3.5">
+        <span className="font-semibold text-slate-900">{option.nameEn}</span>
+      </td>
+      <td className="px-4 py-3.5 font-bold text-slate-800 text-center">
+        {option.currentCount ?? 0}
+      </td>
+      <td className="px-4 py-3.5 font-semibold text-slate-500 text-center">
+        {option.maxCapacity ?? 'Unlimited'}
+      </td>
+      <td className="px-4 py-3.5 text-center">
+        <span className={`font-bold ${option.maxCapacity - option.currentCount <= 5 ? 'text-red-500 font-extrabold' : 'text-teal-600'}`}>
+          {option.maxCapacity - option.currentCount}
+        </span>
+      </td>
+      <td className="px-4 py-3.5">
+        <div className="flex items-center gap-2 max-w-[180px]">
+          <input
+            type="number"
+            min={option.currentCount ?? 0}
+            value={cap}
+            onChange={(e) => setCap(parseInt(e.target.value) || 0)}
+            className={`w-20 px-2 py-1 text-xs border rounded-lg focus:outline-none focus:ring-1 ${
+              isValid
+                ? 'border-slate-200 focus:border-teal-500 focus:ring-teal-100 bg-white text-slate-800'
+                : 'border-red-300 focus:border-red-400 focus:ring-red-100 bg-red-50 text-red-700'
+            }`}
+          />
+          <button
+            onClick={() => onSave(option.id, cap)}
+            disabled={!isValid || isPending || cap === option.maxCapacity}
+            className="px-3 py-1 bg-teal-500 hover:bg-teal-600 active:bg-teal-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold rounded-lg text-[11px] shadow-sm transition"
+          >
+            Save
+          </button>
+        </div>
+        {!isValid && (
+          <p className="text-[9px] text-red-550 mt-1 font-medium">Cannot be less than sold count ({option.currentCount})</p>
+        )}
+      </td>
+    </tr>
+  );
+};
 
 export const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState<SubTab>('USERS');
@@ -83,6 +142,29 @@ export const AdminDashboardPage = () => {
     }
   };
 
+  const {
+    data: options,
+    isLoading: loadingOptions,
+    isError: errorOptions,
+  } = useQuery({
+    queryKey: ['adminOptions'],
+    queryFn: apiGetAdminOptions,
+    enabled: activeTab === 'OPTIONS',
+  });
+
+  const updateCapacityMutation = useMutation({
+    mutationFn: ({ optionId, maxCapacity }: { optionId: string; maxCapacity: number }) =>
+      apiUpdateOptionCapacity(optionId, maxCapacity),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminOptions'] });
+      alert('Ticket capacity updated successfully.');
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || 'Failed to update capacity.';
+      alert(msg);
+    },
+  });
+
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(amount);
   };
@@ -98,6 +180,73 @@ export const AdminDashboardPage = () => {
     });
   };
 
+  const handleExportExcel = () => {
+    if (!payments || payments.length === 0) return;
+
+    const headers = [
+      'Registration No.',
+      'Attendee Name',
+      'Email',
+      'Member Type',
+      'Affiliation',
+      'Net Amount (KRW)',
+      'VAT (KRW)',
+      'Gross Total (KRW)',
+      'Payment Method',
+      'Status',
+      'Processed At',
+      'Selected Options',
+      'Accompanying Person'
+    ];
+
+    const rows = payments.map((p: any) => {
+      const optionsStr = p.selectedOptions 
+        ? p.selectedOptions.map((opt: any) => `${opt.nameEn} (${opt.category})`).join('; ')
+        : '';
+      
+      const accompanyingStr = p.accompanyingPerson
+        ? `${p.accompanyingPerson.firstName} ${p.accompanyingPerson.lastName}`
+        : '';
+
+      return [
+        p.registrationNumber || '',
+        `${p.firstName} ${p.lastName}`,
+        p.email || '',
+        p.memberType || '',
+        p.affiliation || '',
+        p.subtotal || 0,
+        p.tax || 0,
+        p.totalAmount || 0,
+        p.paymentMethod ? p.paymentMethod.replace('_', ' ') : '',
+        p.status || '',
+        p.paidAt ? formatDate(p.paidAt) : '',
+        optionsStr,
+        accompanyingStr
+      ];
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => 
+        row.map(val => {
+          const stringVal = String(val).replace(/"/g, '""');
+          return `"${stringVal}"`;
+        }).join(',')
+      )
+    ].join('\r\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.setAttribute('href', url);
+    link.setAttribute('download', `IABSE_Payments_Export_${dateStr}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
       {/* Admin Dashboard header */}
@@ -111,7 +260,7 @@ export const AdminDashboardPage = () => {
 
         {/* Sub-tabs switch */}
         <div className="flex bg-slate-900/50 p-0.5 rounded-xl border border-slate-700/50">
-          {(['USERS', 'IABSE', 'PAYMENTS'] as SubTab[]).map((tab) => (
+          {(['USERS', 'IABSE', 'PAYMENTS', 'OPTIONS'] as SubTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -121,7 +270,13 @@ export const AdminDashboardPage = () => {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              {tab === 'USERS' ? 'Registered Users' : tab === 'IABSE' ? 'IABSE Members (Excel)' : 'Total Payments'}
+              {tab === 'USERS'
+                ? 'Registered Users'
+                : tab === 'IABSE'
+                ? 'IABSE Members (Excel)'
+                : tab === 'PAYMENTS'
+                ? 'Total Payments'
+                : 'Ticket Inventory'}
             </button>
           ))}
         </div>
@@ -361,9 +516,21 @@ export const AdminDashboardPage = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-semibold text-slate-800">Unified Payment & Order History</h3>
-              <span className="text-xs text-slate-500 font-medium bg-slate-200/60 px-2.5 py-1 rounded-full">
-                Total transactions: {payments?.length ?? 0}
-              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleExportExcel}
+                  disabled={!payments || payments.length === 0}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold rounded-lg text-xs shadow-sm transition flex items-center gap-1.5"
+                >
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Export to Excel
+                </button>
+                <span className="text-xs text-slate-500 font-medium bg-slate-200/60 px-2.5 py-1 rounded-full">
+                  Total transactions: {payments?.length ?? 0}
+                </span>
+              </div>
             </div>
 
             {loadingPayments && (
@@ -545,6 +712,63 @@ export const AdminDashboardPage = () => {
                         </tr>
                       );
                     })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 4: Option Ticket Inventory */}
+        {activeTab === 'OPTIONS' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-semibold text-slate-800">Option Ticket Capacities & Inventory</h3>
+              <span className="text-xs text-slate-500 font-medium bg-slate-200/60 px-2.5 py-1 rounded-full">
+                Tracked options: {options?.filter(o => o.maxCapacity != null).length ?? 0}
+              </span>
+            </div>
+
+            {loadingOptions && (
+              <div className="flex flex-col items-center justify-center py-16 gap-3">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-teal-500"></div>
+                <p className="text-xs font-medium text-slate-500">Retrieving option capacities...</p>
+              </div>
+            )}
+
+            {errorOptions && (
+              <div className="rounded-xl border border-red-100 bg-red-50 p-5 text-center text-red-600 text-xs font-medium">
+                Failed to load option capacities. Please check server authorization.
+              </div>
+            )}
+
+            {options && (
+              <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+                <table className="w-full border-collapse text-left text-xs">
+                  <thead>
+                    <tr className="bg-slate-100 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                      <th className="px-4 py-3.5">Program Name</th>
+                      <th className="px-4 py-3.5 text-center">Sold Tickets</th>
+                      <th className="px-4 py-3.5 text-center">Max Capacity</th>
+                      <th className="px-4 py-3.5 text-center">Tickets Remaining</th>
+                      <th className="px-4 py-3.5">Change Max Capacity</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    {options
+                      .filter((o) => o.maxCapacity != null)
+                      .map((o) => (
+                        <OptionInventoryRow
+                          key={o.id}
+                          option={o}
+                          isPending={updateCapacityMutation.isPending}
+                          onSave={(id, cap) => {
+                            if (window.confirm(`Are you sure you want to change the capacity of this program to ${cap}?`)) {
+                              updateCapacityMutation.mutate({ optionId: id, maxCapacity: cap });
+                            }
+                          }}
+                        />
+                      ))}
                   </tbody>
                 </table>
               </div>

@@ -3,9 +3,15 @@ package com.roo.payment.domain.option.controller;
 import com.roo.payment.common.response.ApiResponse;
 import com.roo.payment.domain.option.dto.AdminConferenceOptionResponse;
 import com.roo.payment.domain.option.service.ConferenceOptionService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,5 +37,17 @@ public class AdminOptionController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<AdminConferenceOptionResponse>>> list() {
         return ResponseEntity.ok(ApiResponse.ok(optionService.getAllOptionsForAdmin()));
+    }
+
+    public record UpdateCapacityRequest(
+            @NotNull @Min(0) Integer maxCapacity
+    ) {}
+
+    @PatchMapping("/{id}/capacity")
+    public ResponseEntity<ApiResponse<Void>> updateCapacity(
+            @PathVariable String id,
+            @RequestBody @Valid UpdateCapacityRequest req) {
+        optionService.updateOptionCapacity(id, req.maxCapacity());
+        return ResponseEntity.ok(ApiResponse.ok("Capacity updated successfully.", null));
     }
 }

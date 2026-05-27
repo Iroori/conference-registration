@@ -77,6 +77,10 @@ public class ConferenceOption extends BaseEntity {
         this.active = false;
     }
 
+    public void updateMaxCapacity(Integer maxCapacity) {
+        this.maxCapacity = maxCapacity;
+    }
+
     /**
      * 시드 데이터 동기화 — 가격·정원 등 편집 가능한 필드를 갱신한다.
      * 판매 이력에 해당하는 currentCount는 보존한다.

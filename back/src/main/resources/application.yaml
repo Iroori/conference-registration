@@ -53,8 +53,8 @@ server:
 app:
   jwt:
     secret: ${JWT_SECRET:kssc2026-conference-registration-secret-key-very-long-string-for-security}
-    expiration-ms: 86400000
-    refresh-expiration-ms: 604800000
+    expiration-ms: 900000
+    refresh-expiration-ms: 1800000
   email-verification:
     expiration-minutes: 10
   cors:
@@ -125,8 +125,8 @@ server:
 app:
   jwt:
     secret: ${JWT_SECRET}
-    expiration-ms: 86400000
-    refresh-expiration-ms: 604800000
+    expiration-ms: 900000
+    refresh-expiration-ms: 1800000
   email-verification:
     expiration-minutes: 10
   cors:

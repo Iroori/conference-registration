@@ -58,7 +58,7 @@ export const StatusPill = ({ status }: { status: PaymentStatus }) => {
 
 const MEMBER_TYPE_MAP: Record<MemberType, { label: string; classes: string }> = {
   MEMBER:           { label: 'MEMBER',          classes: 'bg-gold-soft text-gold border-gold-soft' },
-  NON_MEMBER:       { label: 'NON-MEMBER',      classes: 'bg-slate-100 text-ink-muted border-slate-200' },
+  NON_MEMBER:       { label: 'NON-MEMBER',      classes: 'bg-navy text-white border-navy' },
   NON_MEMBER_PLUS:  { label: 'NON-MEMBER PLUS', classes: 'bg-navy text-white border-navy' },
   YOUNG_ENGINEER:   { label: 'YOUNG ENGINEER',  classes: 'bg-amber-50 text-amber-700 border-amber-200' },
 };

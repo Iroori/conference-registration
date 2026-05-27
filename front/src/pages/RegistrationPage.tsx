@@ -138,8 +138,6 @@ export const RegistrationPage = () => {
               <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] ${
                 user.memberType === 'MEMBER'
                   ? 'border-gold-soft bg-gold-soft text-gold'
-                  : user.memberType === 'NON_MEMBER'
-                  ? 'border-white/20 bg-white/5 text-white/70'
                   : 'border-white/30 bg-white/10 text-white'
               }`}>
                 {user.memberType === 'MEMBER'

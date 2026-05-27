@@ -83,13 +83,17 @@ public class DataInitializer implements ApplicationRunner {
         for (ConferenceOption d : desired) {
             optionRepository.findById(d.getId())
                     .ifPresentOrElse(
-                            existing -> existing.syncFrom(d),
+                            existing -> {
+                                existing.syncFrom(d);
+                                optionRepository.save(existing);
+                            },
                             () -> optionRepository.save(d));
         }
 
         optionRepository.findAll().forEach(o -> {
             if (!desiredIds.contains(o.getId()) && o.isActive()) {
                 o.deactivate();
+                optionRepository.save(o);
             }
         });
     }
@@ -163,17 +167,17 @@ public class DataInitializer implements ApplicationRunner {
                         200_000L, false, false, false, MemberType.YOUNG_ENGINEER, 80),
                 new ConferenceOption(
                         "OPT-TECH-TOUR-1", OptionCategory.PROGRAM,
-                        "기술 투어 Ⅰ", "Technical Tour Ⅰ — Cheongna Sky Bridge",
+                        "기술 투어 I", "Technical Tour I — Cheongna Sky Bridge",
                         "I would like to attend the Cheongna Sky Bridge tour",
                         70_000L, false, false, false, null, 40),
                 new ConferenceOption(
                         "OPT-TECH-TOUR-2", OptionCategory.PROGRAM,
-                        "기술 투어 Ⅱ", "Technical Tour Ⅱ — Gimpo-Paju Tunnel",
+                        "기술 투어 II", "Technical Tour II — Gimpo-Paju Tunnel",
                         "I would like to attend the Gimpo-Paju Tunnel tour",
                         71_000L, false, false, false, null, 40),
                 new ConferenceOption(
                         "OPT-TECH-TOUR-3", OptionCategory.PROGRAM,
-                        "기술 투어 Ⅲ", "Technical Tour Ⅲ — Yeongdong-daero Underground Complex",
+                        "기술 투어 III", "Technical Tour III — Yeongdong-daero Underground Complex",
                         "I would like to attend the Underground Complex Site at Yeongdong-daero tour",
                         71_000L, false, false, false, null, 40),
 
@@ -214,7 +218,7 @@ public class DataInitializer implements ApplicationRunner {
     //
     //  member@test.com   / Test1234!  →  MEMBER        (IASBSE 회원)
     //  young@test.com    / Test1234!  →  NON_MEMBER    (Young Engineer, 1995년생 → 만 30세)
-    //  senior@test.com   / Test1234!  →  NON_MEMBER_PLUS (일반 비회원, 1978년생 → 만 47세)
+    //  senior@test.com   / Test1234!  →  NON_MEMBER (일반 비회원, 1978년생 → 만 47세)
     // ─────────────────────────────────────────────────────────────────────────
     /** SHA-256 hex of a plaintext password — mirrors the client-side hashing in api.ts */
     private String sha256(String input) {

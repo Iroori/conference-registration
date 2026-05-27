@@ -129,3 +129,12 @@ export const apiGetAdminPayments = async (): Promise<PaymentResponse[]> => {
   const res = await apiClient.get<{ data: PaymentResponse[] }>('/admin/payments');
   return res.data.data;
 };
+
+export const apiGetAdminOptions = async (): Promise<ConferenceOption[]> => {
+  const res = await apiClient.get<{ data: ConferenceOption[] }>('/admin/options');
+  return res.data.data;
+};
+
+export const apiUpdateOptionCapacity = async (optionId: string, maxCapacity: number): Promise<void> => {
+  await apiClient.patch(`/admin/options/${optionId}/capacity`, { maxCapacity });
+};

@@ -64,7 +64,7 @@ const formatMMSS = (s: number): string => {
 const TIER_BADGE_CLASSES: Record<string, string> = {
   MEMBER: 'bg-gold-soft text-gold border border-gold-soft',
   'YOUNG ENGINEER': 'bg-amber-50 text-amber-700 border border-amber-200',
-  'NON-MEMBER PLUS': 'bg-navy text-white border border-navy',
+  'NON-MEMBER': 'bg-navy text-white border border-navy',
 };
 
 export const SignupPage = () => {
@@ -629,7 +629,7 @@ export const SignupPage = () => {
                 {[
                   { badge: 'MEMBER', desc: 'IABSE registered member' },
                   { badge: 'YOUNG ENGINEER', desc: 'Non-member · Under 36 years old' },
-                  { badge: 'NON-MEMBER PLUS', desc: 'Non-member · 36 years or older' },
+                  { badge: 'NON-MEMBER', desc: 'Non-member · 36 years or older' },
                 ].map(({ badge, desc }) => (
                   <div key={badge} className="flex items-center gap-2">
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] ${TIER_BADGE_CLASSES[badge]}`}>
