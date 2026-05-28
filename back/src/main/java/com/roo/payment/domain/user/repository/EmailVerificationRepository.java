@@ -12,6 +12,8 @@ public interface EmailVerificationRepository extends JpaRepository<EmailVerifica
 
     Optional<EmailVerification> findTopByEmailAndUsedFalseOrderByIdDesc(String email);
 
+    void deleteByEmail(String email);
+
     @Modifying
     @Query("DELETE FROM EmailVerification ev WHERE ev.expiresAt < :now")
     void deleteExpired(LocalDateTime now);

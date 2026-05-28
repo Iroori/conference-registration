@@ -138,3 +138,7 @@ export const apiGetAdminOptions = async (): Promise<ConferenceOption[]> => {
 export const apiUpdateOptionCapacity = async (optionId: string, maxCapacity: number): Promise<void> => {
   await apiClient.patch(`/admin/options/${optionId}/capacity`, { maxCapacity });
 };
+
+export const apiDeleteUser = async (userId: number): Promise<void> => {
+  await apiClient.delete(`/admin/users/${userId}`);
+};

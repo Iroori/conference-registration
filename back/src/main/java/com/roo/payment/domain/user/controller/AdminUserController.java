@@ -53,4 +53,14 @@ public class AdminUserController {
         List<IasbseMember> members = adminUserService.getAllIasbseMembers(search);
         return ResponseEntity.ok(ApiResponse.ok(members));
     }
+
+    /**
+     * 특정 유저 강제 삭제 (결제 연쇄 제거 & 티켓 정원 복원 포함)
+     * DELETE /api/admin/users/{id}
+     */
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+        adminUserService.deleteUser(id);
+        return ResponseEntity.ok(ApiResponse.ok("Successfully deleted user and all associated records.", null));
+    }
 }

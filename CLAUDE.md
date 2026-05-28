@@ -390,6 +390,12 @@ docs/
 | 2026-04-17 | [iabse-incheon-redesign.md](docs/progress/2026-04-17_iabse-incheon-redesign.md) | KSSC→IABSE 리브랜딩 + SES 발신주소 변경 + 회원 4분류(YOUNG_ENGINEER) + 기간 설정 기반 관리 + 관리자 계정/ROLE_ADMIN + 옵션 수량UI 제거 + 잔여티켓 관리자 전용 |
 | 2026-04-29 | [lastname-firstname-and-logo.md](docs/progress/2026-04-29_lastname-firstname-and-logo.md) | 회원가입/사용자 도메인 nameKr·nameEn → lastName·firstName 분리 (DB 컬럼 포함) + 헤더 로고를 `logo_IABSE_white.png`로 교체. IABSE XLS 임포트는 원본 파일에 이메일 컬럼 부재로 보류 → 재공급 후 후속 작업으로 정리 |
 | 2026-05-19 | [registration-fees-and-options-update.md](docs/progress/2026-05-19_registration-fees-and-options-update.md) | 등록비 카테고리 5종(전시자 추가 배지 포함)·기간 3티어 금액 개편 + 등록비 카테고리 사용자 선택 UI(IABSE Member 잠금) + 옵션비 재구성(Gala 일반/YE 분리, Technical Tour 3종, Accompanying Person 기간별) + 동반자 이름 별도 저장(`AccompanyingPerson` 엔티티) + 옵션 시드 기동 시 동기화 |
+| 2026-05-20 | [iabse-members-excel-seeding-completed.md](docs/progress/2026-05-20_iabse-members-excel-seeding-completed.md) | IABSE 엑셀 회원 데이터베이스 자동 시딩 및 소속(company) 드롭다운 연동 |
+| 2026-05-20 | [admin-dashboard-and-manual-role-control.md](docs/progress/2026-05-20_admin-dashboard-and-manual-role-control.md) | 어드민 전용 3대 서브 탭 대시보드(가입 회원, IABSE, 전체 결제) 및 수동 등급 변경 기능 |
+| 2026-05-20 | [remove-vat-tax-from-payment.md](docs/progress/2026-05-20_remove-vat-tax-from-payment.md) | 결제 시 부가세 10% 가산 로직 제거 및 1번 실결제 데이터 부가세/총액 보정 |
+| 2026-05-27 | [registration-management-adjustments.md](docs/progress/2026-05-27_registration-management-adjustments.md) | 회원가입 소속 하단 매칭 안내문 추가 + 일반 비회원 등급(Non-member) 기본 적용 및 라벨 수정 + 어드민 ID 칼럼 UI 탈거 + 기술 투어 로마자 표기 및 유료 가격 갱신 |
+| 2026-05-28 | [refund-policy-and-tour-prices.md](docs/progress/2026-05-28_refund-policy-and-tour-prices.md) | 결제 취소 및 환불 규정 2항 단축 업데이트 및 기술 투어 I, II, III 가격 75,000원 상향 통일 |
+| 2026-05-28 | [admin-user-deletion-cascading-completed.md](docs/progress/2026-05-28_admin-user-deletion-cascading-completed.md) | 관리자 페이지 가입 회원 강제 삭제 기능 추가 (결제/동반인 하드 딜리트, 프로그램 티켓 잔여 정원 자동 복원 및 토큰/이메일 인증 초기화 연쇄 처리) |
 
 > 새 세션에서 기능을 추가·변경할 때마다 해당 날짜의 progress 파일을 생성하거나 업데이트합니다.
 

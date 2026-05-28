@@ -7,6 +7,7 @@ import {
   apiGetAdminPayments,
   apiGetAdminOptions,
   apiUpdateOptionCapacity,
+  apiDeleteUser,
 } from '../lib/api';
 import type { MemberType } from '../types';
 
@@ -139,6 +140,26 @@ export const AdminDashboardPage = () => {
   const handleGradeChange = (userId: number, memberType: MemberType) => {
     if (window.confirm(`Are you sure you want to change this user's grade to ${memberType}?`)) {
       updateGradeMutation.mutate({ userId, memberType });
+    }
+  };
+
+  // User delete mutation
+  const deleteUserMutation = useMutation({
+    mutationFn: (userId: number) => apiDeleteUser(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
+      alert('User and all associated registration data have been permanently deleted.');
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || 'Failed to delete user. Please try again.';
+      alert(msg);
+    },
+  });
+
+  const handleDeleteUser = (userId: number, name: string) => {
+    const message = `[WARNING - PERMANENT DELETION]\n\nAre you sure you want to PERMANENTLY delete registered user "${name}"?\n\nThis will:\n1. Erase their user account from the database.\n2. Permanently delete all associated payment records.\n3. Remove their Accompanying Person registration.\n4. Release and restore all reserved seats/tickets (like Technical Tour, Gala Dinner, etc.) back to the inventory.\n\nThis action CANNOT be undone. Click OK to proceed.`;
+    if (window.confirm(message)) {
+      deleteUserMutation.mutate(userId);
     }
   };
 
@@ -324,6 +345,7 @@ export const AdminDashboardPage = () => {
                       <th className="px-4 py-3.5">Current Grade</th>
                       <th className="px-4 py-3.5">Manual Grade Control</th>
                       <th className="px-4 py-3.5">Registered At</th>
+                      <th className="px-4 py-3.5 text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -379,6 +401,15 @@ export const AdminDashboardPage = () => {
                         </td>
                         <td className="px-4 py-3.5 text-slate-500 font-medium">
                           {formatDate(u.createdAt)}
+                        </td>
+                        <td className="px-4 py-3.5 text-center">
+                          <button
+                            onClick={() => handleDeleteUser(u.id, `${u.firstName} ${u.lastName}`)}
+                            disabled={u.admin || deleteUserMutation.isPending}
+                            className="px-2.5 py-1 bg-red-500 hover:bg-red-600 active:bg-red-700 disabled:bg-slate-150 disabled:text-slate-400 text-white font-semibold rounded-lg text-[10px] shadow-sm hover:shadow active:scale-95 transition-all duration-200"
+                          >
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     ))}

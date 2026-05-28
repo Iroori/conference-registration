@@ -254,24 +254,14 @@ export const Step3Payment = ({
               <div>
                 <p className="font-semibold text-ink">2. General Refund Policy</p>
                 <p>
-                  Refunds will be granted based on the date of receipt of the written
-                  cancellation request. The following cancellation schedule applies:
+                  Refunds will be granted based on the date of receipt of the written cancellation request. The following cancellation schedule applies:
                 </p>
                 <ul className="list-disc ml-4 space-y-1">
                   <li>
-                    On or before the Early Bird Registration Deadline (30 June): 100% refund
-                    of the registration fee. Please note that all payment processing fees
-                    (bank transfer charges and credit card transaction fees) are the
-                    responsibility of the participant and will be strictly deducted from the
-                    final refund amount.
+                    On the Early Bird Registration Deadline (30 June): 100% refund of the registration fee. Please note that all payment processing fees (bank transfer charges and credit card transaction fees) are the responsibility of the participant and will be strictly deducted from the final refund amount.
                   </li>
                   <li>
-                    During the Regular Registration Period (From 1 July to 26 August): 50%
-                    refund of the registration fee.
-                  </li>
-                  <li>
-                    After the Regular Registration Deadline (27 August) and No-shows: No
-                    refunds will be issued under any circumstances.
+                    From July 1, 2026 and No-shows: No refunds will be issued under any circumstances.
                   </li>
                 </ul>
               </div>

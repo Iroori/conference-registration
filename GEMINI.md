@@ -401,6 +401,8 @@ docs/
 | 2026-05-20 | admin-dashboard-and-manual-role-control.md | 어드민 전용 3대 서브 탭 대시보드(가입 회원, IABSE, 전체 결제) 및 수동 등급 변경 기능 |
 | 2026-05-20 | remove-vat-tax-from-payment.md | 결제 시 부가세 10% 가산 로직 제거 및 1번 실결제 데이터 부가세/총액 보정 |
 | 2026-05-27 | registration-management-adjustments.md | 회원가입 소속 하단 매칭 안내문 추가 + 일반 비회원 등급(Non-member) 기본 적용 및 라벨 수정 + 어드민 ID 칼럼 UI 탈거 + 기술 투어 로마자 표기 및 유료 가격 갱신 |
+| 2026-05-28 | refund-policy-and-tour-prices.md | 결제 취소 및 환불 규정 2항 단축 업데이트 및 기술 투어 I, II, III 가격 75,000원 상향 통일 |
+| 2026-05-28 | admin-user-deletion-cascading-completed.md | 관리자 페이지 가입 회원 강제 삭제 기능 추가 (결제/동반인 하드 딜리트, 프로그램 티켓 잔여 정원 자동 복원 및 토큰/이메일 인증 초기화 연쇄 처리) |
 
 ---
 
