@@ -169,7 +169,7 @@ public class DataInitializer implements ApplicationRunner {
                         "OPT-TECH-TOUR-1", OptionCategory.PROGRAM,
                         "기술 투어 I", "Technical Tour I — Cheongna Sky Bridge",
                         "I would like to attend the Cheongna Sky Bridge tour",
-                        75_000L, false, false, false, null, 40),
+                        90_000L, false, false, false, null, 40),
                 new ConferenceOption(
                         "OPT-TECH-TOUR-2", OptionCategory.PROGRAM,
                         "기술 투어 II", "Technical Tour II — Gimpo-Paju Tunnel",
