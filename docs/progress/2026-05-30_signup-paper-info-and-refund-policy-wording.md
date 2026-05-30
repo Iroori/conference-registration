@@ -34,8 +34,8 @@ On the Early Bird Registration Deadline (30 June): [[[A refund of the registrati
     - 어드민의 용이한 가입 정보 식별을 위해 `AdminDashboardPage.tsx` 의 가입자 목록 테이블에 **Paper Info** 헤더 및 데이터를 렌더링하는 열을 신설하고 truncate 툴팁 효과를 적용했습니다.
 
 - **결제 전 취소 및 환불 정책 문구 개정 (완료)**:
-  - `front/src/components/Step3Payment.tsx` 파일 내 `2. General Refund Policy` 란의 6월 30일(Early Bird Registration Deadline) 환불 조건 중 기존 구 문구를 완벽히 제거했습니다.
-  - 이를 요청받은 최신 간소화 문구(`Please note that all payment processing fees (bank transfer charges and credit card transaction fees) are the responsibility of the participant and will be strictly deducted from the final refund amount.`)로 일치 및 교체했습니다.
+  - `front/src/components/Step3Payment.tsx` 파일 내 `2. General Refund Policy` 란의 6월 30일(Early Bird Registration Deadline) 환불 조건을 사용자의 피드백을 반영하여 업데이트했습니다.
+  - 기존 구 문구를 "On the Early Bird Registration Deadline (30 June): A refund of the registration fee will be provided minus a standard administrative fee. Please note that all payment processing fees (bank transfer charges and credit card transaction fees) are the responsibility of the participant and will be strictly deducted from the final refund amount."로 수정하여 표준 행정 수수료 차감 정책과 결제 처리 수수료 참가자 부담 조항이 모두 드러나도록 개정했습니다.
 
 ---
 
