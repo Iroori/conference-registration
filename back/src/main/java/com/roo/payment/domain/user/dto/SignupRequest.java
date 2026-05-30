@@ -40,5 +40,8 @@ public record SignupRequest(
         DietaryRequirement dietaryRequirement,
 
         @Size(max = 200)
-        String dietaryNote
+        String dietaryNote,
+
+        @Size(max = 300)
+        String paperInfo
 ) {}

@@ -258,7 +258,7 @@ export const Step3Payment = ({
                 </p>
                 <ul className="list-disc ml-4 space-y-1">
                   <li>
-                    On the Early Bird Registration Deadline (30 June): 100% refund of the registration fee. Please note that all payment processing fees (bank transfer charges and credit card transaction fees) are the responsibility of the participant and will be strictly deducted from the final refund amount.
+                    On the Early Bird Registration Deadline (30 June): Please note that all payment processing fees (bank transfer charges and credit card transaction fees) are the responsibility of the participant and will be strictly deducted from the final refund amount.
                   </li>
                   <li>
                     From July 1, 2026 and No-shows: No refunds will be issued under any circumstances.

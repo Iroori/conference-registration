@@ -65,6 +65,9 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private boolean presenter = false;
 
+    @Column(name = "paper_info", length = 300, columnDefinition = "nvarchar(300)")
+    private String paperInfo;
+
     /** 관리자 여부. true 시 JWT의 role 클레임에 ADMIN 부여. */
     @Column(nullable = false)
     private boolean admin = false;
@@ -143,6 +146,8 @@ public class User extends BaseEntity {
     public boolean isEmailVerified() { return emailVerified; }
     public boolean isActive() { return active; }
     public boolean isPresenter() { return presenter; }
+    public String getPaperInfo() { return paperInfo; }
+    public void assignPaperInfo(String paperInfo) { this.paperInfo = paperInfo; }
     public boolean isAdmin() { return admin; }
     public void promoteToAdmin() { this.admin = true; }
     public void updateMemberType(MemberType memberType) { this.memberType = memberType; }

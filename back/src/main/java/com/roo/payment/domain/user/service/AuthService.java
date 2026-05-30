@@ -110,6 +110,7 @@ public class AuthService {
                 Boolean.TRUE.equals(req.isPresenter())
         );
         user.assignDietaryRequirement(req.dietaryRequirement(), req.dietaryNote());
+        user.assignPaperInfo(req.paperInfo());
         user.verifyEmail();                               // 인증 선행 완료이므로 emailVerified=true
         userRepository.save(user);
         emailService.consumeVerified(req.email());        // 인증 이력 1회용 소비

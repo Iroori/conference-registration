@@ -342,6 +342,7 @@ export const AdminDashboardPage = () => {
                       <th className="px-4 py-3.5">Email</th>
                       <th className="px-4 py-3.5">Affiliation & Position</th>
                       <th className="px-4 py-3.5 text-center">Presenter</th>
+                      <th className="px-4 py-3.5">Paper Info</th>
                       <th className="px-4 py-3.5">Current Grade</th>
                       <th className="px-4 py-3.5">Manual Grade Control</th>
                       <th className="px-4 py-3.5">Registered At</th>
@@ -372,6 +373,9 @@ export const AdminDashboardPage = () => {
                           ) : (
                             <span className="text-slate-400">No</span>
                           )}
+                        </td>
+                        <td className="px-4 py-3.5 font-medium text-slate-500 truncate max-w-[120px]" title={u.paperInfo || '-'}>
+                          {u.paperInfo || '-'}
                         </td>
                         <td className="px-4 py-3.5">
                           <span className={`inline-block rounded px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${

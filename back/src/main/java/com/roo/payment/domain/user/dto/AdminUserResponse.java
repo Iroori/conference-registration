@@ -19,7 +19,8 @@ public record AdminUserResponse(
         boolean emailVerified,
         boolean presenter,
         boolean admin,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String paperInfo
 ) {
     public static AdminUserResponse from(User user) {
         return new AdminUserResponse(
@@ -36,7 +37,8 @@ public record AdminUserResponse(
                 user.isEmailVerified(),
                 user.isPresenter(),
                 user.isAdmin(),
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getPaperInfo()
         );
     }
 }

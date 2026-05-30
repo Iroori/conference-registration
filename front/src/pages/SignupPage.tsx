@@ -84,6 +84,7 @@ export const SignupPage = () => {
     isPresenter: false,
     dietaryRequirement: 'NONE' as DietaryRequirement,
     dietaryNote: '',
+    paperInfo: '',
   });
   const [error, setError] = useState('');
   const [privacyAgreed, setPrivacyAgreed] = useState<boolean | null>(null);
@@ -619,6 +620,31 @@ export const SignupPage = () => {
                     </p>
                   </div>
                 </label>
+              </div>
+
+              {/* Paper Information */}
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3.5 space-y-3">
+                <div>
+                  <p className="text-xs font-semibold text-ink uppercase tracking-wider mb-1">
+                    [Paper information] <span className="text-[10px] text-ink-faint font-normal capitalize">(Optional)</span>
+                  </p>
+                  <p className="text-[11px] text-ink-faint leading-relaxed">
+                    Full papers accepted by the Scientific Committee will be published in the IABSE Congress 2026 Proceedings, which will be made available in electronic format prior to the start of the Congress. To be included in the final congress program, each accepted full paper should be associated with a paid registration. If there is any paper associated with this registration, please enter its number or title.
+                  </p>
+                </div>
+                <div>
+                  <label className="block label-section text-[10px] uppercase mb-1.5 text-ink-muted">
+                    Please enter your paper number or title here.
+                  </label>
+                  <input
+                    type="text"
+                    value={form.paperInfo}
+                    onChange={set('paperInfo')}
+                    className="input-base"
+                    placeholder="e.g. Paper #1234 or 'A Novel Bridge Design...'"
+                    maxLength={300}
+                  />
+                </div>
               </div>
             </div>
 

@@ -16,6 +16,7 @@ export interface SignupRequest {
   isPresenter?: boolean;
   dietaryRequirement: DietaryRequirement;
   dietaryNote?: string;
+  paperInfo?: string;
 }
 
 export interface LoginRequest {
@@ -38,6 +39,7 @@ export interface AuthUser {
   dietaryRequirement: DietaryRequirement;
   dietaryNote?: string | null;
   admin: boolean;
+  paperInfo?: string;
 }
 
 export interface IasbseCheckResponse {
@@ -304,6 +306,7 @@ export interface AdminUser {
   presenter: boolean;
   admin: boolean;
   createdAt: string; // ISO datetime
+  paperInfo?: string;
 }
 
 export interface IasbseMember {

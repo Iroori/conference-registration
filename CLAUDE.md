@@ -396,6 +396,7 @@ docs/
 | 2026-05-27 | [registration-management-adjustments.md](docs/progress/2026-05-27_registration-management-adjustments.md) | 회원가입 소속 하단 매칭 안내문 추가 + 일반 비회원 등급(Non-member) 기본 적용 및 라벨 수정 + 어드민 ID 칼럼 UI 탈거 + 기술 투어 로마자 표기 및 유료 가격 갱신 |
 | 2026-05-28 | [refund-policy-and-tour-prices.md](docs/progress/2026-05-28_refund-policy-and-tour-prices.md) | 결제 취소 및 환불 규정 2항 단축 업데이트 및 기술 투어 I, II, III 가격 75,000원 상향 통일 |
 | 2026-05-28 | [admin-user-deletion-cascading-completed.md](docs/progress/2026-05-28_admin-user-deletion-cascading-completed.md) | 관리자 페이지 가입 회원 강제 삭제 기능 추가 (결제/동반인 하드 딜리트, 프로그램 티켓 잔여 정원 자동 복원 및 토큰/이메일 인증 초기화 연쇄 처리) |
+| 2026-05-30 | [signup-paper-info-and-refund-policy-wording.md](docs/progress/2026-05-30_signup-paper-info-and-refund-policy-wording.md) | 회원가입 시 논문 번호/제목 수집 추가 및 취소정책 2항 6/30 이전 환불 안내 문구 간소화 개정 |
 
 > 새 세션에서 기능을 추가·변경할 때마다 해당 날짜의 progress 파일을 생성하거나 업데이트합니다.
 
