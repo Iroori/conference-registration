@@ -138,21 +138,12 @@ export const StepRegistrationType = ({
     <div className="grid grid-cols-1 gap-0 lg:grid-cols-[1fr_300px]">
       {/* Left — category selection */}
       <div className="border-b border-slate-100 p-6 lg:border-b-0 lg:border-r">
-        <SectionLabel>Select Registration Category</SectionLabel>
-
-        {/* 현재 등록 기간 표시 (날짜 기준 자동 결정) */}
-        <div className="mb-5 rounded-xl border border-gold-soft bg-gold-tint p-4">
-          <div className="flex flex-wrap items-center gap-2 mb-1">
-            <p className="text-sm font-semibold text-gold">{tierCfg.label}</p>
-            <span className="text-[10px] font-semibold uppercase tracking-[0.1em] rounded-full bg-gold-soft px-2 py-0.5 text-gold border border-gold-soft">
-              Current Period
-            </span>
-          </div>
-          <p className="text-[11px] text-ink-faint">
-            Deadline:{' '}
-            <span className="font-medium text-ink-muted">
-              {deadlineLabel(periodByKey[currentTier])}
-            </span>
+        <div className="mb-5 flex flex-wrap items-center gap-2.5">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] rounded-full bg-gold-soft px-2 py-0.5 text-gold border border-gold-soft">
+            Current Period
+          </span>
+          <p className="text-xs font-semibold text-ink-muted">
+            Early Bird Registration Deadline: 30 June 2026
           </p>
         </div>
 
@@ -228,12 +219,7 @@ export const StepRegistrationType = ({
                     </div>
                   )}
 
-                  {/* Non-Member Plus 안내 문구 */}
-                  {cat.key === 'NON_MEMBER_PLUS' && (
-                    <p className="mt-2 ml-7 text-[11px] italic text-ink-faint">
-                      *Includes 1 year IABSE Membership
-                    </p>
-                  )}
+
 
                   {/* Young Engineer 안내 문구 및 생년월일 폼 */}
                   {selected && cat.key === 'YOUNG_ENGINEER' && (

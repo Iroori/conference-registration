@@ -95,27 +95,6 @@ export const StepInvitationLetter = ({
           </div>
         </button>
       </div>
-
-      {/* Accommodation Information */}
-      <div className="mt-8 mb-4">
-        <SectionLabel>Accommodation</SectionLabel>
-      </div>
-      <div className="rounded-lg border border-slate-200 bg-white p-5">
-        <p className="text-sm font-semibold text-ink mb-2">Accommodation Information</p>
-        <p className="text-sm text-ink-muted mb-3 leading-relaxed">
-          For the convenience of IABSE Congress Incheon 2026 participants, we are pleased to provide information on accommodation options near the venue. Detailed information regarding hotels and rates can be found at the link below:
-        </p>
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-gold font-bold">•</span>
-          <span className="font-semibold text-ink">Link:</span>
-          <a href="https://iabse2026.mice.link/" target="_blank" rel="noreferrer" className="text-gold hover:text-gold-hover font-medium break-all">
-            https://iabse2026.mice.link/
-          </a>
-        </div>
-        <p className="text-[11px] text-ink-faint leading-relaxed">
-          Please note that this information is provided for your reference only. Booking through this link is <strong className="text-ink-muted">entirely optional</strong>, and participants are free to arrange their own accommodations according to their preferences.
-        </p>
-      </div>
     </div>
 
     {/* Right sidebar */}
@@ -154,7 +133,7 @@ export const StepInvitationLetter = ({
           disabled={needsLetter === null}
           className="btn-primary"
         >
-          Continue to Summary
+          Continue to Accommodation
         </button>
         <button
           onClick={onBack}

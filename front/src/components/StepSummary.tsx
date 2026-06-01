@@ -83,6 +83,9 @@ export const StepSummary = ({
     [options]
   );
 
+  const exhibitorQuantity = additionalQuantities[selectedRegOptionId || ''] ?? 1;
+  const selectedCategory = selectedRegOptionId ? (selectedRegOptionId.includes('EXH') ? 'EXHIBITOR' : memberType) : null;
+
   const pricing = useMemo(() => {
     const regPrice = regOption ? regOption.price * (selectedCategory === 'EXHIBITOR' ? exhibitorQuantity : 1) : 0;
     const addonsPrice = additionalSelected.reduce((s, { opt, qty }) => {
@@ -95,10 +98,7 @@ export const StepSummary = ({
       : 0;
     const subtotal = regPrice + addonsPrice + tourPrice + invPrice;
     return { regPrice, addonsPrice, tourPrice, subtotal, tax: 0, total: subtotal };
-  }, [regOption, additionalSelected, selectedTour, needsInvitationLetter, invitationOption, waitlistedOptionIds]);
-
-  const exhibitorQuantity = additionalQuantities[selectedRegOptionId || ''] ?? 1;
-  const selectedCategory = selectedRegOptionId ? (selectedRegOptionId.includes('EXH') ? 'EXHIBITOR' : memberType) : null;
+  }, [regOption, additionalSelected, selectedTour, needsInvitationLetter, invitationOption, waitlistedOptionIds, selectedCategory, exhibitorQuantity]);
 
   if (isLoading) {
     return (
