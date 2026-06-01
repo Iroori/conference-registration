@@ -61,14 +61,12 @@ export const SignupPage = () => {
     firstName: '',
     affiliation: '',
     position: '',
-    country: 'South Korea',
     phone: '',
     isPresenter: false,
     dietaryRequirement: 'NONE' as DietaryRequirement,
     dietaryNote: '',
     paperInfo: '',
     iabseId: '',
-    billingSame: true,
     billingUniversity: '',
     billingVat: '',
     billingPoNumber: '',
@@ -135,44 +133,32 @@ export const SignupPage = () => {
       return;
     }
 
-    // Billing address values logic
-    const billingUniversity = form.billingSame ? form.affiliation : form.billingUniversity;
-    const billingStreet = form.billingSame ? '' : form.billingStreet;
-    const billingPostcode = form.billingSame ? '' : form.billingPostcode;
-    const billingCity = form.billingSame ? '' : form.billingCity;
-    const billingCountry = form.billingSame ? form.country : form.billingCountry;
-
-    if (!form.billingSame) {
-      if (!form.billingUniversity.trim()) {
-        setError('Please specify University / Organization for billing.');
-        return;
-      }
-      if (!form.billingStreet.trim()) {
-        setError('Please specify Street name and number for billing.');
-        return;
-      }
-      if (!form.billingPostcode.trim()) {
-        setError('Please specify Postcode for billing.');
-        return;
-      }
-      if (!form.billingCity.trim()) {
-        setError('Please specify City for billing.');
-        return;
-      }
+    // Billing address values validation
+    if (!form.billingUniversity.trim()) {
+      setError('Please specify University / Organization for billing.');
+      return;
+    }
+    if (!form.billingStreet.trim()) {
+      setError('Please specify Street name and number for billing.');
+      return;
+    }
+    if (!form.billingPostcode.trim()) {
+      setError('Please specify Postcode for billing.');
+      return;
+    }
+    if (!form.billingCity.trim()) {
+      setError('Please specify City for billing.');
+      return;
     }
 
-    const { passwordConfirm: _, emailConfirm: __, billingSame: ___, ...rest } = form;
-    void _; void __; void ___;
+    const { passwordConfirm: _, emailConfirm: __, ...rest } = form;
+    void _; void __;
 
     signupMutation.mutate({
       ...rest,
       birthDate: '', // Nullable in backend
       position: finalPosition,
-      billingUniversity,
-      billingStreet,
-      billingPostcode,
-      billingCity,
-      billingCountry,
+      country: form.billingCountry, // Mapping country from billingCountry
     });
   };
 
@@ -358,18 +344,6 @@ export const SignupPage = () => {
                 )}
               </div>
 
-              {/* Country */}
-              <div className="mb-4">
-                <label className="block label-section mb-1.5">
-                  Country <span className="text-red-500 font-bold">*</span>
-                </label>
-                <select value={form.country} onChange={set('country')} className="input-base text-slate-800">
-                  {COUNTRIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-
               {/* Phone */}
               <div className="mb-4">
                 <label className="block label-section mb-1.5">Phone Number <span className="text-red-500 font-bold">*</span></label>
@@ -385,8 +359,8 @@ export const SignupPage = () => {
 
               {/* Dietary Requirements */}
               <div className="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm font-semibold text-slate-800">Dietary Requirements</p>
-                <p className="text-[12px] text-slate-500 mt-0.5 mb-3">
+                <p className="text-sm font-semibold text-slate-800">Dietary Requirements <span className="text-red-500 font-bold">*</span></p>
+                <p className="text-[12px] text-slate-550 mt-0.5 mb-3">
                   Please indicate if you have any special dietary requirements.
                 </p>
                 <div className="space-y-2.5">
@@ -416,7 +390,128 @@ export const SignupPage = () => {
                   />
                 )}
               </div>
+            </div>
 
+            {/* ── [Billing address] Section ── */}
+            <div className="border-t border-slate-200 pt-5">
+              <p className="text-lg font-bold text-slate-900 mb-2">
+                [Billing address]
+              </p>
+              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-4 mb-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-700">Section 2 - Billing Address</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block label-section mb-1.5">University / Organization <span className="text-red-500 font-bold">*</span></label>
+                    <input
+                      type="text"
+                      value={form.billingUniversity}
+                      onChange={set('billingUniversity')}
+                      className="input-base"
+                      placeholder="University / Organization"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block label-section mb-1.5">VAT/CIF/NIF/ other ref.</label>
+                    <input
+                      type="text"
+                      value={form.billingVat}
+                      onChange={set('billingVat')}
+                      className="input-base"
+                      placeholder="VAT / Tax reference number"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block label-section mb-1.5">PO number or other purchase identification</label>
+                    <input
+                      type="text"
+                      value={form.billingPoNumber}
+                      onChange={set('billingPoNumber')}
+                      className="input-base"
+                      placeholder="PO number"
+                    />
+                  </div>
+                  <div>
+                    <label className="block label-section mb-1.5">Street name and number <span className="text-red-500 font-bold">*</span></label>
+                    <input
+                      type="text"
+                      value={form.billingStreet}
+                      onChange={set('billingStreet')}
+                      className="input-base"
+                      placeholder="Street address"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block label-section mb-1.5">Additional address information</label>
+                    <input
+                      type="text"
+                      value={form.billingAdditionalInfo}
+                      onChange={set('billingAdditionalInfo')}
+                      className="input-base"
+                      placeholder="Apt, Suite, Unit, etc."
+                    />
+                  </div>
+                  <div>
+                    <label className="block label-section mb-1.5">PO Box number</label>
+                    <input
+                      type="text"
+                      value={form.billingPoBox}
+                      onChange={set('billingPoBox')}
+                      className="input-base"
+                      placeholder="PO Box number"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block label-section mb-1.5">Postcode <span className="text-red-500 font-bold">*</span></label>
+                    <input
+                      type="text"
+                      value={form.billingPostcode}
+                      onChange={set('billingPostcode')}
+                      className="input-base"
+                      placeholder="Zip/Postcode"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block label-section mb-1.5">City <span className="text-red-500 font-bold">*</span></label>
+                    <input
+                      type="text"
+                      value={form.billingCity}
+                      onChange={set('billingCity')}
+                      className="input-base"
+                      placeholder="City"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block label-section mb-1.5">Country <span className="text-red-500 font-bold">*</span></label>
+                    <select
+                      value={form.billingCountry}
+                      onChange={set('billingCountry')}
+                      className="input-base text-slate-800"
+                      required
+                    >
+                      {COUNTRIES.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── [Paper information] Section ── */}
+            <div className="border-t border-slate-200 pt-5">
               {/* Paper Presenter */}
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 mb-4">
                 <label className="flex items-start gap-3 cursor-pointer">
@@ -461,140 +556,6 @@ export const SignupPage = () => {
                   />
                 </div>
               </div>
-            </div>
-
-            {/* ── [Billing address] Section ── */}
-            <div className="border-t border-slate-200 pt-5">
-              <p className="text-lg font-bold text-slate-900 mb-2">
-                [Billing address]
-              </p>
-              <div className="mb-4">
-                <label className="flex items-center gap-3 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={form.billingSame}
-                    onChange={(e) => setForm((f) => ({ ...f, billingSame: e.target.checked }))}
-                    className="h-4 w-4 rounded border-slate-355 text-gold focus:ring-gold"
-                  />
-                  <span className="text-sm font-semibold text-slate-800">
-                    Billing address is the same as the affiliation address
-                  </span>
-                </label>
-              </div>
-
-              {!form.billingSame && (
-                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-4 mb-4">
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-700">Section 2 - Billing Address</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block label-section mb-1.5">University / Organization <span className="text-red-500 font-bold">*</span></label>
-                      <input
-                        type="text"
-                        value={form.billingUniversity}
-                        onChange={set('billingUniversity')}
-                        className="input-base"
-                        placeholder="University / Organization"
-                        required={!form.billingSame}
-                      />
-                    </div>
-                    <div>
-                      <label className="block label-section mb-1.5">VAT/CIF/NIF/ other ref.</label>
-                      <input
-                        type="text"
-                        value={form.billingVat}
-                        onChange={set('billingVat')}
-                        className="input-base"
-                        placeholder="VAT / Tax reference number"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block label-section mb-1.5">PO number or other purchase identification</label>
-                      <input
-                        type="text"
-                        value={form.billingPoNumber}
-                        onChange={set('billingPoNumber')}
-                        className="input-base"
-                        placeholder="PO number"
-                      />
-                    </div>
-                    <div>
-                      <label className="block label-section mb-1.5">Street name and number <span className="text-red-500 font-bold">*</span></label>
-                      <input
-                        type="text"
-                        value={form.billingStreet}
-                        onChange={set('billingStreet')}
-                        className="input-base"
-                        placeholder="Street address"
-                        required={!form.billingSame}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block label-section mb-1.5">Additional address information</label>
-                      <input
-                        type="text"
-                        value={form.billingAdditionalInfo}
-                        onChange={set('billingAdditionalInfo')}
-                        className="input-base"
-                        placeholder="Apt, Suite, Unit, etc."
-                      />
-                    </div>
-                    <div>
-                      <label className="block label-section mb-1.5">PO Box number</label>
-                      <input
-                        type="text"
-                        value={form.billingPoBox}
-                        onChange={set('billingPoBox')}
-                        className="input-base"
-                        placeholder="PO Box number"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block label-section mb-1.5">Postcode <span className="text-red-500 font-bold">*</span></label>
-                      <input
-                        type="text"
-                        value={form.billingPostcode}
-                        onChange={set('billingPostcode')}
-                        className="input-base"
-                        placeholder="Zip/Postcode"
-                        required={!form.billingSame}
-                      />
-                    </div>
-                    <div>
-                      <label className="block label-section mb-1.5">City <span className="text-red-500 font-bold">*</span></label>
-                      <input
-                        type="text"
-                        value={form.billingCity}
-                        onChange={set('billingCity')}
-                        className="input-base"
-                        placeholder="City"
-                        required={!form.billingSame}
-                      />
-                    </div>
-                    <div>
-                      <label className="block label-section mb-1.5">Country <span className="text-red-500 font-bold">*</span></label>
-                      <select
-                        value={form.billingCountry}
-                        onChange={set('billingCountry')}
-                        className="input-base text-slate-800"
-                        required={!form.billingSame}
-                      >
-                        {COUNTRIES.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* ── Privacy & Data Collection Consent ── */}
