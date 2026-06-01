@@ -4,6 +4,7 @@ import { AdminDashboardPage } from '../components/AdminDashboardPage';
 import { useConferenceOptions } from '../hooks/useRegistration';
 import { StepRegistrationType } from '../components/StepRegistrationType';
 import { StepAdditionalOptions } from '../components/StepAdditionalOptions';
+import { StepTechnicalTour } from '../components/StepTechnicalTour';
 import { StepInvitationLetter } from '../components/StepInvitationLetter';
 import { StepSummary } from '../components/StepSummary';
 import { Step3Payment, Step4Complete } from '../components/Step3Payment';
@@ -24,15 +25,16 @@ const initialQuantities = (): Record<string, number> =>
 
 type NavTab = 'REGISTER' | 'HISTORY' | 'ADMIN';
 
-const STEP_LABELS = ['Select', 'Option', 'Option2', 'Summary', 'Payment'];
+const STEP_LABELS = ['Category', 'Options', 'Tours', 'Visa', 'Confirm', 'Pay'];
 
 const STEP_INDEX: Record<RegistrationStep, number> = {
   REG_TYPE: 1,
   ADD_OPTIONS: 2,
-  INVITATION: 3,
-  SUMMARY: 4,
-  PAYMENT: 5,
-  COMPLETE: 6,
+  TECHNICAL_TOUR: 3,
+  INVITATION: 4,
+  SUMMARY: 5,
+  PAYMENT: 6,
+  COMPLETE: 7,
 };
 
 export const RegistrationPage = () => {
@@ -44,18 +46,20 @@ export const RegistrationPage = () => {
   );
   const [currentStep, setCurrentStep] = useState<RegistrationStep>('REG_TYPE');
 
-  // Step 1 — registration tier + category
+  // Step 1 — registration tier + category + options
   const [selectedTier, setSelectedTier] = useState<RegistrationTierKey | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<RegistrationCategory | null>(null);
   const [selectedRegOptionId, setSelectedRegOptionId] = useState<string | null>(null);
+  const [iabseId, setIabseId] = useState<string>('');
+  const [birthDate, setBirthDate] = useState<string>('');
+  const [exhibitorQuantity, setExhibitorQuantity] = useState<number>(1);
+  const [exhibitorBadges, setExhibitorBadges] = useState<{ firstName: string; lastName: string }[]>([]);
 
   // Step 2 — additional programs (Welcome Reception selected by default)
   const [additionalQuantities, setAdditionalQuantities] =
     useState<Record<string, number>>(initialQuantities);
-  const [accompanyingPerson, setAccompanyingPerson] = useState<AccompanyingPersonInfo>({
-    lastName: '',
-    firstName: '',
-  });
+  const [accompanyingPersons, setAccompanyingPersons] = useState<AccompanyingPersonInfo[]>([]);
+  const [waitlistedOptionIds, setWaitlistedOptionIds] = useState<string[]>([]);
 
   // Step 3 — invitation letter
   const [needsInvitationLetter, setNeedsInvitationLetter] = useState<boolean | null>(null);
@@ -73,6 +77,9 @@ export const RegistrationPage = () => {
 
     if (selectedRegOptionId) {
       ids.push(selectedRegOptionId);
+      if (selectedCategory === 'EXHIBITOR') {
+        quantities[selectedRegOptionId] = exhibitorQuantity;
+      }
     }
 
     Object.entries(additionalQuantities).forEach(([id, qty]) => {
@@ -86,14 +93,36 @@ export const RegistrationPage = () => {
       ids.push(INVITATION_OPTION_ID);
     }
 
-    return { selectedOptionIds: ids, quantities };
-  }, [selectedRegOptionId, additionalQuantities, needsInvitationLetter]);
+    return {
+      selectedOptionIds: ids,
+      quantities,
+      accompanyingPersons,
+      exhibitorBadges,
+      waitlistedOptionIds,
+      iabseId,
+      birthDate,
+    };
+  }, [
+    selectedRegOptionId,
+    selectedCategory,
+    exhibitorQuantity,
+    additionalQuantities,
+    needsInvitationLetter,
+    accompanyingPersons,
+    exhibitorBadges,
+    waitlistedOptionIds,
+    iabseId,
+    birthDate,
+  ]);
 
-  /** Total amount (incl. VAT) for display in the payment step */
+  /** Total amount for display in the payment step */
   const totalAmount = useMemo(() => {
     if (!options) return 0;
     let subtotal = 0;
     paymentPayload.selectedOptionIds.forEach((id) => {
+      // Skip waitlisted options
+      if (waitlistedOptionIds.includes(id)) return;
+
       const opt = options.find((o) => o.id === id);
       if (opt) {
         const qty = paymentPayload.quantities[id] ?? 1;
@@ -101,15 +130,20 @@ export const RegistrationPage = () => {
       }
     });
     return subtotal;
-  }, [options, paymentPayload]);
+  }, [options, paymentPayload, waitlistedOptionIds]);
 
   const resetRegistration = () => {
     setCurrentStep('REG_TYPE');
     setSelectedTier(null);
     setSelectedCategory(null);
     setSelectedRegOptionId(null);
+    setIabseId('');
+    setBirthDate('');
+    setExhibitorQuantity(1);
+    setExhibitorBadges([]);
     setAdditionalQuantities(initialQuantities());
-    setAccompanyingPerson({ lastName: '', firstName: '' });
+    setAccompanyingPersons([]);
+    setWaitlistedOptionIds([]);
     setNeedsInvitationLetter(null);
     setPaymentResult(null);
   };
@@ -206,6 +240,14 @@ export const RegistrationPage = () => {
               <StepRegistrationType
                 memberType={memberType}
                 selectedCategory={selectedCategory}
+                iabseId={iabseId}
+                onIabseIdChange={setIabseId}
+                birthDate={birthDate}
+                onBirthDateChange={setBirthDate}
+                exhibitorQuantity={exhibitorQuantity}
+                onExhibitorQuantityChange={setExhibitorQuantity}
+                exhibitorBadges={exhibitorBadges}
+                onExhibitorBadgesChange={setExhibitorBadges}
                 onSelect={(tier, category, optionId) => {
                   setSelectedTier(tier);
                   setSelectedCategory(category);
@@ -225,10 +267,28 @@ export const RegistrationPage = () => {
                 onQuantityChange={(id, qty) =>
                   setAdditionalQuantities((prev) => ({ ...prev, [id]: qty }))
                 }
-                accompanyingPerson={accompanyingPerson}
-                onAccompanyingChange={setAccompanyingPerson}
-                onNext={() => setCurrentStep('INVITATION')}
+                accompanyingPersons={accompanyingPersons}
+                onAccompanyingChange={setAccompanyingPersons}
+                waitlistedOptionIds={waitlistedOptionIds}
+                onWaitlistChange={setWaitlistedOptionIds}
+                onNext={() => setCurrentStep('TECHNICAL_TOUR')}
                 onBack={() => setCurrentStep('REG_TYPE')}
+              />
+            )}
+
+            {currentStep === 'TECHNICAL_TOUR' && selectedTier && (
+              <StepTechnicalTour
+                memberType={memberType}
+                selectedTier={selectedTier}
+                selectedCategory={selectedCategory}
+                selectedRegOptionId={selectedRegOptionId}
+                quantities={additionalQuantities}
+                onQuantityChange={(id, qty) =>
+                  setAdditionalQuantities((prev) => ({ ...prev, [id]: qty }))
+                }
+                waitlistedOptionIds={waitlistedOptionIds}
+                onNext={() => setCurrentStep('INVITATION')}
+                onBack={() => setCurrentStep('ADD_OPTIONS')}
               />
             )}
 
@@ -237,7 +297,7 @@ export const RegistrationPage = () => {
                 needsLetter={needsInvitationLetter}
                 onSelect={(needs) => setNeedsInvitationLetter(needs)}
                 onNext={() => setCurrentStep('SUMMARY')}
-                onBack={() => setCurrentStep('ADD_OPTIONS')}
+                onBack={() => setCurrentStep('TECHNICAL_TOUR')}
               />
             )}
 
@@ -247,10 +307,15 @@ export const RegistrationPage = () => {
                 selectedTier={selectedTier}
                 selectedRegOptionId={selectedRegOptionId}
                 additionalQuantities={additionalQuantities}
-                accompanyingPerson={accompanyingPerson}
+                accompanyingPersons={accompanyingPersons}
+                exhibitorBadges={exhibitorBadges}
+                waitlistedOptionIds={waitlistedOptionIds}
+                iabseId={iabseId}
+                birthDate={birthDate}
                 needsInvitationLetter={needsInvitationLetter ?? false}
                 onEditPackage={() => setCurrentStep('REG_TYPE')}
                 onEditAddons={() => setCurrentStep('ADD_OPTIONS')}
+                onEditTours={() => setCurrentStep('TECHNICAL_TOUR')}
                 onEditInvitation={() => setCurrentStep('INVITATION')}
                 onNext={() => setCurrentStep('PAYMENT')}
                 onBack={() => setCurrentStep('INVITATION')}
@@ -262,7 +327,11 @@ export const RegistrationPage = () => {
                 memberType={memberType}
                 selectedOptionIds={paymentPayload.selectedOptionIds}
                 quantities={paymentPayload.quantities}
-                accompanyingPerson={accompanyingPerson}
+                accompanyingPersons={accompanyingPersons}
+                exhibitorBadges={exhibitorBadges}
+                waitlistedOptionIds={waitlistedOptionIds}
+                iabseId={iabseId}
+                birthDate={birthDate}
                 totalAmount={totalAmount}
                 onComplete={(result) => {
                   setPaymentResult(result);

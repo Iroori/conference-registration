@@ -72,23 +72,11 @@ public class AuthService {
      */
     @Transactional
     public void signup(SignupRequest req) {
-        if (!emailService.isRecentlyVerified(req.email())) {
-            throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
-        }
         if (userRepository.existsByEmail(req.email())) {
             throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
-        // IABSE 회원 여부를 최우선으로 검증. 엑셀에 있으면 만 나이에 상관없이 MEMBER
-        int age = java.time.Period.between(req.birthDate(), java.time.LocalDate.now()).getYears();
-        MemberType memberType;
-        if (iasbseMemberService.isIasbseMember(req.firstName(), req.lastName(), req.affiliation())) {
-            memberType = MemberType.MEMBER;
-        } else if (age <= 35) {
-            memberType = MemberType.YOUNG_ENGINEER;
-        } else {
-            memberType = MemberType.NON_MEMBER;
-        }
+        MemberType memberType = MemberType.NON_MEMBER;
 
         if (req.dietaryRequirement() == com.roo.payment.domain.user.entity.DietaryRequirement.OTHER
                 && (req.dietaryNote() == null || req.dietaryNote().isBlank())) {
@@ -111,9 +99,20 @@ public class AuthService {
         );
         user.assignDietaryRequirement(req.dietaryRequirement(), req.dietaryNote());
         user.assignPaperInfo(req.paperInfo());
-        user.verifyEmail();                               // 인증 선행 완료이므로 emailVerified=true
+        user.setIabseId(req.iabseId());
+        user.assignBillingAddress(
+                req.billingUniversity(),
+                req.billingVat(),
+                req.billingPoNumber(),
+                req.billingStreet(),
+                req.billingAdditionalInfo(),
+                req.billingPoBox(),
+                req.billingPostcode(),
+                req.billingCity(),
+                req.billingCountry()
+        );
+        user.verifyEmail();                               // 이메일 인증 절차 제거에 따라 회원가입 시 자동 인증 완료 처리
         userRepository.save(user);
-        emailService.consumeVerified(req.email());        // 인증 이력 1회용 소비
         auditService.log("SIGNUP", req.email(), memberType.name());
     }
 

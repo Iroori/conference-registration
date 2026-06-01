@@ -63,9 +63,11 @@ public class Payment extends BaseEntity {
     @JoinTable(name = "payment_options", joinColumns = @JoinColumn(name = "payment_id"), inverseJoinColumns = @JoinColumn(name = "option_id"))
     private List<ConferenceOption> selectedOptions = new ArrayList<>();
 
-    /** 동반자 정보 — 동반자 등록 옵션 선택 시에만 존재 */
-    @OneToOne(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private AccompanyingPerson accompanyingPerson;
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AccompanyingPerson> accompanyingPersons = new ArrayList<>();
+
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExhibitorBadge> exhibitorBadges = new ArrayList<>();
 
     protected Payment() {
     }
@@ -104,9 +106,12 @@ public class Payment extends BaseEntity {
         this.status = PaymentStatus.FAILED;
     }
 
-    /** 동반자 정보 등록 — 결제 저장 시 cascade로 함께 저장된다. */
-    public void assignAccompanyingPerson(String lastName, String firstName) {
-        this.accompanyingPerson = new AccompanyingPerson(this, lastName, firstName);
+    public void addAccompanyingPerson(String lastName, String firstName) {
+        this.accompanyingPersons.add(new AccompanyingPerson(this, lastName, firstName));
+    }
+
+    public void addExhibitorBadge(String lastName, String firstName) {
+        this.exhibitorBadges.add(new ExhibitorBadge(this, lastName, firstName));
     }
 
     public Long getId() {
@@ -165,7 +170,11 @@ public class Payment extends BaseEntity {
         return selectedOptions;
     }
 
-    public AccompanyingPerson getAccompanyingPerson() {
-        return accompanyingPerson;
+    public List<AccompanyingPerson> getAccompanyingPersons() {
+        return accompanyingPersons;
+    }
+
+    public List<ExhibitorBadge> getExhibitorBadges() {
+        return exhibitorBadges;
     }
 }

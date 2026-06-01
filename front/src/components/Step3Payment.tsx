@@ -3,14 +3,18 @@ import { useCreatePayment } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, SectionLabel, MemberTypePill, formatKRW } from './Shared';
 import { apiReportPaymentFailure } from '../lib/api';
-import type { MemberType, PaymentResponse, AccompanyingPersonInfo } from '../types';
-import { isAccompanyingOption } from '../types';
+import type { MemberType, PaymentResponse, AccompanyingPersonInfo, ExhibitorBadgeInfo } from '../types';
+
 
 interface Step3PaymentProps {
   memberType: MemberType;
   selectedOptionIds: string[];
   quantities: Record<string, number>;
-  accompanyingPerson: AccompanyingPersonInfo;
+  accompanyingPersons: AccompanyingPersonInfo[];
+  exhibitorBadges: ExhibitorBadgeInfo[];
+  waitlistedOptionIds: string[];
+  iabseId: string;
+  birthDate: string;
   totalAmount: number;
   onComplete: (result: PaymentResponse) => void;
   onBack: () => void;
@@ -28,7 +32,11 @@ export const Step3Payment = ({
   memberType,
   selectedOptionIds,
   quantities,
-  accompanyingPerson,
+  accompanyingPersons,
+  exhibitorBadges,
+  waitlistedOptionIds,
+  iabseId,
+  birthDate,
   totalAmount,
   onComplete,
   onBack,
@@ -58,7 +66,6 @@ export const Step3Payment = ({
 
       // 0000: 상용 결제 성공, NPS016: 데모 거래 성공 알림코드
       if (replycode === "0000" || replycode === "NPS000" || replycode === "NPS016") {
-        const needsAccompanying = selectedOptionIds.some(isAccompanyingOption);
         createPayment(
           {
             selectedOptionIds,
@@ -66,7 +73,11 @@ export const Step3Payment = ({
             paymentMethod: 'CARD',
             tid: (form.elements.namedItem('tid') as HTMLInputElement)?.value,
             replycode: replycode,
-            accompanyingPerson: needsAccompanying ? accompanyingPerson : undefined,
+            accompanyingPersons: accompanyingPersons.length > 0 ? accompanyingPersons : undefined,
+            exhibitorBadges: exhibitorBadges.length > 0 ? exhibitorBadges : undefined,
+            waitlistedOptionIds: waitlistedOptionIds.length > 0 ? waitlistedOptionIds : undefined,
+            iabseId: iabseId || undefined,
+            birthDate: birthDate || undefined,
           },
           {
             onSuccess: (result) => onComplete(result),
@@ -84,7 +95,7 @@ export const Step3Payment = ({
         });
       }
     };
-  }, [createPayment, selectedOptionIds, quantities, accompanyingPerson, onComplete]);
+  }, [createPayment, selectedOptionIds, quantities, accompanyingPersons, exhibitorBadges, waitlistedOptionIds, iabseId, birthDate, onComplete]);
 
   const handlePay = () => {
     if (isSubmitting || isPending) return;
@@ -436,12 +447,24 @@ export const Step4Complete = ({ result, onGoHistory }: Step4CompleteProps) => (
             <span className="text-ink">{opt.isFree ? 'Free' : formatKRW(opt.price)}</span>
           </div>
         ))}
-        {result.accompanyingPerson && (
-          <div className="mb-1.5 flex justify-between text-xs">
-            <span className="text-ink-muted">Accompanying Person</span>
-            <span className="text-ink">
-              {result.accompanyingPerson.firstName} {result.accompanyingPerson.lastName}
-            </span>
+        {result.accompanyingPersons && result.accompanyingPersons.length > 0 && (
+          <div className="space-y-1 mt-1.5 border-t border-gold-soft pt-1.5">
+            <span className="text-[10px] text-ink-faint block">Accompanying Persons:</span>
+            {result.accompanyingPersons.map((p, idx) => (
+              <div key={idx} className="flex justify-between text-xs text-ink-muted pl-2">
+                <span>- {p.firstName} {p.lastName}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {result.exhibitorBadges && result.exhibitorBadges.length > 0 && (
+          <div className="space-y-1 mt-1.5 border-t border-gold-soft pt-1.5">
+            <span className="text-[10px] text-ink-faint block">Exhibitors:</span>
+            {result.exhibitorBadges.map((e, idx) => (
+              <div key={idx} className="flex justify-between text-xs text-ink-muted pl-2">
+                <span>- {e.firstName} {e.lastName}</span>
+              </div>
+            ))}
           </div>
         )}
         <div className="mt-2 flex justify-between items-baseline border-t border-gold-soft pt-2">

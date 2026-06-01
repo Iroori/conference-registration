@@ -15,7 +15,7 @@
     @apply bg-cream text-ink;
     font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
       'Noto Sans KR', 'Segoe UI', sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -32,23 +32,23 @@
 
 @layer components {
   .input-base {
-    @apply h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-ink outline-none transition placeholder:text-slate-300 focus:border-gold focus:ring-2 focus:ring-gold-soft;
+    @apply h-12 w-full rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-gold focus:ring-2 focus:ring-gold-soft;
   }
 
   .btn-primary {
-    @apply w-full rounded-lg bg-gold py-2.5 text-sm font-semibold text-white transition hover:bg-gold-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400;
+    @apply w-full rounded-lg bg-gold py-3 text-base font-semibold text-white transition hover:bg-gold-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400;
   }
 
   .btn-secondary {
-    @apply w-full rounded-lg border border-slate-200 py-2 text-sm text-ink-muted transition hover:bg-slate-50;
+    @apply w-full rounded-lg border border-slate-300 py-3 text-base text-slate-700 font-medium transition hover:bg-slate-50;
   }
 
   .card {
-    @apply overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm;
+    @apply overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm;
   }
 
   .option-card {
-    @apply w-full rounded-lg border border-slate-200 bg-white p-3.5 text-left transition hover:border-slate-300;
+    @apply w-full rounded-lg border border-slate-300 bg-white p-4 text-left transition hover:border-slate-400;
   }
 
   .option-card-selected {
@@ -56,11 +56,11 @@
   }
 
   .label-section {
-    @apply text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint;
+    @apply text-[11px] font-bold uppercase tracking-[0.1em] text-slate-800;
   }
 
   .amount-total {
-    @apply text-[20px] font-medium text-gold;
+    @apply text-[24px] font-bold text-gold;
   }
 }
 

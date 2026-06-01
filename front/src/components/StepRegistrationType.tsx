@@ -13,6 +13,14 @@ import { REG_TIER_CONFIG, REGISTRATION_CATEGORIES } from '../types';
 interface StepRegistrationTypeProps {
   memberType: MemberType;
   selectedCategory: RegistrationCategory | null;
+  iabseId: string;
+  onIabseIdChange: (val: string) => void;
+  birthDate: string;
+  onBirthDateChange: (val: string) => void;
+  exhibitorQuantity: number;
+  onExhibitorQuantityChange: (qty: number) => void;
+  exhibitorBadges: { firstName: string; lastName: string }[];
+  onExhibitorBadgesChange: (badges: { firstName: string; lastName: string }[]) => void;
   onSelect: (
     tier: RegistrationTierKey,
     category: RegistrationCategory,
@@ -44,6 +52,14 @@ function deadlineLabel(p: { endDate: string | null }): string {
 export const StepRegistrationType = ({
   memberType,
   selectedCategory,
+  iabseId,
+  onIabseIdChange,
+  birthDate,
+  onBirthDateChange,
+  exhibitorQuantity,
+  onExhibitorQuantityChange,
+  exhibitorBadges,
+  onExhibitorBadgesChange,
   onSelect,
   onNext,
 }: StepRegistrationTypeProps) => {
@@ -80,6 +96,25 @@ export const StepRegistrationType = ({
     onSelect(currentTier, memberType, tierCfg.optionIds[memberType]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [options, currentTier]);
+
+  const canContinue = useMemo(() => {
+    if (!selectedCategory) return false;
+    if (selectedCategory === 'MEMBER') {
+      return iabseId.trim().length > 0;
+    }
+    if (selectedCategory === 'YOUNG_ENGINEER') {
+      if (!birthDate) return false;
+      const year = new Date(birthDate).getFullYear();
+      return year >= 1992;
+    }
+    if (selectedCategory === 'EXHIBITOR') {
+      if (exhibitorBadges.length !== exhibitorQuantity) return false;
+      return exhibitorBadges.every(
+        (b) => b.firstName.trim().length > 0 && b.lastName.trim().length > 0
+      );
+    }
+    return true;
+  }, [selectedCategory, iabseId, birthDate, exhibitorQuantity, exhibitorBadges]);
 
   if (isLoading) {
     return (
@@ -175,11 +210,122 @@ export const StepRegistrationType = ({
                     </p>
                   </div>
 
-                  {/* 전시자 추가 배지 — 별도 안내 문구 영역 (문구 미정) */}
-                  {cat.hasReservedNote && (
+                  {/* IABSE Member 안내 문구 및 ID 폼 */}
+                  {selected && cat.key === 'MEMBER' && (
+                    <div className="mt-3 ml-7 space-y-2" onClick={(e) => e.stopPropagation()}>
+                      <label className="block text-xs font-semibold text-ink-muted">IABSE ID *</label>
+                      <input
+                        type="text"
+                        required
+                        value={iabseId}
+                        onChange={(e) => onIabseIdChange(e.target.value)}
+                        className="input-base w-full max-w-xs"
+                        placeholder="Enter your IABSE ID"
+                      />
+                      <p className="text-[11px] text-gold mt-1">
+                        Only active members are eligible for the member rate.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Non-Member Plus 안내 문구 */}
+                  {cat.key === 'NON_MEMBER_PLUS' && (
                     <p className="mt-2 ml-7 text-[11px] italic text-ink-faint">
-                      Additional details for exhibitors will be announced.
+                      *Includes 1 year IABSE Membership
                     </p>
+                  )}
+
+                  {/* Young Engineer 안내 문구 및 생년월일 폼 */}
+                  {selected && cat.key === 'YOUNG_ENGINEER' && (
+                    <div className="mt-3 ml-7 space-y-2" onClick={(e) => e.stopPropagation()}>
+                      <label className="block text-xs font-semibold text-ink-muted">Date of Birth *</label>
+                      <input
+                        type="date"
+                        required
+                        value={birthDate}
+                        onChange={(e) => onBirthDateChange(e.target.value)}
+                        className="input-base w-full max-w-xs"
+                      />
+                      <p className="text-[11px] text-gold mt-1">
+                        *Born in 1992 or later
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Additional Badge for Exhibitor 개수 카운터 및 이름 폼 */}
+                  {selected && cat.key === 'EXHIBITOR' && (
+                    <div className="mt-4 ml-7 space-y-4" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-3">
+                        <label className="text-xs font-semibold text-ink-muted">Quantity</label>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newQty = Math.max(1, exhibitorQuantity - 1);
+                              onExhibitorQuantityChange(newQty);
+                              const newBadges = [...exhibitorBadges];
+                              while (newBadges.length > newQty) newBadges.pop();
+                              onExhibitorBadgesChange(newBadges);
+                            }}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                          >
+                            -
+                          </button>
+                          <span className="text-sm font-semibold text-ink w-8 text-center">{exhibitorQuantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newQty = exhibitorQuantity + 1;
+                              onExhibitorQuantityChange(newQty);
+                              const newBadges = [...exhibitorBadges];
+                              while (newBadges.length < newQty) {
+                                newBadges.push({ firstName: '', lastName: '' });
+                              }
+                              onExhibitorBadgesChange(newBadges);
+                            }}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-xs font-semibold text-ink-muted">Exhibitor Names</p>
+                        {Array.from({ length: exhibitorQuantity }).map((_, idx) => {
+                          const badge = exhibitorBadges[idx] || { firstName: '', lastName: '' };
+                          return (
+                            <div key={idx} className="flex gap-2">
+                              <input
+                                type="text"
+                                required
+                                value={badge.firstName}
+                                onChange={(e) => {
+                                  const updated = [...exhibitorBadges];
+                                  if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
+                                  updated[idx].firstName = e.target.value;
+                                  onExhibitorBadgesChange(updated);
+                                }}
+                                className="input-base flex-1"
+                                placeholder={`First Name #${idx + 1}`}
+                              />
+                              <input
+                                type="text"
+                                required
+                                value={badge.lastName}
+                                onChange={(e) => {
+                                  const updated = [...exhibitorBadges];
+                                  if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
+                                  updated[idx].lastName = e.target.value;
+                                  onExhibitorBadgesChange(updated);
+                                }}
+                                className="input-base flex-1"
+                                placeholder={`Last Name #${idx + 1}`}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   )}
                 </button>
 
@@ -255,10 +401,12 @@ export const StepRegistrationType = ({
                 {REGISTRATION_CATEGORIES.find((c) => c.key === selectedCategory)?.label}
               </p>
               <p className="text-xs text-ink-faint mt-0.5">
-                {tierCfg.label} · Deadline {deadlineLabel(periodByKey[currentTier])}
+                {tierCfg.label} · {selectedCategory === 'EXHIBITOR' ? `Qty: ${exhibitorQuantity}` : `Deadline ${deadlineLabel(periodByKey[currentTier])}`}
               </p>
               {selectedPrice !== undefined && (
-                <p className="amount-total mt-2">{formatKRW(selectedPrice)}</p>
+                <p className="amount-total mt-2">
+                  {formatKRW(selectedPrice * (selectedCategory === 'EXHIBITOR' ? exhibitorQuantity : 1))}
+                </p>
               )}
             </div>
           ) : (
@@ -267,7 +415,7 @@ export const StepRegistrationType = ({
         </div>
 
         <div className="mt-auto">
-          <button onClick={onNext} disabled={!selectedCategory} className="btn-primary">
+          <button onClick={onNext} disabled={!canContinue} className="btn-primary">
             Continue to Additional Options
           </button>
         </div>

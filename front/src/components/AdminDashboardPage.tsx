@@ -225,8 +225,8 @@ export const AdminDashboardPage = () => {
         ? p.selectedOptions.map((opt: any) => `${opt.nameEn} (${opt.category})`).join('; ')
         : '';
       
-      const accompanyingStr = p.accompanyingPerson
-        ? `${p.accompanyingPerson.firstName} ${p.accompanyingPerson.lastName}`
+      const accompanyingStr = p.accompanyingPersons && p.accompanyingPersons.length > 0
+        ? p.accompanyingPersons.map((ap: any) => `${ap.firstName} ${ap.lastName}`).join(', ')
         : '';
 
       return [
@@ -680,14 +680,37 @@ export const AdminDashboardPage = () => {
                                           <span className="text-[10px] text-slate-400 font-mono">Reg No: {p.registrationNumber}</span>
                                         </div>
 
-                                        {/* Accompanying Person Info */}
-                                        {p.accompanyingPerson && (
-                                          <div className="rounded-lg bg-teal-50 border border-teal-100/50 px-3 py-2 text-xs text-teal-800 flex items-center gap-2">
-                                            <svg className="h-4 w-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                            </svg>
-                                            <span className="font-semibold">Accompanying Person:</span> 
-                                            <span className="font-medium text-slate-800">{p.accompanyingPerson.firstName} {p.accompanyingPerson.lastName}</span>
+                                        {/* Accompanying Persons Info */}
+                                        {p.accompanyingPersons && p.accompanyingPersons.length > 0 && (
+                                          <div className="rounded-lg bg-teal-50 border border-teal-100/50 px-3 py-2 text-xs text-teal-800 space-y-1">
+                                            <div className="flex items-center gap-2">
+                                              <svg className="h-4 w-4 text-teal-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                              </svg>
+                                              <span className="font-semibold text-teal-800">Accompanying Persons:</span>
+                                            </div>
+                                            <div className="pl-6 space-y-1">
+                                              {p.accompanyingPersons.map((ap: any, idx: number) => (
+                                                <p key={idx} className="font-medium text-slate-800">- {ap.firstName} {ap.lastName}</p>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {/* Exhibitor Badges Info */}
+                                        {p.exhibitorBadges && p.exhibitorBadges.length > 0 && (
+                                          <div className="rounded-lg bg-teal-50 border border-teal-100/50 px-3 py-2 text-xs text-teal-800 space-y-1">
+                                            <div className="flex items-center gap-2">
+                                              <svg className="h-4 w-4 text-teal-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 014 0m-6 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.333 0 4 .667 4 2v1H5v-1c0-1.333 2.667-2 4-2z" />
+                                              </svg>
+                                              <span className="font-semibold text-teal-800">Exhibitors:</span>
+                                            </div>
+                                            <div className="pl-6 space-y-1">
+                                              {p.exhibitorBadges.map((eb: any, idx: number) => (
+                                                <p key={idx} className="font-medium text-slate-800">- {eb.firstName} {eb.lastName}</p>
+                                              ))}
+                                            </div>
                                           </div>
                                         )}
 

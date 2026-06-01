@@ -12,11 +12,21 @@ export interface SignupRequest {
   position: string;
   country: string;
   phone: string;
-  birthDate: string; // ISO: "1990-03-15"
+  birthDate?: string | null; // ISO: "1990-03-15" (Optional in signup now)
   isPresenter?: boolean;
   dietaryRequirement: DietaryRequirement;
   dietaryNote?: string;
   paperInfo?: string;
+  iabseId?: string | null;
+  billingUniversity?: string | null;
+  billingVat?: string | null;
+  billingPoNumber?: string | null;
+  billingStreet?: string | null;
+  billingAdditionalInfo?: string | null;
+  billingPoBox?: string | null;
+  billingPostcode?: string | null;
+  billingCity?: string | null;
+  billingCountry?: string | null;
 }
 
 export interface LoginRequest {
@@ -245,6 +255,11 @@ export interface AccompanyingPersonInfo {
   firstName: string;
 }
 
+export interface ExhibitorBadgeInfo {
+  lastName: string;
+  firstName: string;
+}
+
 export interface PaymentRequest {
   selectedOptionIds: string[];
   /** optionId → quantity; defaults to 1 if absent */
@@ -252,8 +267,14 @@ export interface PaymentRequest {
   paymentMethod: PaymentMethod;
   tid?: string;
   replycode?: string;
-  /** 동반자 등록 옵션 선택 시 동반자 이름 */
-  accompanyingPerson?: AccompanyingPersonInfo;
+  /** 동반자 등록 옵션 선택 시 동반자 이름 목록 */
+  accompanyingPersons?: AccompanyingPersonInfo[];
+  /** 전시자 추가 배지 이름 목록 */
+  exhibitorBadges?: ExhibitorBadgeInfo[];
+  /** 대기자 신청할 옵션 ID 목록 */
+  waitlistedOptionIds?: string[];
+  iabseId?: string;
+  birthDate?: string;
 }
 
 export interface PaymentResponse {
@@ -271,7 +292,8 @@ export interface PaymentResponse {
   totalAmount: number;
   paidAt: string | null;
   selectedOptions: ConferenceOption[];
-  accompanyingPerson?: AccompanyingPersonInfo | null;
+  accompanyingPersons?: AccompanyingPersonInfo[];
+  exhibitorBadges?: ExhibitorBadgeInfo[];
 }
 
 // ─── Pricing (프론트엔드 계산용) ─────────────────────────────────────────────
@@ -285,6 +307,7 @@ export interface PricingSummary {
 export type RegistrationStep =
   | 'REG_TYPE'
   | 'ADD_OPTIONS'
+  | 'TECHNICAL_TOUR'
   | 'INVITATION'
   | 'SUMMARY'
   | 'PAYMENT'

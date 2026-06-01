@@ -22,10 +22,18 @@ public record PaymentRequest(
 
                 String replycode,
 
-                /** 동반자 등록 옵션 선택 시 동반자 이름 — 그 외에는 null */
-                @Valid AccompanyingPersonInfo accompanyingPerson) {
+                @Valid List<AccompanyingPersonInfo> accompanyingPersons,
+                @Valid List<ExhibitorBadgeInfo> exhibitorBadges,
+                List<String> waitlistedOptionIds,
+                String iabseId,
+                java.time.LocalDate birthDate) {
 
         public record AccompanyingPersonInfo(
+                        @NotBlank @Size(max = 100) String lastName,
+                        @NotBlank @Size(max = 100) String firstName) {
+        }
+
+        public record ExhibitorBadgeInfo(
                         @NotBlank @Size(max = 100) String lastName,
                         @NotBlank @Size(max = 100) String firstName) {
         }

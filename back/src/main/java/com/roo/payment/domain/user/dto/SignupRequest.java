@@ -31,7 +31,6 @@ public record SignupRequest(
         @Size(max = 50)
         String phone,
 
-        @NotNull @Past
         LocalDate birthDate,
 
         Boolean isPresenter,
@@ -43,5 +42,35 @@ public record SignupRequest(
         String dietaryNote,
 
         @Size(max = 300)
-        String paperInfo
+        String paperInfo,
+
+        @Size(max = 100)
+        String iabseId,
+
+        @Size(max = 200)
+        String billingUniversity,
+
+        @Size(max = 100)
+        String billingVat,
+
+        @Size(max = 100)
+        String billingPoNumber,
+
+        @Size(max = 300)
+        String billingStreet,
+
+        @Size(max = 300)
+        String billingAdditionalInfo,
+
+        @Size(max = 50)
+        String billingPoBox,
+
+        @Size(max = 50)
+        String billingPostcode,
+
+        @Size(max = 100)
+        String billingCity,
+
+        @Size(max = 100)
+        String billingCountry
 ) {}

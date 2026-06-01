@@ -24,8 +24,10 @@ interface StepAdditionalOptionsProps {
   selectedRegOptionId: string | null;
   quantities: Record<string, number>;
   onQuantityChange: (optionId: string, qty: number) => void;
-  accompanyingPerson: AccompanyingPersonInfo;
-  onAccompanyingChange: (info: AccompanyingPersonInfo) => void;
+  accompanyingPersons: AccompanyingPersonInfo[];
+  onAccompanyingChange: (persons: AccompanyingPersonInfo[]) => void;
+  waitlistedOptionIds: string[];
+  onWaitlistChange: (ids: string[]) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -81,8 +83,10 @@ export const StepAdditionalOptions = ({
   selectedRegOptionId,
   quantities,
   onQuantityChange,
-  accompanyingPerson,
+  accompanyingPersons,
   onAccompanyingChange,
+  waitlistedOptionIds,
+  onWaitlistChange,
   onNext,
   onBack,
 }: StepAdditionalOptionsProps) => {
@@ -99,30 +103,46 @@ export const StepAdditionalOptions = ({
     ? REGISTRATION_CATEGORIES.find((c) => c.key === selectedCategory)?.label
     : null;
 
+  // Additional options WITHOUT technical tours (technical tours are on a separate step)
   const programOptions: ConferenceOption[] = useMemo(() => {
     if (!options) return [];
     const hiddenIds =
       memberType === 'YOUNG_ENGINEER' ? new Set(['OPT-GALA-DINNER']) : new Set<string>();
+    // Exclude technical tours from programOptionIds
+    const tourSet = new Set<string>(['OPT-TECH-TOUR-1', 'OPT-TECH-TOUR-2', 'OPT-TECH-TOUR-3']);
     return programOptionIds(selectedTier)
-      .filter((id) => !hiddenIds.has(id))
+      .filter((id) => !hiddenIds.has(id) && !tourSet.has(id))
       .map((id) => options.find((o) => o.id === id))
       .filter((o): o is ConferenceOption => o !== undefined);
   }, [options, selectedTier, memberType]);
 
   const isSelected = (id: string) => (quantities[id] ?? 0) > 0;
+  const isWaitlisted = (id: string) => waitlistedOptionIds.includes(id);
 
   const selectedOptions = programOptions.filter((o) => isSelected(o.id));
   const selectedCount = selectedOptions.length;
-  const subtotal = selectedOptions.reduce((sum, o) => sum + o.price, 0);
+
+  // Accompanying Person Option
+  const accompOption = programOptions.find((o) => isAccompanyingOption(o.id));
+  const accompQty = accompOption ? (quantities[accompOption.id] ?? 0) : 0;
+
+  const subtotal = useMemo(() => {
+    return selectedOptions.reduce((sum, o) => {
+      if (isWaitlisted(o.id)) return sum; // Waitlisted option is 0 KRW
+      const qty = quantities[o.id] ?? 1;
+      return sum + o.price * qty;
+    }, 0);
+  }, [selectedOptions, waitlistedOptionIds, quantities]);
+
   const grandTotal = registrationPrice + subtotal;
 
-  const accompanyingSelected = programOptions.some(
-    (o) => isAccompanyingOption(o.id) && isSelected(o.id)
-  );
-  const accompanyingNameMissing =
-    accompanyingSelected &&
-    (accompanyingPerson.lastName.trim() === '' ||
-      accompanyingPerson.firstName.trim() === '');
+  const accompanyingNameMissing = useMemo(() => {
+    if (accompQty === 0) return false;
+    if (accompanyingPersons.length !== accompQty) return true;
+    return accompanyingPersons.some(
+      (p) => p.firstName.trim() === '' || p.lastName.trim() === ''
+    );
+  }, [accompQty, accompanyingPersons]);
 
   if (isLoading) {
     return (
@@ -146,23 +166,37 @@ export const StepAdditionalOptions = ({
       <div className="border-b border-slate-100 p-6 lg:border-b-0 lg:border-r">
         <SectionLabel>Additional Programs (Optional)</SectionLabel>
         <p className="text-xs text-ink-muted mb-5 leading-relaxed">
-          These programs are optional — you may continue without selecting any.
-          Each checked item counts as one ticket. All fees are shown in KRW.
+          These programs are optional — you may continue without selecting any. All fees are shown in KRW.
         </p>
 
         <div className="space-y-3">
           {programOptions.map((opt) => {
             const selected = isSelected(opt.id);
+            const waitlisted = isWaitlisted(opt.id);
             const isSoldOut = opt.available === false;
-            const isTbd = !opt.isFree && opt.price === 0;
-            const isDisabled = isSoldOut || isTbd;
             const declineLabel = DECLINE_LABELS[opt.id];
             const isAccomp = isAccompanyingOption(opt.id);
             const attendLabel = opt.description || opt.nameEn;
 
-            const setSelected = (v: boolean) => {
-              if (isDisabled) return;
-              onQuantityChange(opt.id, v ? 1 : 0);
+            const handleToggleCheckbox = (checked: boolean) => {
+              if (checked) {
+                onQuantityChange(opt.id, 1);
+              } else {
+                onQuantityChange(opt.id, 0);
+                onWaitlistChange(waitlistedOptionIds.filter((id) => id !== opt.id));
+              }
+            };
+
+            const handleToggleWaitlist = (checked: boolean) => {
+              if (checked) {
+                onQuantityChange(opt.id, 1);
+                if (!waitlistedOptionIds.includes(opt.id)) {
+                  onWaitlistChange([...waitlistedOptionIds, opt.id]);
+                }
+              } else {
+                onQuantityChange(opt.id, 0);
+                onWaitlistChange(waitlistedOptionIds.filter((id) => id !== opt.id));
+              }
             };
 
             return (
@@ -171,7 +205,7 @@ export const StepAdditionalOptions = ({
                 className={`rounded-xl border p-4 transition ${
                   selected
                     ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
-                    : isDisabled
+                    : isSoldOut && !selected
                     ? 'border-slate-100 bg-slate-50'
                     : 'border-slate-200 bg-white'
                 }`}
@@ -181,13 +215,13 @@ export const StepAdditionalOptions = ({
                   <div className="flex items-center gap-2 min-w-0">
                     <p className="text-sm font-semibold text-ink">{opt.nameEn}</p>
                     {isSoldOut && (
-                      <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-red-500">
+                      <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-red-500 animate-pulse">
                         Sold Out
                       </span>
                     )}
-                    {isTbd && (
+                    {waitlisted && (
                       <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-600">
-                        Price TBA
+                        Waitlisted (0 KRW)
                       </span>
                     )}
                   </div>
@@ -196,77 +230,118 @@ export const StepAdditionalOptions = ({
                       selected ? 'text-gold' : 'text-ink-muted'
                     }`}
                   >
-                    {opt.isFree ? 'Free' : isTbd ? 'TBA' : formatKRW(opt.price)}
+                    {waitlisted ? '0 KRW' : opt.isFree ? 'Free' : formatKRW(opt.price)}
                   </p>
                 </div>
 
-                {/* Sold-out notice — capacity numbers are not disclosed */}
-                {isSoldOut && (
-                  <p className="mt-1.5 text-[11px] text-red-500">
-                    This program has reached full capacity and is no longer available.
-                  </p>
-                )}
-                {isTbd && (
-                  <p className="mt-1.5 text-[11px] text-amber-600">
-                    The fee for this tour will be announced soon.
-                  </p>
-                )}
-
-                {/* Controls */}
-                <div className="mt-3 space-y-2">
-                  <CheckRow
-                    checked={selected}
-                    label={attendLabel}
-                    disabled={isDisabled}
-                    onToggle={() => setSelected(!selected)}
-                  />
-                  {declineLabel && (
-                    <CheckRow
-                      checked={!selected}
-                      label={declineLabel}
-                      disabled={isDisabled}
-                      onToggle={() => setSelected(false)}
-                    />
-                  )}
-                </div>
-
-                {/* Accompanying person name fields */}
-                {isAccomp && selected && (
-                  <div className="mt-3 grid grid-cols-2 gap-3 rounded-lg border border-gold-soft bg-white p-3">
-                    <div>
-                      <label className="label-section mb-1 block">Last Name</label>
-                      <input
-                        type="text"
-                        className="input-base"
-                        value={accompanyingPerson.lastName}
-                        placeholder="Last name"
-                        onChange={(e) =>
-                          onAccompanyingChange({
-                            ...accompanyingPerson,
-                            lastName: e.target.value,
-                          })
-                        }
-                      />
+                {/* Accompanying Person Quantity and Name Fields */}
+                {isAccomp ? (
+                  <div className="mt-4 space-y-4">
+                    <div className="flex items-center gap-3">
+                      <label className="text-xs font-semibold text-ink-muted">Quantity</label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newQty = Math.max(0, accompQty - 1);
+                            onQuantityChange(opt.id, newQty);
+                            const newPersons = [...accompanyingPersons];
+                            while (newPersons.length > newQty) newPersons.pop();
+                            onAccompanyingChange(newPersons);
+                          }}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                        >
+                          -
+                        </button>
+                        <span className="text-sm font-semibold text-ink w-8 text-center">{accompQty}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newQty = accompQty + 1;
+                            onQuantityChange(opt.id, newQty);
+                            const newPersons = [...accompanyingPersons];
+                            while (newPersons.length < newQty) {
+                              newPersons.push({ firstName: '', lastName: '' });
+                            }
+                            onAccompanyingChange(newPersons);
+                          }}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <label className="label-section mb-1 block">First Name</label>
-                      <input
-                        type="text"
-                        className="input-base"
-                        value={accompanyingPerson.firstName}
-                        placeholder="First name"
-                        onChange={(e) =>
-                          onAccompanyingChange({
-                            ...accompanyingPerson,
-                            firstName: e.target.value,
-                          })
-                        }
+
+                    {accompQty > 0 && (
+                      <div className="space-y-3">
+                        <p className="text-xs font-semibold text-ink-muted">Accompanying Person Names</p>
+                        {Array.from({ length: accompQty }).map((_, idx) => {
+                          const person = accompanyingPersons[idx] || { firstName: '', lastName: '' };
+                          return (
+                            <div key={idx} className="flex gap-2">
+                              <input
+                                type="text"
+                                required
+                                value={person.firstName}
+                                onChange={(e) => {
+                                  const updated = [...accompanyingPersons];
+                                  if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
+                                  updated[idx].firstName = e.target.value;
+                                  onAccompanyingChange(updated);
+                                }}
+                                className="input-base flex-1"
+                                placeholder={`First Name #${idx + 1}`}
+                              />
+                              <input
+                                type="text"
+                                required
+                                value={person.lastName}
+                                onChange={(e) => {
+                                  const updated = [...accompanyingPersons];
+                                  if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
+                                  updated[idx].lastName = e.target.value;
+                                  onAccompanyingChange(updated);
+                                }}
+                                className="input-base flex-1"
+                                placeholder={`Last Name #${idx + 1}`}
+                              />
+                            </div>
+                          );
+                        })}
+                        {accompanyingNameMissing && (
+                          <p className="text-[11px] text-red-500">
+                            Please enter first and last names for all accompanying persons.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* Standard Options (Welcome Reception, Gala Dinner, YE Program) */
+                  <div className="mt-3 space-y-2">
+                    {isSoldOut ? (
+                      /* If sold out, show waitlist option */
+                      <CheckRow
+                        checked={waitlisted}
+                        label="All spots have been filled. Please add me to the waitlist."
+                        onToggle={() => handleToggleWaitlist(!waitlisted)}
                       />
-                    </div>
-                    {accompanyingNameMissing && (
-                      <p className="col-span-2 text-[11px] text-red-500">
-                        Please enter the accompanying person's last and first name.
-                      </p>
+                    ) : (
+                      /* If available, standard checkboxes */
+                      <>
+                        <CheckRow
+                          checked={selected}
+                          label={attendLabel}
+                          onToggle={() => handleToggleCheckbox(!selected)}
+                        />
+                        {declineLabel && (
+                          <CheckRow
+                            checked={!selected}
+                            label={declineLabel}
+                            onToggle={() => handleToggleCheckbox(false)}
+                          />
+                        )}
+                      </>
                     )}
                   </div>
                 )}
@@ -276,7 +351,7 @@ export const StepAdditionalOptions = ({
         </div>
       </div>
 
-      {/* Right sidebar — sticky on both mobile (top) and desktop (side) */}
+      {/* Right sidebar */}
       <div className="order-first lg:order-none sticky top-0 z-20 lg:top-6 lg:self-start bg-gold-tint p-6 flex flex-col max-h-screen lg:max-h-[calc(100vh-3rem)] overflow-y-auto">
         {/* Registration section */}
         <SectionLabel>Registration</SectionLabel>
@@ -309,21 +384,24 @@ export const StepAdditionalOptions = ({
             </div>
             {selectedOptions.map((o) => (
               <div key={o.id} className="flex justify-between text-xs">
-                <span className="text-ink-muted truncate pr-2">{o.nameEn}</span>
+                <span className="text-ink-muted truncate pr-2">
+                  {o.nameEn} {isWaitlisted(o.id) && '(Waitlisted)'}
+                </span>
                 <span className="flex-shrink-0 font-medium text-ink">
-                  {o.isFree ? 'Free' : formatKRW(o.price)}
+                  {isWaitlisted(o.id) ? '0 KRW' : o.isFree ? 'Free' : formatKRW(o.price * (quantities[o.id] ?? 1))}
                 </span>
               </div>
             ))}
-            {accompanyingSelected &&
-              (accompanyingPerson.firstName || accompanyingPerson.lastName) && (
-                <div className="flex justify-between text-[11px] text-ink-faint">
-                  <span>Accompanying person</span>
-                  <span className="text-ink-muted">
-                    {accompanyingPerson.firstName} {accompanyingPerson.lastName}
-                  </span>
-                </div>
-              )}
+            {accompQty > 0 && accompanyingPersons.length > 0 && (
+              <div className="space-y-1 mt-1 border-t border-slate-100 pt-1">
+                <span className="text-[10px] text-ink-faint block">Accompanying persons:</span>
+                {accompanyingPersons.map((p, idx) => (
+                  <div key={idx} className="flex justify-between text-[11px] text-ink-muted pl-2">
+                    <span>- {p.firstName} {p.lastName}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="border-t border-gold-soft pt-2 flex justify-between items-baseline">
               <span className="text-[11px] text-ink-faint">Programs subtotal</span>
               <span className="text-sm font-semibold text-ink">{formatKRW(subtotal)}</span>

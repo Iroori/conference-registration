@@ -25,15 +25,23 @@ public record PaymentResponse(
         long totalAmount,
         String paidAt,
         List<ConferenceOptionResponse> selectedOptions,
-        AccompanyingPersonInfo accompanyingPerson
+        List<AccompanyingPersonInfo> accompanyingPersons,
+        List<ExhibitorBadgeInfo> exhibitorBadges
 ) {
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public record AccompanyingPersonInfo(String lastName, String firstName) {
-        static AccompanyingPersonInfo from(AccompanyingPerson ap) {
+        public static AccompanyingPersonInfo from(AccompanyingPerson ap) {
             return ap == null ? null
                     : new AccompanyingPersonInfo(ap.getLastName(), ap.getFirstName());
+        }
+    }
+
+    public record ExhibitorBadgeInfo(String lastName, String firstName) {
+        public static ExhibitorBadgeInfo from(com.roo.payment.domain.payment.entity.ExhibitorBadge eb) {
+            return eb == null ? null
+                    : new ExhibitorBadgeInfo(eb.getLastName(), eb.getFirstName());
         }
     }
 
@@ -55,7 +63,12 @@ public record PaymentResponse(
                 payment.getSelectedOptions().stream()
                         .map(ConferenceOptionResponse::from)
                         .toList(),
-                AccompanyingPersonInfo.from(payment.getAccompanyingPerson())
+                payment.getAccompanyingPersons().stream()
+                        .map(AccompanyingPersonInfo::from)
+                        .toList(),
+                payment.getExhibitorBadges().stream()
+                        .map(ExhibitorBadgeInfo::from)
+                        .toList()
         );
     }
 }

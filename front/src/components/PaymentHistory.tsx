@@ -105,14 +105,37 @@ export const PaymentHistoryTab = () => {
                     <span className="text-[10px] text-slate-400 font-mono">Reg No: {record.registrationNumber}</span>
                   </div>
 
-                  {/* Accompanying Person Info */}
-                  {record.accompanyingPerson && (
-                    <div className="rounded-lg bg-gold-tint/50 border border-gold/10 px-3 py-2 text-xs text-slate-800 flex items-center gap-2">
-                      <svg className="h-4 w-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                      </svg>
-                      <span className="font-semibold">Accompanying Person:</span> 
-                      <span className="font-medium text-slate-700">{record.accompanyingPerson.firstName} {record.accompanyingPerson.lastName}</span>
+                  {/* Accompanying Persons Info */}
+                  {record.accompanyingPersons && record.accompanyingPersons.length > 0 && (
+                    <div className="rounded-lg bg-gold-tint/50 border border-gold/10 px-3 py-2 text-xs text-slate-800 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <svg className="h-4 w-4 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <span className="font-semibold text-slate-800">Accompanying Persons:</span>
+                      </div>
+                      <div className="pl-6 space-y-1">
+                        {record.accompanyingPersons.map((p, idx) => (
+                          <p key={idx} className="font-medium text-slate-700">- {p.firstName} {p.lastName}</p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Exhibitor Badges Info */}
+                  {record.exhibitorBadges && record.exhibitorBadges.length > 0 && (
+                    <div className="rounded-lg bg-gold-tint/50 border border-gold/10 px-3 py-2 text-xs text-slate-800 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <svg className="h-4 w-4 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 014 0m-6 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.333 0 4 .667 4 2v1H5v-1c0-1.333 2.667-2 4-2z" />
+                        </svg>
+                        <span className="font-semibold text-slate-800">Exhibitors:</span>
+                      </div>
+                      <div className="pl-6 space-y-1">
+                        {record.exhibitorBadges.map((e, idx) => (
+                          <p key={idx} className="font-medium text-slate-700">- {e.firstName} {e.lastName}</p>
+                        ))}
+                      </div>
                     </div>
                   )}
 

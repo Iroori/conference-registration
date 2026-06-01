@@ -40,7 +40,7 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "NVARCHAR(50)")
     private String phone;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)
@@ -71,6 +71,36 @@ public class User extends BaseEntity {
     /** 관리자 여부. true 시 JWT의 role 클레임에 ADMIN 부여. */
     @Column(nullable = false)
     private boolean admin = false;
+
+    @Column(name = "iabse_id", length = 100)
+    private String iabseId;
+
+    @Column(name = "billing_university", length = 200, columnDefinition = "nvarchar(200)")
+    private String billingUniversity;
+
+    @Column(name = "billing_vat", length = 100)
+    private String billingVat;
+
+    @Column(name = "billing_po_number", length = 100)
+    private String billingPoNumber;
+
+    @Column(name = "billing_street", length = 300, columnDefinition = "nvarchar(300)")
+    private String billingStreet;
+
+    @Column(name = "billing_additional_info", length = 300, columnDefinition = "nvarchar(300)")
+    private String billingAdditionalInfo;
+
+    @Column(name = "billing_po_box", length = 50, columnDefinition = "nvarchar(50)")
+    private String billingPoBox;
+
+    @Column(name = "billing_postcode", length = 50)
+    private String billingPostcode;
+
+    @Column(name = "billing_city", length = 100, columnDefinition = "nvarchar(100)")
+    private String billingCity;
+
+    @Column(name = "billing_country", length = 100, columnDefinition = "nvarchar(100)")
+    private String billingCountry;
 
     protected User() {}
 
@@ -151,6 +181,33 @@ public class User extends BaseEntity {
     public boolean isAdmin() { return admin; }
     public void promoteToAdmin() { this.admin = true; }
     public void updateMemberType(MemberType memberType) { this.memberType = memberType; }
+
+    public String getIabseId() { return iabseId; }
+    public void setIabseId(String iabseId) { this.iabseId = iabseId; }
+
+    public String getBillingUniversity() { return billingUniversity; }
+    public String getBillingVat() { return billingVat; }
+    public String getBillingPoNumber() { return billingPoNumber; }
+    public String getBillingStreet() { return billingStreet; }
+    public String getBillingAdditionalInfo() { return billingAdditionalInfo; }
+    public String getBillingPoBox() { return billingPoBox; }
+    public String getBillingPostcode() { return billingPostcode; }
+    public String getBillingCity() { return billingCity; }
+    public String getBillingCountry() { return billingCountry; }
+
+    public void assignBillingAddress(String billingUniversity, String billingVat, String billingPoNumber,
+                                     String billingStreet, String billingAdditionalInfo, String billingPoBox,
+                                     String billingPostcode, String billingCity, String billingCountry) {
+        this.billingUniversity = billingUniversity;
+        this.billingVat = billingVat;
+        this.billingPoNumber = billingPoNumber;
+        this.billingStreet = billingStreet;
+        this.billingAdditionalInfo = billingAdditionalInfo;
+        this.billingPoBox = billingPoBox;
+        this.billingPostcode = billingPostcode;
+        this.billingCity = billingCity;
+        this.billingCountry = billingCountry;
+    }
 
     public void updateProfile(String firstName, String lastName, String affiliation, String country, String position, String phone, LocalDate birthDate) {
         this.firstName = firstName;

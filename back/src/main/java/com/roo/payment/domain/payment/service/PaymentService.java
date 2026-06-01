@@ -9,7 +9,9 @@ import com.roo.payment.domain.payment.dto.PaymentRequest;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
 import com.roo.payment.domain.payment.entity.Payment;
 import com.roo.payment.domain.payment.entity.PaymentStatus;
+import com.roo.payment.domain.payment.entity.OptionWaitlist;
 import com.roo.payment.domain.payment.repository.PaymentRepository;
+import com.roo.payment.domain.payment.repository.OptionWaitlistRepository;
 import com.roo.payment.domain.user.entity.User;
 import com.roo.payment.domain.user.repository.UserRepository;
 import com.roo.payment.domain.user.service.EmailService;
@@ -39,17 +41,20 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final ConferenceOptionRepository optionRepository;
+    private final OptionWaitlistRepository optionWaitlistRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final AppProperties appProperties;
 
     public PaymentService(PaymentRepository paymentRepository,
             ConferenceOptionRepository optionRepository,
+            OptionWaitlistRepository optionWaitlistRepository,
             UserRepository userRepository,
             EmailService emailService,
             AppProperties appProperties) {
         this.paymentRepository = paymentRepository;
         this.optionRepository = optionRepository;
+        this.optionWaitlistRepository = optionWaitlistRepository;
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.appProperties = appProperties;
@@ -91,14 +96,31 @@ public class PaymentService {
         // 동반자 등록 옵션이 선택된 경우 동반자 이름 필수
         boolean hasAccompanying = uniqueIds.stream()
                 .anyMatch(id -> id.startsWith(ACCOMPANYING_OPTION_PREFIX));
-        if (hasAccompanying && request.accompanyingPerson() == null) {
+        if (hasAccompanying && (request.accompanyingPersons() == null || request.accompanyingPersons().isEmpty())) {
             throw new BusinessException(ErrorCode.ACCOMPANYING_NAME_REQUIRED);
         }
+
+        // 전시자 등록 옵션이 선택된 경우 전시자 이름 필수
+        boolean hasExhibitor = uniqueIds.stream()
+                .anyMatch(id -> id.contains("-EXH"));
+        if (hasExhibitor && (request.exhibitorBadges() == null || request.exhibitorBadges().isEmpty())) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "Exhibitor badge names are required.");
+        }
+
+        List<String> waitlistedIds = request.waitlistedOptionIds() != null ? request.waitlistedOptionIds() : List.of();
+
+        List<ConferenceOption> activeOptions = options.stream()
+                .filter(o -> !waitlistedIds.contains(o.getId()))
+                .toList();
+
+        List<ConferenceOption> waitlistedOptions = options.stream()
+                .filter(o -> waitlistedIds.contains(o.getId()))
+                .toList();
 
         Map<String, Integer> quantities = request.quantities() != null ? request.quantities() : Map.of();
 
         // 정원 초과 검증
-        for (ConferenceOption option : options) {
+        for (ConferenceOption option : activeOptions) {
             int qty = quantities.getOrDefault(option.getId(), 1);
             if (option.getMaxCapacity() != null
                     && option.getCurrentCount() + qty > option.getMaxCapacity()) {
@@ -109,11 +131,32 @@ public class PaymentService {
             }
         }
 
-        // 가격 계산
-        long subtotal = options.stream()
+        // 가격 계산 (대기자 신청한 옵션의 비용 제외)
+        long subtotal = activeOptions.stream()
                 .mapToLong(o -> o.getPrice() * quantities.getOrDefault(o.getId(), 1))
                 .sum();
         long tax = 0;
+
+        // Update user's memberType and profile details (iabseId, birthDate) based on registration selection
+        for (String optId : uniqueIds) {
+            if (optId.contains("-MEMBER")) {
+                user.updateMemberType(com.roo.payment.domain.user.entity.MemberType.MEMBER);
+            } else if (optId.contains("-YE")) {
+                user.updateMemberType(com.roo.payment.domain.user.entity.MemberType.YOUNG_ENGINEER);
+            } else if (optId.contains("-NMP") || optId.contains("-NONMEMBER-PLUS")) {
+                user.updateMemberType(com.roo.payment.domain.user.entity.MemberType.NON_MEMBER_PLUS);
+            } else if (optId.contains("-NM") || optId.contains("-NONMEMBER")) {
+                user.updateMemberType(com.roo.payment.domain.user.entity.MemberType.NON_MEMBER);
+            }
+        }
+        if (request.iabseId() != null && !request.iabseId().isBlank()) {
+            user.setIabseId(request.iabseId());
+        }
+        if (request.birthDate() != null) {
+            user.updateProfile(user.getFirstName(), user.getLastName(), user.getAffiliation(),
+                               user.getCountry(), user.getPosition(), user.getPhone(), request.birthDate());
+        }
+        userRepository.save(user);
 
         String regNumber = generateRegistrationNumber();
 
@@ -121,7 +164,7 @@ public class PaymentService {
                 regNumber, user, user.getMemberType(),
                 request.paymentMethod(), subtotal, tax, options);
 
-        options.forEach(o -> {
+        activeOptions.forEach(o -> {
             int qty = quantities.getOrDefault(o.getId(), 1);
             for (int i = 0; i < qty; i++)
                 o.increaseCount();
@@ -133,10 +176,25 @@ public class PaymentService {
         }
 
         // 동반자 정보 저장 (cascade로 결제와 함께 영속화)
-        if (hasAccompanying && request.accompanyingPerson() != null) {
-            payment.assignAccompanyingPerson(
-                    request.accompanyingPerson().lastName(),
-                    request.accompanyingPerson().firstName());
+        if (hasAccompanying && request.accompanyingPersons() != null) {
+            for (var ap : request.accompanyingPersons()) {
+                payment.addAccompanyingPerson(ap.lastName(), ap.firstName());
+            }
+        }
+
+        // 전시자 정보 저장 (cascade로 결제와 함께 영속화)
+        if (hasExhibitor && request.exhibitorBadges() != null) {
+            for (var eb : request.exhibitorBadges()) {
+                payment.addExhibitorBadge(eb.lastName(), eb.firstName());
+            }
+        }
+
+        // 대기자 정보 저장
+        if (!waitlistedOptions.isEmpty()) {
+            for (var opt : waitlistedOptions) {
+                OptionWaitlist waitlist = new OptionWaitlist(payment, opt);
+                optionWaitlistRepository.save(waitlist);
+            }
         }
 
         payment.complete();
