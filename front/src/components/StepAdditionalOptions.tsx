@@ -302,7 +302,7 @@ export const StepAdditionalOptions = ({
                       {active && <span className="h-2 w-2 rounded-full bg-gold" />}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-ink mb-3">Young Engineers programme on 16<sup>th</sup> September</p>
+                      <p className="text-sm font-bold text-ink mb-3">Young Engineer programme on 16<sup>th</sup> September</p>
 
                       <div className="space-y-2.5">
                         <CheckRow
@@ -362,10 +362,7 @@ export const StepAdditionalOptions = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-sm font-bold text-ink">
-                          Gala dinner on 17<sup>th</sup> September (250,000 KRW)
-                        </p>
-                        <p className="text-xs font-semibold text-ink-muted">
-                          {formatKRW(opt.price)}
+                          Gala dinner on 17<sup>th</sup> September
                         </p>
                       </div>
 
