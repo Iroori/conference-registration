@@ -408,6 +408,7 @@ docs/
 | 2026-06-02 | paper-author-presenter-status-box-unification.md | 회원가입 페이지 "Paper Author and Presenter Status" 대제목, 체크박스, 입력창의 단일 박스 통합 및 작은 글씨 스타일링 최적화 |
 | 2026-06-02 | social-programme-options-redesign.md | 추가 프로그램(Option Step 2) 내 웰컴 리셉션, Young Engineers, 갈라 디너의 수량 조절기/거절체크박스/대기자 리디자인 및 PechaKucha 무료 옵션 추가 |
 | 2026-06-02 | payment-method-and-refund-policy-update.md | 결제 방식 선택(카드/계좌이체 라디오) 신설 및 계좌이체 시 안내 박스 팝업, 카드 결제 버튼 비활성화 차단 구현 및 환불정책 Terms 영문 텍스트 개정 |
+| 2026-06-03 | social-programme-ui-unification.md | 추가 프로그램(Option Step 2) 카드 제목 빨간색 스타일을 text-ink로 변경 및 좌측 골드 원형 라디오 인디케이터 구현, 비회원 요율 subLabel(*Includes a one-year...) 갱신, 환불규정 Refund Processing 제거 및 Insurance 섹션 추가 |
 
 ---
 

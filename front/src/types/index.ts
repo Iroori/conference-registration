@@ -131,7 +131,7 @@ export const REGISTRATION_CATEGORIES: RegistrationCategoryMeta[] = [
   {
     key: 'NON_MEMBER_PLUS',
     label: 'NON-IABSE MEMBER PLUS',
-    subLabel: 'includes 1 year IABSE membership',
+    subLabel: '*Includes a one-year IABSE membership',
   },
   {
     key: 'YOUNG_ENGINEER',

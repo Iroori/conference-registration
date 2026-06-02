@@ -188,80 +188,94 @@ export const StepAdditionalOptions = ({
             if (opt.id === 'OPT-WELCOME') {
               const qty = quantities[opt.id] ?? 0;
               const notAttending = qty === 0;
+              const active = qty > 0;
 
               return (
                 <div
                   key={opt.id}
                   className={`rounded-xl border p-4 transition ${
-                    qty > 0
+                    active
                       ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
                       : isSoldOut && !qty
                       ? 'border-slate-100 bg-slate-50'
-                      : 'border-slate-200 bg-white'
+                      : 'border-slate-200 bg-white hover:border-gold/40'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-bold text-red-600">Welcome reception on 16<sup>th</sup> September</p>
-                    <p className="text-xs font-semibold text-ink-muted">Free</p>
-                  </div>
-
-                  {isSoldOut ? (
-                    <div className="mt-3">
-                      <p className="text-xs text-ink-muted leading-relaxed">
-                        (All spots have been filled /{' '}
-                        <button
-                          type="button"
-                          onClick={() => handleToggleWaitlist(!waitlisted)}
-                          className="inline-flex items-center gap-1.5 font-semibold text-gold"
-                        >
-                          <span
-                            className={`inline-block h-3.5 w-3.5 rounded border transition ${
-                              waitlisted ? 'bg-gold border-gold' : 'border-slate-300 bg-white'
-                            }`}
-                          >
-                            {waitlisted && (
-                              <svg className="h-2.5 w-2.5 text-white mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                              </svg>
-                            )}
-                          </span>
-                          Please add me to the waitlist
-                        </button>
-                        )
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="mt-3 space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => onQuantityChange(opt.id, Math.max(0, qty - 1))}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
-                          >
-                            -
-                          </button>
-                          <span className="text-sm font-semibold text-ink w-8 text-center">{qty}</span>
-                          <button
-                            type="button"
-                            onClick={() => onQuantityChange(opt.id, qty + 1)}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
-                          >
-                            +
-                          </button>
-                        </div>
-                        <span className="text-xs font-semibold text-slate-800 leading-relaxed">
-                          I would like to attend the Welcome reception at the Congress Venue
-                        </span>
+                  <div className="flex items-start gap-3 min-w-0">
+                    {!isSoldOut && (
+                      <span
+                        className={`mt-1 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border transition ${
+                          active ? 'border-gold' : 'border-slate-300'
+                        }`}
+                      >
+                        {active && <span className="h-2 w-2 rounded-full bg-gold" />}
+                      </span>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-bold text-ink">Welcome reception on 16<sup>th</sup> September</p>
+                        <p className="text-xs font-semibold text-ink-muted">Free</p>
                       </div>
 
-                      <CheckRow
-                        checked={notAttending}
-                        label="I will not attend the Welcome reception"
-                        onToggle={() => onQuantityChange(opt.id, 0)}
-                      />
+                      {isSoldOut ? (
+                        <div className="mt-3">
+                          <p className="text-xs text-ink-muted leading-relaxed">
+                            (All spots have been filled /{' '}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleWaitlist(!waitlisted)}
+                              className="inline-flex items-center gap-1.5 font-semibold text-gold"
+                            >
+                              <span
+                                className={`inline-block h-3.5 w-3.5 rounded border transition ${
+                                  waitlisted ? 'bg-gold border-gold' : 'border-slate-300 bg-white'
+                                }`}
+                              >
+                                {waitlisted && (
+                                  <svg className="h-2.5 w-2.5 text-white mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
+                              </span>
+                              Please add me to the waitlist
+                            </button>
+                            )
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="mt-3 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => onQuantityChange(opt.id, Math.max(0, qty - 1))}
+                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                              >
+                                -
+                              </button>
+                              <span className="text-sm font-semibold text-ink w-8 text-center">{qty}</span>
+                              <button
+                                type="button"
+                                onClick={() => onQuantityChange(opt.id, qty + 1)}
+                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                              >
+                                +
+                              </button>
+                            </div>
+                            <span className="text-xs font-semibold text-slate-800 leading-relaxed">
+                              I would like to attend the Welcome reception at the Congress Venue
+                            </span>
+                          </div>
+
+                          <CheckRow
+                            checked={notAttending}
+                            label="I will not attend the Welcome reception"
+                            onToggle={() => onQuantityChange(opt.id, 0)}
+                          />
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             }
@@ -270,34 +284,46 @@ export const StepAdditionalOptions = ({
             if (opt.id === 'OPT-YE-PROGRAM') {
               const checkedEvent = (quantities['OPT-YE-PROGRAM'] ?? 0) > 0;
               const checkedPecha = (quantities['OPT-PECHAKUCHA'] ?? 0) > 0;
+              const active = checkedEvent || checkedPecha;
 
               return (
                 <div
                   key={opt.id}
                   className={`rounded-xl border p-4 transition ${
-                    checkedEvent || checkedPecha
+                    active
                       ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
-                      : 'border-slate-200 bg-white'
+                      : 'border-slate-200 bg-white hover:border-gold/40'
                   }`}
                 >
-                  <p className="text-sm font-bold text-red-600 mb-3">Young Engineers programme on 16<sup>th</sup> September</p>
+                  <div className="flex items-start gap-3 min-w-0">
+                    <span
+                      className={`mt-1 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border transition ${
+                        active ? 'border-gold' : 'border-slate-300'
+                      }`}
+                    >
+                      {active && <span className="h-2 w-2 rounded-full bg-gold" />}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-ink mb-3">Young Engineers programme on 16<sup>th</sup> September</p>
 
-                  <div className="space-y-2.5">
-                    <CheckRow
-                      checked={checkedEvent}
-                      label="I will attent the Young Engineer Programme social networking event."
-                      onToggle={() => onQuantityChange('OPT-YE-PROGRAM', checkedEvent ? 0 : 1)}
-                    />
-                    <CheckRow
-                      checked={checkedPecha}
-                      label="I would like to present in the Pechakucha session."
-                      onToggle={() => onQuantityChange('OPT-PECHAKUCHA', checkedPecha ? 0 : 1)}
-                    />
-                  </div>
+                      <div className="space-y-2.5">
+                        <CheckRow
+                          checked={checkedEvent}
+                          label="I will attent the Young Engineer Programme social networking event."
+                          onToggle={() => onQuantityChange('OPT-YE-PROGRAM', checkedEvent ? 0 : 1)}
+                        />
+                        <CheckRow
+                          checked={checkedPecha}
+                          label="I would like to present in the Pechakucha session."
+                          onToggle={() => onQuantityChange('OPT-PECHAKUCHA', checkedPecha ? 0 : 1)}
+                        />
+                      </div>
 
-                  <div className="mt-3.5 space-y-1 text-[11px] text-ink-faint leading-relaxed font-normal">
-                    <p>Please note that participants for the PechaKucha session will be selected through a separate process.</p>
-                    <p>Further details will be provided by email in due course.</p>
+                      <div className="mt-3.5 space-y-1 text-[11px] text-ink-faint leading-relaxed font-normal">
+                        <p>Please note that participants for the PechaKucha session will be selected through a separate process.</p>
+                        <p>Further details will be provided by email in due course.</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
@@ -312,84 +338,98 @@ export const StepAdditionalOptions = ({
             if (opt.id === 'OPT-GALA-DINNER' || opt.id === 'OPT-GALA-DINNER-YE') {
               const qty = quantities[opt.id] ?? 0;
               const notAttending = qty === 0;
+              const active = qty > 0;
 
               return (
                 <div
                   key={opt.id}
                   className={`rounded-xl border p-4 transition ${
-                    qty > 0
+                    active
                       ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
                       : isSoldOut && !qty
                       ? 'border-slate-100 bg-slate-50'
-                      : 'border-slate-200 bg-white'
+                      : 'border-slate-200 bg-white hover:border-gold/40'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-bold text-red-600">
-                      Gala dinner on 17<sup>th</sup> September {opt.id === 'OPT-GALA-DINNER-YE' ? '(Free for Young Engineer)' : '(250,000 KRW)'}
-                    </p>
-                    <p className="text-xs font-semibold text-ink-muted">
-                      {opt.id === 'OPT-GALA-DINNER-YE' ? 'Free' : formatKRW(opt.price)}
-                    </p>
-                  </div>
-
-                  {isSoldOut ? (
-                    <div className="mt-3">
-                      <p className="text-xs text-ink-muted leading-relaxed">
-                        (All spots have been filled /{' '}
-                        <button
-                          type="button"
-                          onClick={() => handleToggleWaitlist(!waitlisted)}
-                          className="inline-flex items-center gap-1.5 font-semibold text-gold"
-                        >
-                          <span
-                            className={`inline-block h-3.5 w-3.5 rounded border transition ${
-                              waitlisted ? 'bg-gold border-gold' : 'border-slate-300 bg-white'
-                            }`}
-                          >
-                            {waitlisted && (
-                              <svg className="h-2.5 w-2.5 text-white mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                              </svg>
-                            )}
-                          </span>
-                          Please add me to the waitlist
-                        </button>
-                        )
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="mt-3 space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => onQuantityChange(opt.id, Math.max(0, qty - 1))}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
-                          >
-                            -
-                          </button>
-                          <span className="text-sm font-semibold text-ink w-8 text-center">{qty}</span>
-                          <button
-                            type="button"
-                            onClick={() => onQuantityChange(opt.id, qty + 1)}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
-                          >
-                            +
-                          </button>
-                        </div>
-                        <span className="text-xs font-semibold text-slate-800 leading-relaxed">
-                          I would like to attend the Gala dinner at the Gyeongwonjae
-                        </span>
+                  <div className="flex items-start gap-3 min-w-0">
+                    {!isSoldOut && (
+                      <span
+                        className={`mt-1 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border transition ${
+                          active ? 'border-gold' : 'border-slate-300'
+                        }`}
+                      >
+                        {active && <span className="h-2 w-2 rounded-full bg-gold" />}
+                      </span>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-bold text-ink">
+                          Gala dinner on 17<sup>th</sup> September {opt.id === 'OPT-GALA-DINNER-YE' ? '(Free for Young Engineer)' : '(250,000 KRW)'}
+                        </p>
+                        <p className="text-xs font-semibold text-ink-muted">
+                          {opt.id === 'OPT-GALA-DINNER-YE' ? 'Free' : formatKRW(opt.price)}
+                        </p>
                       </div>
 
-                      <CheckRow
-                        checked={notAttending}
-                        label="I will not attend the Gala dinner"
-                        onToggle={() => onQuantityChange(opt.id, 0)}
-                      />
+                      {isSoldOut ? (
+                        <div className="mt-3">
+                          <p className="text-xs text-ink-muted leading-relaxed">
+                            (All spots have been filled /{' '}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleWaitlist(!waitlisted)}
+                              className="inline-flex items-center gap-1.5 font-semibold text-gold"
+                            >
+                              <span
+                                className={`inline-block h-3.5 w-3.5 rounded border transition ${
+                                  waitlisted ? 'bg-gold border-gold' : 'border-slate-300 bg-white'
+                                }`}
+                              >
+                                {waitlisted && (
+                                  <svg className="h-2.5 w-2.5 text-white mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
+                              </span>
+                              Please add me to the waitlist
+                            </button>
+                            )
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="mt-3 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => onQuantityChange(opt.id, Math.max(0, qty - 1))}
+                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                              >
+                                -
+                              </button>
+                              <span className="text-sm font-semibold text-ink w-8 text-center">{qty}</span>
+                              <button
+                                type="button"
+                                onClick={() => onQuantityChange(opt.id, qty + 1)}
+                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                              >
+                                +
+                              </button>
+                            </div>
+                            <span className="text-xs font-semibold text-slate-800 leading-relaxed">
+                              I would like to attend the Gala dinner at the Gyeongwonjae
+                            </span>
+                          </div>
+
+                          <CheckRow
+                            checked={notAttending}
+                            label="I will not attend the Gala dinner"
+                            onToggle={() => onQuantityChange(opt.id, 0)}
+                          />
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             }
@@ -403,112 +443,125 @@ export const StepAdditionalOptions = ({
                     ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
                     : isSoldOut && !selected
                     ? 'border-slate-100 bg-slate-50'
-                    : 'border-slate-200 bg-white'
+                    : 'border-slate-200 bg-white hover:border-gold/40'
                 }`}
               >
-                {/* Header */}
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <p className="text-sm font-semibold text-ink">{opt.nameEn}</p>
-                    {isSoldOut && (
-                      <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-red-500 animate-pulse">
-                        Sold Out
-                      </span>
-                    )}
-                    {waitlisted && (
-                      <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-600">
-                        Waitlisted (0 KRW)
-                      </span>
-                    )}
-                  </div>
-                  <p
-                    className={`flex-shrink-0 text-sm font-semibold ${
-                      selected ? 'text-gold' : 'text-ink-muted'
-                    }`}
-                  >
-                    {waitlisted ? '0 KRW' : opt.isFree ? 'Free' : formatKRW(opt.price)}
-                  </p>
-                </div>
-
-                <div className="mt-4 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <label className="text-xs font-semibold text-ink-muted">Quantity</label>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const newQty = Math.max(0, accompQty - 1);
-                          onQuantityChange(opt.id, newQty);
-                          const newPersons = [...accompanyingPersons];
-                          while (newPersons.length > newQty) newPersons.pop();
-                          onAccompanyingChange(newPersons);
-                        }}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                <div className="flex items-start gap-3 min-w-0">
+                  {!isSoldOut && (
+                    <span
+                      className={`mt-1 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border transition ${
+                        selected ? 'border-gold' : 'border-slate-300'
+                      }`}
+                    >
+                      {selected && <span className="h-2 w-2 rounded-full bg-gold" />}
+                    </span>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    {/* Header */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <p className="text-sm font-semibold text-ink">{opt.nameEn}</p>
+                        {isSoldOut && (
+                          <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-red-500 animate-pulse">
+                            Sold Out
+                          </span>
+                        )}
+                        {waitlisted && (
+                          <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-600">
+                            Waitlisted (0 KRW)
+                          </span>
+                        )}
+                      </div>
+                      <p
+                        className={`flex-shrink-0 text-sm font-semibold ${
+                          selected ? 'text-gold' : 'text-ink-muted'
+                        }`}
                       >
-                        -
-                      </button>
-                      <span className="text-sm font-semibold text-ink w-8 text-center">{accompQty}</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const newQty = accompQty + 1;
-                          onQuantityChange(opt.id, newQty);
-                          const newPersons = [...accompanyingPersons];
-                          while (newPersons.length < newQty) {
-                            newPersons.push({ firstName: '', lastName: '' });
-                          }
-                          onAccompanyingChange(newPersons);
-                        }}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
-                      >
-                        +
-                      </button>
+                        {waitlisted ? '0 KRW' : opt.isFree ? 'Free' : formatKRW(opt.price)}
+                      </p>
                     </div>
-                  </div>
 
-                  {accompQty > 0 && (
-                    <div className="space-y-3">
-                      <p className="text-xs font-semibold text-ink-muted">Accompanying Person Names</p>
-                      {Array.from({ length: accompQty }).map((_, idx) => {
-                        const person = accompanyingPersons[idx] || { firstName: '', lastName: '' };
-                        return (
-                          <div key={idx} className="flex gap-2">
-                            <input
-                              type="text"
-                              required
-                              value={person.firstName}
-                              onChange={(e) => {
-                                const updated = [...accompanyingPersons];
-                                if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
-                                updated[idx].firstName = e.target.value;
-                                onAccompanyingChange(updated);
-                              }}
-                              className="input-base flex-1"
-                              placeholder={`First Name #${idx + 1}`}
-                            />
-                            <input
-                              type="text"
-                              required
-                              value={person.lastName}
-                              onChange={(e) => {
-                                const updated = [...accompanyingPersons];
-                                if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
-                                updated[idx].lastName = e.target.value;
-                                onAccompanyingChange(updated);
-                              }}
-                              className="input-base flex-1"
-                              placeholder={`Last Name #${idx + 1}`}
-                            />
-                          </div>
-                        );
-                      })}
-                      {accompanyingNameMissing && (
-                        <p className="text-[11px] text-red-500">
-                          Please enter first and last names for all accompanying persons.
-                        </p>
+                    <div className="mt-4 space-y-4">
+                      <div className="flex items-center gap-3">
+                        <label className="text-xs font-semibold text-ink-muted">Quantity</label>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newQty = Math.max(0, accompQty - 1);
+                              onQuantityChange(opt.id, newQty);
+                              const newPersons = [...accompanyingPersons];
+                              while (newPersons.length > newQty) newPersons.pop();
+                              onAccompanyingChange(newPersons);
+                            }}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                          >
+                            -
+                          </button>
+                          <span className="text-sm font-semibold text-ink w-8 text-center">{accompQty}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newQty = accompQty + 1;
+                              onQuantityChange(opt.id, newQty);
+                              const newPersons = [...accompanyingPersons];
+                              while (newPersons.length < newQty) {
+                                newPersons.push({ firstName: '', lastName: '' });
+                              }
+                              onAccompanyingChange(newPersons);
+                            }}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {accompQty > 0 && (
+                        <div className="space-y-3">
+                          <p className="text-xs font-semibold text-ink-muted">Accompanying Person Names</p>
+                          {Array.from({ length: accompQty }).map((_, idx) => {
+                            const person = accompanyingPersons[idx] || { firstName: '', lastName: '' };
+                            return (
+                              <div key={idx} className="flex gap-2">
+                                <input
+                                  type="text"
+                                  required
+                                  value={person.firstName}
+                                  onChange={(e) => {
+                                    const updated = [...accompanyingPersons];
+                                    if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
+                                    updated[idx].firstName = e.target.value;
+                                    onAccompanyingChange(updated);
+                                  }}
+                                  className="input-base flex-1"
+                                  placeholder={`First Name #${idx + 1}`}
+                                />
+                                <input
+                                  type="text"
+                                  required
+                                  value={person.lastName}
+                                  onChange={(e) => {
+                                    const updated = [...accompanyingPersons];
+                                    if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
+                                    updated[idx].lastName = e.target.value;
+                                    onAccompanyingChange(updated);
+                                  }}
+                                  className="input-base flex-1"
+                                  placeholder={`Last Name #${idx + 1}`}
+                                />
+                              </div>
+                            );
+                          })}
+                          {accompanyingNameMissing && (
+                            <p className="text-[11px] text-red-500">
+                              Please enter first and last names for all accompanying persons.
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             );

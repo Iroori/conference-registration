@@ -313,19 +313,10 @@ export const Step3Payment = ({
                   </div>
 
                   <div>
-                    <p className="font-bold text-ink mb-1">Refund Processing</p>
+                    <p className="font-bold text-ink mb-1">Insurance</p>
                     <ul className="list-disc pl-4 space-y-1.5 text-ink-muted">
                       <li>
-                        <span className="font-medium text-ink">Confirmation:</span> Upon receiving your cancellation request, the Secretariat will send a confirmation email detailing your cancellation status and the expected refund amount.
-                      </li>
-                      <li>
-                        <span className="font-medium text-ink">Processing Timeline:</span> To ensure accuracy, all approved refunds will be processed in a single batch within 30 to 60 days after the official conclusion of the IABSE Congress Incheon 2026.
-                      </li>
-                      <li>
-                        <span className="font-medium text-ink">Deductions:</span> Please be aware that any bank transfer charges, credit card processing fees, or currency exchange differences incurred during the transaction will be strictly deducted from the final refund amount.
-                      </li>
-                      <li>
-                        <span className="font-medium text-ink">Payment Method:</span> Refunds will be issued using the same payment method originally used during the registration process. If the original payment method is unavailable, alternative arrangements will be coordinated via email.
+                        Participants are highly advised to arrange their own personal travel and health insurance. Neither the Organizers nor the Congress Secretariat will assume any responsibility whatsoever for non-refundable payments in the event of cancellation prior to arrival, or for any damage or injury to persons or property during the Congress.
                       </li>
                     </ul>
                   </div>
