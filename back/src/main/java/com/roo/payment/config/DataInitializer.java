@@ -159,7 +159,7 @@ public class DataInitializer implements ApplicationRunner {
                         "OPT-WELCOME", OptionCategory.PROGRAM,
                         "환영 리셉션", "Welcome Reception",
                         "I would like to attend the Welcome reception at the Congress Venue",
-                        0L, true, false, false, null, null),
+                        0L, true, false, false, null, 600),
                 new ConferenceOption(
                         "OPT-YE-PROGRAM", OptionCategory.PROGRAM,
                         "Young Engineer 프로그램", "Young Engineers Programme",
@@ -175,11 +175,6 @@ public class DataInitializer implements ApplicationRunner {
                         "갈라 디너", "Gala Dinner",
                         "I would like to attend the Gala dinner at the Gyeongwonjae",
                         250_000L, false, false, false, null, 200),
-                new ConferenceOption(
-                        "OPT-GALA-DINNER-YE", OptionCategory.PROGRAM,
-                        "갈라 디너 (Young Engineer)", "Gala Dinner (Young Engineer)",
-                        "I would like to attend the Gala dinner at the Gyeongwonjae",
-                        0L, true, false, false, MemberType.YOUNG_ENGINEER, 80),
                 new ConferenceOption(
                         "OPT-TECH-TOUR-1", OptionCategory.PROGRAM,
                         "기술 투어 I", "Technical Tour I — Cheongna Sky Bridge",

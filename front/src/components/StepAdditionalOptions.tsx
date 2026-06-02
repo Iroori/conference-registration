@@ -105,15 +105,13 @@ export const StepAdditionalOptions = ({
   // Additional options WITHOUT technical tours (technical tours are on a separate step)
   const programOptions: ConferenceOption[] = useMemo(() => {
     if (!options) return [];
-    const hiddenIds =
-      memberType === 'YOUNG_ENGINEER' ? new Set(['OPT-GALA-DINNER']) : new Set<string>();
     // Exclude technical tours from programOptionIds
     const tourSet = new Set<string>(['OPT-TECH-TOUR-1', 'OPT-TECH-TOUR-2', 'OPT-TECH-TOUR-3']);
     return programOptionIds(selectedTier)
-      .filter((id) => !hiddenIds.has(id) && !tourSet.has(id))
+      .filter((id) => !tourSet.has(id))
       .map((id) => options.find((o) => o.id === id))
       .filter((o): o is ConferenceOption => o !== undefined);
-  }, [options, selectedTier, memberType]);
+  }, [options, selectedTier]);
 
   const isSelected = (id: string) => (quantities[id] ?? 0) > 0;
   const isWaitlisted = (id: string) => waitlistedOptionIds.includes(id);
@@ -335,7 +333,7 @@ export const StepAdditionalOptions = ({
             }
 
             // 3. Gala Dinner Section
-            if (opt.id === 'OPT-GALA-DINNER' || opt.id === 'OPT-GALA-DINNER-YE') {
+            if (opt.id === 'OPT-GALA-DINNER') {
               const qty = quantities[opt.id] ?? 0;
               const notAttending = qty === 0;
               const active = qty > 0;
@@ -364,10 +362,10 @@ export const StepAdditionalOptions = ({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-sm font-bold text-ink">
-                          Gala dinner on 17<sup>th</sup> September {opt.id === 'OPT-GALA-DINNER-YE' ? '(Free for Young Engineer)' : '(250,000 KRW)'}
+                          Gala dinner on 17<sup>th</sup> September (250,000 KRW)
                         </p>
                         <p className="text-xs font-semibold text-ink-muted">
-                          {opt.id === 'OPT-GALA-DINNER-YE' ? 'Free' : formatKRW(opt.price)}
+                          {formatKRW(opt.price)}
                         </p>
                       </div>
 

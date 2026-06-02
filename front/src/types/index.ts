@@ -53,6 +53,15 @@ export interface AuthUser {
   dietaryNote?: string | null;
   admin: boolean;
   paperInfo?: string;
+  billingUniversity?: string | null;
+  billingVat?: string | null;
+  billingPoNumber?: string | null;
+  billingStreet?: string | null;
+  billingAdditionalInfo?: string | null;
+  billingPoBox?: string | null;
+  billingPostcode?: string | null;
+  billingCity?: string | null;
+  billingCountry?: string | null;
 }
 
 export interface IasbseCheckResponse {
@@ -239,7 +248,6 @@ export const programOptionIds = (
   'OPT-YE-PROGRAM',
   'OPT-PECHAKUCHA',
   'OPT-GALA-DINNER',
-  'OPT-GALA-DINNER-YE',
   ...TECH_TOUR_OPTION_IDS,
   accompanyingOptionId(tier),
 ];
@@ -361,4 +369,13 @@ export interface UpdateProfileRequest {
   country: string;
   position: string;
   phone: string;
+  billingUniversity: string;
+  billingVat: string;
+  billingPoNumber: string;
+  billingStreet: string;
+  billingAdditionalInfo: string;
+  billingPoBox: string;
+  billingPostcode: string;
+  billingCity: string;
+  billingCountry: string;
 }

@@ -21,7 +21,17 @@ public record AuthResponse(
         DietaryRequirement dietaryRequirement,
         String dietaryNote,
         boolean admin,
-        String paperInfo
+        String paperInfo,
+
+        String billingUniversity,
+        String billingVat,
+        String billingPoNumber,
+        String billingStreet,
+        String billingAdditionalInfo,
+        String billingPoBox,
+        String billingPostcode,
+        String billingCity,
+        String billingCountry
 ) {
     public static AuthResponse of(String accessToken, String refreshToken, User user) {
         return new AuthResponse(
@@ -41,7 +51,17 @@ public record AuthResponse(
                 user.getDietaryRequirement(),
                 user.getDietaryNote(),
                 user.isAdmin(),
-                user.getPaperInfo()
+                user.getPaperInfo(),
+
+                user.getBillingUniversity(),
+                user.getBillingVat(),
+                user.getBillingPoNumber(),
+                user.getBillingStreet(),
+                user.getBillingAdditionalInfo(),
+                user.getBillingPoBox(),
+                user.getBillingPostcode(),
+                user.getBillingCity(),
+                user.getBillingCountry()
         );
     }
 }

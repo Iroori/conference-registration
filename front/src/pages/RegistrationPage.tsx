@@ -408,13 +408,33 @@ export const MyProfileTab = () => {
   const [position, setPosition] = useState(user?.position || 'Mr.');
   const [phone, setPhone] = useState(user?.phone || '');
 
+  const [billingUniversity, setBillingUniversity] = useState(user?.billingUniversity || '');
+  const [billingVat, setBillingVat] = useState(user?.billingVat || '');
+  const [billingPoNumber, setBillingPoNumber] = useState(user?.billingPoNumber || '');
+  const [billingStreet, setBillingStreet] = useState(user?.billingStreet || '');
+  const [billingAdditionalInfo, setBillingAdditionalInfo] = useState(user?.billingAdditionalInfo || '');
+  const [billingPoBox, setBillingPoBox] = useState(user?.billingPoBox || '');
+  const [billingPostcode, setBillingPostcode] = useState(user?.billingPostcode || '');
+  const [billingCity, setBillingCity] = useState(user?.billingCity || '');
+  const [billingCountry, setBillingCountry] = useState(user?.billingCountry || 'South Korea');
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName.trim() || !lastName.trim() || !affiliation.trim() || !phone.trim()) {
+    if (
+      !firstName.trim() ||
+      !lastName.trim() ||
+      !affiliation.trim() ||
+      !phone.trim() ||
+      !billingUniversity.trim() ||
+      !billingStreet.trim() ||
+      !billingPostcode.trim() ||
+      !billingCity.trim() ||
+      !billingCountry.trim()
+    ) {
       setError('Please fill in all required fields.');
       return;
     }
@@ -430,6 +450,15 @@ export const MyProfileTab = () => {
         country,
         position,
         phone,
+        billingUniversity,
+        billingVat,
+        billingPoNumber,
+        billingStreet,
+        billingAdditionalInfo,
+        billingPoBox,
+        billingPostcode,
+        billingCity,
+        billingCountry,
       });
 
       login(refreshedUser);
@@ -453,7 +482,7 @@ export const MyProfileTab = () => {
 
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         <p className="text-xs text-ink-muted leading-relaxed">
-          You can edit your personal details below. Changes will immediately synchronize across your session.
+          You can edit your personal details and billing address below. Changes will immediately synchronize across your session.
         </p>
 
         {error && (
@@ -564,6 +593,124 @@ export const MyProfileTab = () => {
             placeholder="+82 10-1234-5678"
             required
           />
+        </div>
+
+        {/* ── Billing Address Section ── */}
+        <div className="border-t border-slate-200 pt-5">
+          <p className="text-lg font-bold text-slate-900 mb-2">
+            Billing Address
+          </p>
+          <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-4 mb-4">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-700">Section 2 - Billing Address</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block label-section mb-1.5">University / Organization <span className="text-red-500 font-bold">*</span></label>
+                <input
+                  type="text"
+                  value={billingUniversity}
+                  onChange={(e) => setBillingUniversity(e.target.value)}
+                  className="input-base"
+                  placeholder="University / Organization"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block label-section mb-1.5">VAT/CIF/NIF/ other ref.</label>
+                <input
+                  type="text"
+                  value={billingVat}
+                  onChange={(e) => setBillingVat(e.target.value)}
+                  className="input-base"
+                  placeholder="VAT / Tax reference number"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block label-section mb-1.5">PO number or other purchase identification</label>
+                <input
+                  type="text"
+                  value={billingPoNumber}
+                  onChange={(e) => setBillingPoNumber(e.target.value)}
+                  className="input-base"
+                  placeholder="PO number"
+                />
+              </div>
+              <div>
+                <label className="block label-section mb-1.5">Street name and number <span className="text-red-500 font-bold">*</span></label>
+                <input
+                  type="text"
+                  value={billingStreet}
+                  onChange={(e) => setBillingStreet(e.target.value)}
+                  className="input-base"
+                  placeholder="Street address"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block label-section mb-1.5">Additional address information</label>
+                <input
+                  type="text"
+                  value={billingAdditionalInfo}
+                  onChange={(e) => setBillingAdditionalInfo(e.target.value)}
+                  className="input-base"
+                  placeholder="Apt, Suite, Unit, etc."
+                />
+              </div>
+              <div>
+                <label className="block label-section mb-1.5">PO Box number</label>
+                <input
+                  type="text"
+                  value={billingPoBox}
+                  onChange={(e) => setBillingPoBox(e.target.value)}
+                  className="input-base"
+                  placeholder="PO Box number"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block label-section mb-1.5">Postcode <span className="text-red-500 font-bold">*</span></label>
+                <input
+                  type="text"
+                  value={billingPostcode}
+                  onChange={(e) => setBillingPostcode(e.target.value)}
+                  className="input-base"
+                  placeholder="Zip/Postcode"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block label-section mb-1.5">City <span className="text-red-500 font-bold">*</span></label>
+                <input
+                  type="text"
+                  value={billingCity}
+                  onChange={(e) => setBillingCity(e.target.value)}
+                  className="input-base"
+                  placeholder="City"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block label-section mb-1.5">Country <span className="text-red-500 font-bold">*</span></label>
+                <select
+                  value={billingCountry}
+                  onChange={(e) => setBillingCountry(e.target.value)}
+                  className="input-base text-slate-800"
+                  required
+                >
+                  {COUNTRIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-end pt-2">

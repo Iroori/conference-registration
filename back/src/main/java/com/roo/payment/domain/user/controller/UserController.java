@@ -53,6 +53,17 @@ public class UserController {
                 req.phone(),
                 user.getBirthDate()
         );
+        user.assignBillingAddress(
+                req.billingUniversity(),
+                req.billingVat(),
+                req.billingPoNumber(),
+                req.billingStreet(),
+                req.billingAdditionalInfo(),
+                req.billingPoBox(),
+                req.billingPostcode(),
+                req.billingCity(),
+                req.billingCountry()
+        );
 
         userRepository.save(user);
 
