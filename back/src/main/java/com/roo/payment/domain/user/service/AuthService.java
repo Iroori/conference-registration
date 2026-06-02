@@ -97,6 +97,7 @@ public class AuthService {
                 memberType,
                 Boolean.TRUE.equals(req.isPresenter())
         );
+        user.setAuthor(Boolean.TRUE.equals(req.isAuthor()));
         user.assignDietaryRequirement(req.dietaryRequirement(), req.dietaryNote());
         user.assignPaperInfo(req.paperInfo());
         user.setIabseId(req.iabseId());

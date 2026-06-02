@@ -14,6 +14,7 @@ export interface SignupRequest {
   phone: string;
   birthDate?: string | null; // ISO: "1990-03-15" (Optional in signup now)
   isPresenter?: boolean;
+  isAuthor?: boolean;
   dietaryRequirement: DietaryRequirement;
   dietaryNote?: string;
   paperInfo?: string;
@@ -46,6 +47,7 @@ export interface AuthUser {
   memberType: MemberType;
   isYoungEngineer: boolean;
   isPresenter: boolean;
+  isAuthor: boolean;
   dietaryRequirement: DietaryRequirement;
   dietaryNote?: string | null;
   admin: boolean;
@@ -114,6 +116,7 @@ export type RegistrationCategory = MemberType | 'EXHIBITOR';
 export interface RegistrationCategoryMeta {
   key: RegistrationCategory;
   label: string;
+  subLabel?: string;
   /** IABSE 회원만 선택 가능 — 로그인 유저가 IABSE 회원이 아니면 잠금 */
   iabseMemberOnly?: boolean;
   /** 전시자 추가 배지 — 별도 안내 문구 영역 확보 (문구 미정) */
@@ -122,16 +125,21 @@ export interface RegistrationCategoryMeta {
 
 /** Registration 탭에 노출되는 등록비 카테고리 (표시 순서) */
 export const REGISTRATION_CATEGORIES: RegistrationCategoryMeta[] = [
-  { key: 'MEMBER', label: 'IABSE Member', iabseMemberOnly: true },
-  { key: 'NON_MEMBER', label: 'Non-member' },
+  { key: 'MEMBER', label: 'IABSE MEMBER', iabseMemberOnly: true },
+  { key: 'NON_MEMBER', label: 'NON-IABSE MEMBER' },
   {
     key: 'NON_MEMBER_PLUS',
-    label: 'IABSE-Non Member Plus (includes 1 year IABSE membership)',
+    label: 'NON-IABSE MEMBER PLUS',
+    subLabel: 'includes 1 year IABSE membership',
   },
-  { key: 'YOUNG_ENGINEER', label: 'Young Engineer' },
+  {
+    key: 'YOUNG_ENGINEER',
+    label: 'YOUNG ENGINEER',
+    subLabel: 'Born in 1992 or later',
+  },
   {
     key: 'EXHIBITOR',
-    label: 'Additional Badge for Exhibitors',
+    label: 'ADDITIONAL BADGE FOR EXHIBITORS',
     hasReservedNote: true,
   },
 ];
@@ -328,6 +336,7 @@ export interface AdminUser {
   memberType: MemberType;
   emailVerified: boolean;
   presenter: boolean;
+  author: boolean;
   admin: boolean;
   createdAt: string; // ISO datetime
   paperInfo?: string;

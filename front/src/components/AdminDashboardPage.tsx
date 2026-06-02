@@ -341,6 +341,7 @@ export const AdminDashboardPage = () => {
                       <th className="px-4 py-3.5">Attendee Name</th>
                       <th className="px-4 py-3.5">Email</th>
                       <th className="px-4 py-3.5">Affiliation & Position</th>
+                      <th className="px-4 py-3.5 text-center">Author</th>
                       <th className="px-4 py-3.5 text-center">Presenter</th>
                       <th className="px-4 py-3.5">Paper Info</th>
                       <th className="px-4 py-3.5">Current Grade</th>
@@ -364,6 +365,15 @@ export const AdminDashboardPage = () => {
                         <td className="px-4 py-3.5">
                           <div className="font-medium text-slate-900">{u.affiliation}</div>
                           <div className="text-[10px] text-slate-500">{u.position || '-'}, {u.country}</div>
+                        </td>
+                        <td className="px-4 py-3.5 text-center">
+                          {u.author ? (
+                            <span className="inline-block bg-teal-100 border border-teal-200 text-teal-700 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                              YES
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">No</span>
+                          )}
                         </td>
                         <td className="px-4 py-3.5 text-center">
                           {u.presenter ? (

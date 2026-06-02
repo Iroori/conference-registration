@@ -63,6 +63,7 @@ export const SignupPage = () => {
     position: '',
     phone: '',
     isPresenter: false,
+    isAuthor: false,
     dietaryRequirement: 'NONE' as DietaryRequirement,
     dietaryNote: '',
     paperInfo: '',
@@ -510,10 +511,32 @@ export const SignupPage = () => {
               </div>
             </div>
 
-            {/* ── [Paper information] Section ── */}
-            <div className="border-t border-slate-200 pt-5">
-              {/* Paper Presenter */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 mb-4">
+            {/* ── Paper Author and Presenter Status Section ── */}
+            <div className="border-t border-slate-200 pt-5 space-y-4">
+              <div>
+                <p className="text-sm font-bold text-slate-850 uppercase tracking-wider mb-1">
+                  Paper Author and Presenter Status
+                </p>
+                <p className="text-[12px] text-slate-550 leading-relaxed">
+                  Please check all that apply. Leave this section blank if none apply.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                {/* Author Checkbox */}
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.isAuthor}
+                    onChange={(e) => setForm((f) => ({ ...f, isAuthor: e.target.checked }))}
+                    className="mt-0.5 h-4 w-4 rounded border-slate-355 text-gold focus:ring-gold"
+                  />
+                  <span className="text-sm font-semibold text-slate-800">
+                    I am an author or co-author of a paper at the Congress.
+                  </span>
+                </label>
+
+                {/* Presenter Checkbox */}
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -521,27 +544,14 @@ export const SignupPage = () => {
                     onChange={(e) => setForm((f) => ({ ...f, isPresenter: e.target.checked }))}
                     className="mt-0.5 h-4 w-4 rounded border-slate-355 text-gold focus:ring-gold"
                   />
-                  <div>
-                    <p className="text-sm font-semibold text-slate-850">
-                      I am presenting a paper at IABSE Congress Incheon 2026
-                    </p>
-                    <p className="text-[12px] text-slate-550 mt-0.5">
-                      Check this box if you are an author or co-author presenting a paper at the conference.
-                    </p>
-                  </div>
+                  <span className="text-sm font-semibold text-slate-800">
+                    I am the presenter of a paper at the Congress.
+                  </span>
                 </label>
               </div>
 
-              {/* Paper Information */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 mb-4 space-y-3">
-                <div>
-                  <p className="text-sm font-bold text-slate-850 uppercase tracking-wider mb-1">
-                    [Paper information] <span className="text-[11px] text-slate-500 font-normal capitalize">(Optional)</span>
-                  </p>
-                  <p className="text-[12px] text-slate-550 leading-relaxed">
-                    Full papers accepted by the Scientific Committee will be published in the IABSE Congress 2026 Proceedings, which will be made available in electronic format prior to the start of the Congress. To be included in the final congress program, each accepted full paper should be associated with a paid registration. If there is any paper associated with this registration, please enter its number or title.
-                  </p>
-                </div>
+              {/* Paper Information Input */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
                 <div>
                   <label className="block label-section text-[11px] uppercase mb-1.5 text-slate-800">
                     Please enter your paper number or title here.
@@ -551,10 +561,13 @@ export const SignupPage = () => {
                     value={form.paperInfo}
                     onChange={set('paperInfo')}
                     className="input-base"
-                    placeholder="e.g. Paper #1234 or 'A Novel Bridge Design...'"
+                    placeholder="123 or A Novel Bridge Design…"
                     maxLength={300}
                   />
                 </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                  Full papers accepted by the Scientific Committee will be published in the IABSE Congress 2026 Proceedings. If your abstract or full paper is accepted, please enter its number or title.
+                </p>
               </div>
             </div>
 

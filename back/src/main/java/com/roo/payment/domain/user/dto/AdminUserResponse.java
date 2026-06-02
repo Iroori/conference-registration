@@ -18,6 +18,7 @@ public record AdminUserResponse(
         MemberType memberType,
         boolean emailVerified,
         boolean presenter,
+        boolean author,
         boolean admin,
         LocalDateTime createdAt,
         String paperInfo
@@ -36,6 +37,7 @@ public record AdminUserResponse(
                 user.getMemberType(),
                 user.isEmailVerified(),
                 user.isPresenter(),
+                user.isAuthor(),
                 user.isAdmin(),
                 user.getCreatedAt(),
                 user.getPaperInfo()

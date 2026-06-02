@@ -74,6 +74,23 @@ export const StepRegistrationType = ({
     REGULAR:          periods?.regular          ?? { endDate: null },
   };
 
+  const [bYear, bMonth, bDay] = useMemo(() => {
+    if (!birthDate) return ['', '', ''];
+    const parts = birthDate.split('-');
+    return [parts[0] || '', parts[1] || '', parts[2] || ''];
+  }, [birthDate]);
+
+  const handleDatePartChange = (part: 'y' | 'm' | 'd', val: string) => {
+    const nextY = part === 'y' ? val : bYear;
+    const nextM = part === 'm' ? val : bMonth;
+    const nextD = part === 'd' ? val : bDay;
+    if (nextY && nextM && nextD) {
+      onBirthDateChange(`${nextY}-${nextM.padStart(2, '0')}-${nextD.padStart(2, '0')}`);
+    } else {
+      onBirthDateChange('');
+    }
+  };
+
   /** 카테고리 → 현재 티어의 옵션 price 매핑 */
   const priceByCategory = useMemo(() => {
     const map = {} as Record<RegistrationCategory, number | undefined>;
@@ -139,9 +156,6 @@ export const StepRegistrationType = ({
       {/* Left — category selection */}
       <div className="border-b border-slate-100 p-6 lg:border-b-0 lg:border-r">
         <div className="mb-5 flex flex-wrap items-center gap-2.5">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] rounded-full bg-gold-soft px-2 py-0.5 text-gold border border-gold-soft">
-            Current Period
-          </span>
           <p className="text-xs font-semibold text-ink-muted">
             Early Bird Registration Deadline: 30 June 2026
           </p>
@@ -176,21 +190,30 @@ export const StepRegistrationType = ({
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-start gap-3 min-w-0">
                       <span
-                        className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border transition ${
+                        className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border transition mt-0.5 ${
                           selected ? 'border-gold' : 'border-slate-300'
                         }`}
                         aria-hidden="true"
                       >
                         {selected && <span className="h-2 w-2 rounded-full bg-gold" />}
                       </span>
-                      <p className="text-sm font-medium text-ink">{cat.label}</p>
-                      {locked && (
-                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-faint">
-                          IABSE Members Only
-                        </span>
-                      )}
+                      <div className="text-left">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-bold text-ink leading-tight">{cat.label}</p>
+                          {locked && (
+                            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-ink-faint">
+                              IABSE Members Only
+                            </span>
+                          )}
+                        </div>
+                        {cat.subLabel && (
+                          <p className="text-[11px] text-slate-500 mt-1.5 normal-case font-normal leading-normal">
+                            {cat.subLabel}
+                          </p>
+                        )}
+                      </div>
                     </div>
                     <p
                       className={`flex-shrink-0 text-sm font-semibold ${
@@ -223,17 +246,68 @@ export const StepRegistrationType = ({
 
                   {/* Young Engineer 안내 문구 및 생년월일 폼 */}
                   {selected && cat.key === 'YOUNG_ENGINEER' && (
-                    <div className="mt-3 ml-7 space-y-2" onClick={(e) => e.stopPropagation()}>
+                    <div className="mt-4 ml-7 space-y-2.5" onClick={(e) => e.stopPropagation()}>
                       <label className="block text-xs font-semibold text-ink-muted">Date of Birth *</label>
-                      <input
-                        type="date"
-                        required
-                        value={birthDate}
-                        onChange={(e) => onBirthDateChange(e.target.value)}
-                        className="input-base w-full max-w-xs"
-                      />
-                      <p className="text-[11px] text-gold mt-1">
-                        *Born in 1992 or later
+                      <div className="flex gap-2 flex-wrap">
+                        {/* Year Select */}
+                        <select
+                          value={bYear}
+                          onChange={(e) => handleDatePartChange('y', e.target.value)}
+                          className="input-base py-1.5 text-xs text-slate-800 w-28"
+                          required
+                        >
+                          <option value="">Year</option>
+                          {Array.from({ length: 2026 - 1950 + 1 }, (_, i) => 2026 - i).map((y) => (
+                            <option key={y} value={y}>{y}</option>
+                          ))}
+                        </select>
+
+                        {/* Month Select */}
+                        <select
+                          value={bMonth}
+                          onChange={(e) => handleDatePartChange('m', e.target.value)}
+                          className="input-base py-1.5 text-xs text-slate-800 w-40"
+                          required
+                        >
+                          <option value="">Month</option>
+                          {[
+                            '01 - January',
+                            '02 - February',
+                            '03 - March',
+                            '04 - April',
+                            '05 - May',
+                            '06 - June',
+                            '07 - July',
+                            '08 - August',
+                            '09 - September',
+                            '10 - October',
+                            '11 - November',
+                            '12 - December'
+                          ].map((mStr) => {
+                            const val = mStr.substring(0, 2);
+                            return (
+                              <option key={val} value={val}>
+                                {mStr}
+                              </option>
+                            );
+                          })}
+                        </select>
+
+                        {/* Day Select */}
+                        <select
+                          value={bDay}
+                          onChange={(e) => handleDatePartChange('d', e.target.value)}
+                          className="input-base py-1.5 text-xs text-slate-800 w-24"
+                          required
+                        >
+                          <option value="">Day</option>
+                          {Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0')).map((d) => (
+                            <option key={d} value={d}>{parseInt(d)}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <p className="text-[11px] text-gold mt-1 font-semibold">
+                        *Young Engineer category is eligible only for attendees born in 1992 or later.
                       </p>
                     </div>
                   )}

@@ -65,6 +65,9 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private boolean presenter = false;
 
+    @Column(nullable = false)
+    private boolean author = false;
+
     @Column(name = "paper_info", length = 300, columnDefinition = "nvarchar(300)")
     private String paperInfo;
 
@@ -176,6 +179,8 @@ public class User extends BaseEntity {
     public boolean isEmailVerified() { return emailVerified; }
     public boolean isActive() { return active; }
     public boolean isPresenter() { return presenter; }
+    public boolean isAuthor() { return author; }
+    public void setAuthor(boolean author) { this.author = author; }
     public String getPaperInfo() { return paperInfo; }
     public void assignPaperInfo(String paperInfo) { this.paperInfo = paperInfo; }
     public boolean isAdmin() { return admin; }

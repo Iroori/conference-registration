@@ -196,7 +196,7 @@ export const StepSummary = ({
         {/* Additional Programs */}
         <div className="rounded-xl border border-slate-100 bg-white p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="label-section text-sm">Additional Programs</p>
+            <p className="label-section text-sm">Social Programme</p>
             <button
               onClick={onEditAddons}
               className="text-xs font-semibold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition"

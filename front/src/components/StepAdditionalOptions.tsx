@@ -164,10 +164,8 @@ export const StepAdditionalOptions = ({
     <div className="grid grid-cols-1 gap-0 lg:grid-cols-[1fr_300px]">
       {/* Left — options list */}
       <div className="border-b border-slate-100 p-6 lg:border-b-0 lg:border-r">
-        <SectionLabel>Additional Programs (Optional)</SectionLabel>
-        <p className="text-xs text-ink-muted mb-5 leading-relaxed">
-          These programs are optional — you may continue without selecting any. All fees are shown in KRW.
-        </p>
+        <SectionLabel>Social Programme</SectionLabel>
+        <div className="mb-5" />
 
         <div className="space-y-3">
           {programOptions.map((opt) => {

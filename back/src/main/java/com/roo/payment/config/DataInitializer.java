@@ -109,12 +109,12 @@ public class DataInitializer implements ApplicationRunner {
         return List.of(
                 // ── 등록비: 얼리버드 (~6/30) ──────────────────────────────────────
                 reg("OPT-REG-PRE-MEMBER",
-                        "얼리버드 (IABSE 회원)", "Early Bird — IABSE Member", 1_250_000L),
+                        "얼리버드 (IABSE 회원)", "Early Bird — IABSE Member", 1_300_000L),
                 reg("OPT-REG-PRE-NM",
-                        "얼리버드 (비IABSE 회원)", "Early Bird — Non-IABSE Member", 1_450_000L),
+                        "얼리버드 (비IABSE 회원)", "Early Bird — Non-IABSE Member", 1_400_000L),
                 reg("OPT-REG-PRE-NMP",
                         "얼리버드 (비회원 Plus, 1년 IABSE 회원권 포함)",
-                        "Early Bird — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_550_000L),
+                        "Early Bird — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_500_000L),
                 reg("OPT-REG-PRE-YE",
                         "얼리버드 (Young Engineer)", "Early Bird — Young Engineer", 800_000L),
                 reg("OPT-REG-PRE-EXH",
@@ -123,12 +123,12 @@ public class DataInitializer implements ApplicationRunner {
 
                 // ── 등록비: 일반등록 (7/1~8/31) ──────────────────────────────────
                 reg("OPT-REG-EARLY-MEMBER",
-                        "일반등록 (IABSE 회원)", "General Registration — IABSE Member", 1_400_000L),
+                        "일반등록 (IABSE 회원)", "General Registration — IABSE Member", 1_450_000L),
                 reg("OPT-REG-EARLY-NM",
-                        "일반등록 (비IABSE 회원)", "General Registration — Non-IABSE Member", 1_600_000L),
+                        "일반등록 (비IABSE 회원)", "General Registration — Non-IABSE Member", 1_550_000L),
                 reg("OPT-REG-EARLY-NMP",
                         "일반등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
-                        "General Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_700_000L),
+                        "General Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_650_000L),
                 reg("OPT-REG-EARLY-YE",
                         "일반등록 (Young Engineer)", "General Registration — Young Engineer", 900_000L),
                 reg("OPT-REG-EARLY-EXH",
@@ -137,12 +137,12 @@ public class DataInitializer implements ApplicationRunner {
 
                 // ── 등록비: 현장등록 (9/14~) ─────────────────────────────────────
                 reg("OPT-REG-MEMBER",
-                        "현장등록 (IABSE 회원)", "On-site Registration — IABSE Member", 1_550_000L),
+                        "현장등록 (IABSE 회원)", "On-site Registration — IABSE Member", 1_600_000L),
                 reg("OPT-REG-NONMEMBER",
-                        "현장등록 (비IABSE 회원)", "On-site Registration — Non-IABSE Member", 1_750_000L),
+                        "현장등록 (비IABSE 회원)", "On-site Registration — Non-IABSE Member", 1_700_000L),
                 reg("OPT-REG-NONMEMBER-PLUS",
                         "현장등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
-                        "On-site Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_850_000L),
+                        "On-site Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_800_000L),
                 reg("OPT-REG-YE",
                         "현장등록 (Young Engineer)", "On-site Registration — Young Engineer", 1_000_000L),
                 reg("OPT-REG-EXH",

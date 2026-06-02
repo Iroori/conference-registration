@@ -35,6 +35,8 @@ public record SignupRequest(
 
         Boolean isPresenter,
 
+        Boolean isAuthor,
+
         @NotNull
         DietaryRequirement dietaryRequirement,
 
