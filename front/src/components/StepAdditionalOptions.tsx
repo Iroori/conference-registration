@@ -11,7 +11,6 @@ import type {
 } from '../types';
 import {
   programOptionIds,
-  DECLINE_LABELS,
   isAccompanyingOption,
   REGISTRATION_CATEGORIES,
   REG_TIER_CONFIG,
@@ -167,23 +166,11 @@ export const StepAdditionalOptions = ({
         <SectionLabel>Social Programme</SectionLabel>
         <div className="mb-5" />
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {programOptions.map((opt) => {
             const selected = isSelected(opt.id);
             const waitlisted = isWaitlisted(opt.id);
             const isSoldOut = opt.available === false;
-            const declineLabel = DECLINE_LABELS[opt.id];
-            const isAccomp = isAccompanyingOption(opt.id);
-            const attendLabel = opt.description || opt.nameEn;
-
-            const handleToggleCheckbox = (checked: boolean) => {
-              if (checked) {
-                onQuantityChange(opt.id, 1);
-              } else {
-                onQuantityChange(opt.id, 0);
-                onWaitlistChange(waitlistedOptionIds.filter((id) => id !== opt.id));
-              }
-            };
 
             const handleToggleWaitlist = (checked: boolean) => {
               if (checked) {
@@ -197,6 +184,217 @@ export const StepAdditionalOptions = ({
               }
             };
 
+            // 1. Welcome Reception Section
+            if (opt.id === 'OPT-WELCOME') {
+              const qty = quantities[opt.id] ?? 0;
+              const notAttending = qty === 0;
+
+              return (
+                <div
+                  key={opt.id}
+                  className={`rounded-xl border p-4 transition ${
+                    qty > 0
+                      ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
+                      : isSoldOut && !qty
+                      ? 'border-slate-100 bg-slate-50'
+                      : 'border-slate-200 bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-bold text-red-600">Welcome reception on 16<sup>th</sup> September</p>
+                    <p className="text-xs font-semibold text-ink-muted">Free</p>
+                  </div>
+
+                  {isSoldOut ? (
+                    <div className="mt-3">
+                      <p className="text-xs text-ink-muted leading-relaxed">
+                        (All spots have been filled /{' '}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleWaitlist(!waitlisted)}
+                          className="inline-flex items-center gap-1.5 font-semibold text-gold"
+                        >
+                          <span
+                            className={`inline-block h-3.5 w-3.5 rounded border transition ${
+                              waitlisted ? 'bg-gold border-gold' : 'border-slate-300 bg-white'
+                            }`}
+                          >
+                            {waitlisted && (
+                              <svg className="h-2.5 w-2.5 text-white mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </span>
+                          Please add me to the waitlist
+                        </button>
+                        )
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mt-3 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => onQuantityChange(opt.id, Math.max(0, qty - 1))}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                          >
+                            -
+                          </button>
+                          <span className="text-sm font-semibold text-ink w-8 text-center">{qty}</span>
+                          <button
+                            type="button"
+                            onClick={() => onQuantityChange(opt.id, qty + 1)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <span className="text-xs font-semibold text-slate-800 leading-relaxed">
+                          I would like to attend the Welcome reception at the Congress Venue
+                        </span>
+                      </div>
+
+                      <CheckRow
+                        checked={notAttending}
+                        label="I will not attend the Welcome reception"
+                        onToggle={() => onQuantityChange(opt.id, 0)}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            // 2. Young Engineers Programme Section (Master card)
+            if (opt.id === 'OPT-YE-PROGRAM') {
+              const checkedEvent = (quantities['OPT-YE-PROGRAM'] ?? 0) > 0;
+              const checkedPecha = (quantities['OPT-PECHAKUCHA'] ?? 0) > 0;
+
+              return (
+                <div
+                  key={opt.id}
+                  className={`rounded-xl border p-4 transition ${
+                    checkedEvent || checkedPecha
+                      ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
+                      : 'border-slate-200 bg-white'
+                  }`}
+                >
+                  <p className="text-sm font-bold text-red-600 mb-3">Young Engineers programme on 16<sup>th</sup> September</p>
+
+                  <div className="space-y-2.5">
+                    <CheckRow
+                      checked={checkedEvent}
+                      label="I will attent the Young Engineer Programme social networking event."
+                      onToggle={() => onQuantityChange('OPT-YE-PROGRAM', checkedEvent ? 0 : 1)}
+                    />
+                    <CheckRow
+                      checked={checkedPecha}
+                      label="I would like to present in the Pechakucha session."
+                      onToggle={() => onQuantityChange('OPT-PECHAKUCHA', checkedPecha ? 0 : 1)}
+                    />
+                  </div>
+
+                  <div className="mt-3.5 space-y-1 text-[11px] text-ink-faint leading-relaxed font-normal">
+                    <p>Please note that participants for the PechaKucha session will be selected through a separate process.</p>
+                    <p>Further details will be provided by email in due course.</p>
+                  </div>
+                </div>
+              );
+            }
+
+            // OPT-PECHAKUCHA is bundled inside OPT-YE-PROGRAM above
+            if (opt.id === 'OPT-PECHAKUCHA') {
+              return null;
+            }
+
+            // 3. Gala Dinner Section
+            if (opt.id === 'OPT-GALA-DINNER' || opt.id === 'OPT-GALA-DINNER-YE') {
+              const qty = quantities[opt.id] ?? 0;
+              const notAttending = qty === 0;
+
+              return (
+                <div
+                  key={opt.id}
+                  className={`rounded-xl border p-4 transition ${
+                    qty > 0
+                      ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
+                      : isSoldOut && !qty
+                      ? 'border-slate-100 bg-slate-50'
+                      : 'border-slate-200 bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-bold text-red-600">
+                      Gala dinner on 17<sup>th</sup> September {opt.id === 'OPT-GALA-DINNER-YE' ? '(Free for Young Engineer)' : '(250,000 KRW)'}
+                    </p>
+                    <p className="text-xs font-semibold text-ink-muted">
+                      {opt.id === 'OPT-GALA-DINNER-YE' ? 'Free' : formatKRW(opt.price)}
+                    </p>
+                  </div>
+
+                  {isSoldOut ? (
+                    <div className="mt-3">
+                      <p className="text-xs text-ink-muted leading-relaxed">
+                        (All spots have been filled /{' '}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleWaitlist(!waitlisted)}
+                          className="inline-flex items-center gap-1.5 font-semibold text-gold"
+                        >
+                          <span
+                            className={`inline-block h-3.5 w-3.5 rounded border transition ${
+                              waitlisted ? 'bg-gold border-gold' : 'border-slate-300 bg-white'
+                            }`}
+                          >
+                            {waitlisted && (
+                              <svg className="h-2.5 w-2.5 text-white mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </span>
+                          Please add me to the waitlist
+                        </button>
+                        )
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mt-3 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => onQuantityChange(opt.id, Math.max(0, qty - 1))}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                          >
+                            -
+                          </button>
+                          <span className="text-sm font-semibold text-ink w-8 text-center">{qty}</span>
+                          <button
+                            type="button"
+                            onClick={() => onQuantityChange(opt.id, qty + 1)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <span className="text-xs font-semibold text-slate-800 leading-relaxed">
+                          I would like to attend the Gala dinner at the Gyeongwonjae
+                        </span>
+                      </div>
+
+                      <CheckRow
+                        checked={notAttending}
+                        label="I will not attend the Gala dinner"
+                        onToggle={() => onQuantityChange(opt.id, 0)}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            // 4. Accompanying Person Option
             return (
               <div
                 key={opt.id}
@@ -232,117 +430,86 @@ export const StepAdditionalOptions = ({
                   </p>
                 </div>
 
-                {/* Accompanying Person Quantity and Name Fields */}
-                {isAccomp ? (
-                  <div className="mt-4 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <label className="text-xs font-semibold text-ink-muted">Quantity</label>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newQty = Math.max(0, accompQty - 1);
-                            onQuantityChange(opt.id, newQty);
-                            const newPersons = [...accompanyingPersons];
-                            while (newPersons.length > newQty) newPersons.pop();
-                            onAccompanyingChange(newPersons);
-                          }}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
-                        >
-                          -
-                        </button>
-                        <span className="text-sm font-semibold text-ink w-8 text-center">{accompQty}</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newQty = accompQty + 1;
-                            onQuantityChange(opt.id, newQty);
-                            const newPersons = [...accompanyingPersons];
-                            while (newPersons.length < newQty) {
-                              newPersons.push({ firstName: '', lastName: '' });
-                            }
-                            onAccompanyingChange(newPersons);
-                          }}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
-                        >
-                          +
-                        </button>
-                      </div>
+                <div className="mt-4 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <label className="text-xs font-semibold text-ink-muted">Quantity</label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newQty = Math.max(0, accompQty - 1);
+                          onQuantityChange(opt.id, newQty);
+                          const newPersons = [...accompanyingPersons];
+                          while (newPersons.length > newQty) newPersons.pop();
+                          onAccompanyingChange(newPersons);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                      >
+                        -
+                      </button>
+                      <span className="text-sm font-semibold text-ink w-8 text-center">{accompQty}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newQty = accompQty + 1;
+                          onQuantityChange(opt.id, newQty);
+                          const newPersons = [...accompanyingPersons];
+                          while (newPersons.length < newQty) {
+                            newPersons.push({ firstName: '', lastName: '' });
+                          }
+                          onAccompanyingChange(newPersons);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink hover:bg-slate-50 font-bold"
+                      >
+                        +
+                      </button>
                     </div>
+                  </div>
 
-                    {accompQty > 0 && (
-                      <div className="space-y-3">
-                        <p className="text-xs font-semibold text-ink-muted">Accompanying Person Names</p>
-                        {Array.from({ length: accompQty }).map((_, idx) => {
-                          const person = accompanyingPersons[idx] || { firstName: '', lastName: '' };
-                          return (
-                            <div key={idx} className="flex gap-2">
-                              <input
-                                type="text"
-                                required
-                                value={person.firstName}
-                                onChange={(e) => {
-                                  const updated = [...accompanyingPersons];
-                                  if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
-                                  updated[idx].firstName = e.target.value;
-                                  onAccompanyingChange(updated);
-                                }}
-                                className="input-base flex-1"
-                                placeholder={`First Name #${idx + 1}`}
-                              />
-                              <input
-                                type="text"
-                                required
-                                value={person.lastName}
-                                onChange={(e) => {
-                                  const updated = [...accompanyingPersons];
-                                  if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
-                                  updated[idx].lastName = e.target.value;
-                                  onAccompanyingChange(updated);
-                                }}
-                                className="input-base flex-1"
-                                placeholder={`Last Name #${idx + 1}`}
-                              />
-                            </div>
-                          );
-                        })}
-                        {accompanyingNameMissing && (
-                          <p className="text-[11px] text-red-500">
-                            Please enter first and last names for all accompanying persons.
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  /* Standard Options (Welcome Reception, Gala Dinner, YE Program) */
-                  <div className="mt-3 space-y-2">
-                    {isSoldOut ? (
-                      /* If sold out, show waitlist option */
-                      <CheckRow
-                        checked={waitlisted}
-                        label="All spots have been filled. Please add me to the waitlist."
-                        onToggle={() => handleToggleWaitlist(!waitlisted)}
-                      />
-                    ) : (
-                      /* If available, standard checkboxes */
-                      <>
-                        <CheckRow
-                          checked={selected}
-                          label={attendLabel}
-                          onToggle={() => handleToggleCheckbox(!selected)}
-                        />
-                        {declineLabel && (
-                          <CheckRow
-                            checked={!selected}
-                            label={declineLabel}
-                            onToggle={() => handleToggleCheckbox(false)}
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
+                  {accompQty > 0 && (
+                    <div className="space-y-3">
+                      <p className="text-xs font-semibold text-ink-muted">Accompanying Person Names</p>
+                      {Array.from({ length: accompQty }).map((_, idx) => {
+                        const person = accompanyingPersons[idx] || { firstName: '', lastName: '' };
+                        return (
+                          <div key={idx} className="flex gap-2">
+                            <input
+                              type="text"
+                              required
+                              value={person.firstName}
+                              onChange={(e) => {
+                                const updated = [...accompanyingPersons];
+                                if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
+                                updated[idx].firstName = e.target.value;
+                                onAccompanyingChange(updated);
+                              }}
+                              className="input-base flex-1"
+                              placeholder={`First Name #${idx + 1}`}
+                            />
+                            <input
+                              type="text"
+                              required
+                              value={person.lastName}
+                              onChange={(e) => {
+                                const updated = [...accompanyingPersons];
+                                if (!updated[idx]) updated[idx] = { firstName: '', lastName: '' };
+                                updated[idx].lastName = e.target.value;
+                                onAccompanyingChange(updated);
+                              }}
+                              className="input-base flex-1"
+                              placeholder={`Last Name #${idx + 1}`}
+                            />
+                          </div>
+                        );
+                      })}
+                      {accompanyingNameMissing && (
+                        <p className="text-[11px] text-red-500">
+                          Please enter first and last names for all accompanying persons.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}

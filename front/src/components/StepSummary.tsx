@@ -258,10 +258,19 @@ export const StepSummary = ({
           {selectedTour ? (
             <div className="flex items-start justify-between gap-3 text-sm">
               <div>
-                <p className="font-semibold text-ink">{selectedTour.nameEn}</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-ink">{selectedTour.nameEn}</p>
+                  {isWaitlisted(selectedTour.id) && (
+                    <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600 uppercase tracking-wider">
+                      Waitlisted
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-ink-faint mt-0.5 whitespace-pre-line">{selectedTour.description}</p>
               </div>
-              <p className="font-semibold text-ink flex-shrink-0">{formatKRW(selectedTour.price)}</p>
+              <p className="font-semibold text-ink flex-shrink-0">
+                {isWaitlisted(selectedTour.id) ? '0 KRW' : formatKRW(selectedTour.price)}
+              </p>
             </div>
           ) : (
             <p className="text-sm text-ink-faint">Not requested.</p>
@@ -318,8 +327,12 @@ export const StepSummary = ({
 
           {selectedTour && (
             <div className="flex justify-between text-sm">
-              <span className="text-ink-muted truncate pr-2">{selectedTour.nameEn}</span>
-              <span className="font-medium text-ink">{formatKRW(selectedTour.price)}</span>
+              <span className="text-ink-muted truncate pr-2 font-semibold">
+                {selectedTour.nameEn} {isWaitlisted(selectedTour.id) && ' (Waitlisted)'}
+              </span>
+              <span className="font-medium text-ink font-semibold">
+                {isWaitlisted(selectedTour.id) ? '0 KRW' : formatKRW(selectedTour.price)}
+              </span>
             </div>
           )}
 

@@ -405,6 +405,9 @@ docs/
 | 2026-05-28 | admin-user-deletion-cascading-completed.md | 관리자 페이지 가입 회원 강제 삭제 기능 추가 (결제/동반인 하드 딜리트, 프로그램 티켓 잔여 정원 자동 복원 및 토큰/이메일 인증 초기화 연쇄 처리) |
 | 2026-05-30 | signup-paper-info-and-refund-policy-wording.md | 회원가입 시 논문 번호/제목 수집 추가 및 취소정책 2항 6/30 이전 환불 안내 문구 간소화 개정 |
 | 2026-06-02 | paper-status-and-registration-ui-improvements.md | 논문 저자/발표자 체크박스 분리 수집 및 등록 요율 데이터 갱신, 대문자 카테고리/subtext 분리 및 Young Engineer 생년월일 영문 select 드롭다운 최적화, 사회 프로그램 명칭 Social Programme 변경 |
+| 2026-06-02 | paper-author-presenter-status-box-unification.md | 회원가입 페이지 "Paper Author and Presenter Status" 대제목, 체크박스, 입력창의 단일 박스 통합 및 작은 글씨 스타일링 최적화 |
+| 2026-06-02 | social-programme-options-redesign.md | 추가 프로그램(Option Step 2) 내 웰컴 리셉션, Young Engineers, 갈라 디너의 수량 조절기/거절체크박스/대기자 리디자인 및 PechaKucha 무료 옵션 추가 |
+| 2026-06-02 | payment-method-and-refund-policy-update.md | 결제 방식 선택(카드/계좌이체 라디오) 신설 및 계좌이체 시 안내 박스 팝업, 카드 결제 버튼 비활성화 차단 구현 및 환불정책 Terms 영문 텍스트 개정 |
 
 ---
 

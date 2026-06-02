@@ -22,6 +22,7 @@ interface StepTechnicalTourProps {
   quantities: Record<string, number>;
   onQuantityChange: (optionId: string, qty: number) => void;
   waitlistedOptionIds: string[];
+  onWaitlistChange: (ids: string[]) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -46,6 +47,7 @@ export const StepTechnicalTour = ({
   quantities,
   onQuantityChange,
   waitlistedOptionIds,
+  onWaitlistChange,
   onNext,
   onBack,
 }: StepTechnicalTourProps) => {
@@ -79,6 +81,8 @@ export const StepTechnicalTour = ({
     TECH_TOUR_OPTION_IDS.forEach((id) => {
       onQuantityChange(id, id === tourId ? 1 : 0);
     });
+    // Clear technical tours from waitlistedOptionIds
+    onWaitlistChange(waitlistedOptionIds.filter((id) => !(TECH_TOUR_OPTION_IDS as readonly string[]).includes(id)));
   };
 
   // Pricing calculation
@@ -86,7 +90,8 @@ export const StepTechnicalTour = ({
     return tourOptions.find((o) => o.id === activeTourId);
   }, [tourOptions, activeTourId]);
 
-  const tourPrice = selectedTourOption ? selectedTourOption.price : 0;
+  const isTourWaitlisted = selectedTourOption ? waitlistedOptionIds.includes(selectedTourOption.id) : false;
+  const tourPrice = selectedTourOption && !isTourWaitlisted ? selectedTourOption.price : 0;
 
   // Other additional programs currently checked (for sidebar subtotal)
   const additionalOptionsPrice = useMemo(() => {
@@ -160,35 +165,60 @@ export const StepTechnicalTour = ({
 
           {/* Tour options */}
           {tourOptions.map((opt) => {
+            const waitlisted = waitlistedOptionIds.includes(opt.id);
             const selected = activeTourId === opt.id;
             const isSoldOut = opt.available === false;
-            const isDisabled = isSoldOut;
+
+            const handleToggleWaitlist = (checked: boolean) => {
+              if (checked) {
+                // Reset all other tours to 0
+                TECH_TOUR_OPTION_IDS.forEach((id) => {
+                  onQuantityChange(id, id === opt.id ? 1 : 0);
+                });
+                // Add only this tour to waitlistedOptionIds, removing other tech tours
+                const filteredWaitlist = waitlistedOptionIds.filter((id) => !(TECH_TOUR_OPTION_IDS as readonly string[]).includes(id));
+                onWaitlistChange([...filteredWaitlist, opt.id]);
+              } else {
+                onQuantityChange(opt.id, 0);
+                onWaitlistChange(waitlistedOptionIds.filter((id) => id !== opt.id));
+              }
+            };
+
+            const CardElement = isSoldOut ? 'div' : 'button';
 
             return (
-              <button
+              <CardElement
                 key={opt.id}
-                type="button"
-                disabled={isDisabled}
-                onClick={() => handleSelectTour(opt.id)}
+                type={isSoldOut ? undefined : "button"}
+                onClick={isSoldOut ? undefined : () => handleSelectTour(opt.id)}
                 className={`w-full text-left rounded-xl border p-4 transition ${
                   selected
                     ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
-                    : isDisabled
-                    ? 'border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed'
-                    : 'border-slate-200 bg-white hover:border-gold/40'
+                    : isSoldOut
+                    ? 'border-slate-200 bg-slate-50/60'
+                    : 'border-slate-200 bg-white hover:border-gold/40 cursor-pointer'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0">
-                    <span
-                      className={`mt-1 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border transition ${
-                        selected ? 'border-gold' : 'border-slate-300'
-                      }`}
-                    >
-                      {selected && <span className="h-2 w-2 rounded-full bg-gold" />}
-                    </span>
+                    {!isSoldOut && (
+                      <span
+                        className={`mt-1 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border transition ${
+                          selected ? 'border-gold' : 'border-slate-300'
+                        }`}
+                      >
+                        {selected && <span className="h-2 w-2 rounded-full bg-gold" />}
+                      </span>
+                    )}
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-ink truncate">{opt.nameEn}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-ink truncate">{opt.nameEn}</p>
+                        {waitlisted && (
+                          <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600 uppercase tracking-wider">
+                            Waitlisted
+                          </span>
+                        )}
+                      </div>
                       <p className="text-[11px] text-ink-muted mt-1 leading-relaxed whitespace-pre-line">
                         {opt.description}
                       </p>
@@ -205,7 +235,30 @@ export const StepTechnicalTour = ({
                     )}
                   </div>
                 </div>
-              </button>
+
+                {isSoldOut && (
+                  <div className="mt-3 pt-3 border-t border-slate-150">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleWaitlist(!waitlisted)}
+                      className="inline-flex items-center gap-1.5 font-semibold text-gold"
+                    >
+                      <span
+                        className={`inline-block h-3.5 w-3.5 rounded border transition ${
+                          waitlisted ? 'bg-gold border-gold' : 'border-slate-300 bg-white'
+                        }`}
+                      >
+                        {waitlisted && (
+                          <svg className="h-2.5 w-2.5 text-white mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="text-xs">Please add me to the waitlist</span>
+                    </button>
+                  </div>
+                )}
+              </CardElement>
             );
           })}
         </div>
@@ -237,10 +290,14 @@ export const StepTechnicalTour = ({
         <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4">
           {selectedTourOption ? (
             <div>
-              <p className="text-sm font-semibold text-gold truncate">{selectedTourOption.nameEn}</p>
+              <p className="text-sm font-semibold text-gold truncate">
+                {isTourWaitlisted ? `[Waitlist] ` : ''}{selectedTourOption.nameEn}
+              </p>
               <div className="mt-2 flex justify-between items-baseline">
                 <span className="text-[11px] text-ink-faint">Tour fee</span>
-                <span className="text-sm font-semibold text-ink">{formatKRW(tourPrice)}</span>
+                <span className="text-sm font-semibold text-ink">
+                  {isTourWaitlisted ? '₩0 (Waitlist)' : formatKRW(tourPrice)}
+                </span>
               </div>
             </div>
           ) : (

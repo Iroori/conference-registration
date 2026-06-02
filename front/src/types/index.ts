@@ -44,6 +44,7 @@ export interface AuthUser {
   affiliation: string;
   position: string;
   country: string;
+  phone: string;
   memberType: MemberType;
   isYoungEngineer: boolean;
   isPresenter: boolean;
@@ -235,6 +236,8 @@ export const programOptionIds = (
   tier: RegistrationTierKey
 ): string[] => [
   'OPT-WELCOME',
+  'OPT-YE-PROGRAM',
+  'OPT-PECHAKUCHA',
   'OPT-GALA-DINNER',
   'OPT-GALA-DINNER-YE',
   ...TECH_TOUR_OPTION_IDS,
@@ -352,3 +355,11 @@ export interface IasbseMember {
   updatedAt: string;
 }
 
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  affiliation: string;
+  country: string;
+  position: string;
+  phone: string;
+}

@@ -119,7 +119,7 @@ export const AdminDashboardPage = () => {
   } = useQuery({
     queryKey: ['adminPayments'],
     queryFn: apiGetAdminPayments,
-    enabled: activeTab === 'PAYMENTS',
+    enabled: activeTab === 'PAYMENTS' || activeTab === 'USERS',
   });
 
   // Grade update mutation
@@ -268,6 +268,78 @@ export const AdminDashboardPage = () => {
     document.body.removeChild(link);
   };
 
+  const renderUserRegistrationAndOptions = (userEmail: string) => {
+    const userPayment = payments?.find(
+      (p) => p.email === userEmail && p.status === 'COMPLETED'
+    );
+
+    if (!userPayment) {
+      return <span className="text-slate-400 font-medium italic">Unpaid / No Registration</span>;
+    }
+
+    const regOpt = userPayment.selectedOptions.find((o) => o.category === 'REGISTRATION');
+    const programOpts = userPayment.selectedOptions.filter(
+      (o) => o.category === 'PROGRAM' && !o.id.startsWith('OPT-TECH-TOUR-') && !o.id.startsWith('OPT-ACCOMP-')
+    );
+    const tourOpt = userPayment.selectedOptions.find((o) => o.id.startsWith('OPT-TECH-TOUR-'));
+    const accompOpt = userPayment.selectedOptions.find((o) => o.id.startsWith('OPT-ACCOMP-'));
+
+    return (
+      <div className="space-y-1.5 text-[11px] leading-relaxed max-w-[240px]">
+        {/* Registration Option */}
+        {regOpt && (
+          <div>
+            <span className="font-semibold text-slate-800 bg-teal-50 border border-teal-200 text-teal-700 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wide">
+              {regOpt.nameEn}
+            </span>
+          </div>
+        )}
+
+        {/* Program Options */}
+        {programOpts.length > 0 && (
+          <div className="text-slate-650 bg-slate-50/50 rounded-lg p-1.5 border border-slate-100">
+            <span className="font-bold text-slate-500 uppercase text-[8px] tracking-wider block mb-0.5">Social Programme:</span>
+            <ul className="list-disc list-inside pl-0.5 space-y-0.5">
+              {programOpts.map((o) => (
+                <li key={o.id} className="truncate" title={o.nameEn}>
+                  {o.nameEn}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Technical Tour */}
+        {tourOpt && (
+          <div className="text-slate-650 bg-slate-50/50 rounded-lg p-1.5 border border-slate-100">
+            <span className="font-bold text-slate-500 uppercase text-[8px] tracking-wider block mb-0.5">Technical Tour:</span>
+            <span className="pl-0.5 truncate block" title={tourOpt.nameEn}>
+              {tourOpt.nameEn}
+            </span>
+          </div>
+        )}
+
+        {/* Accompanying Person */}
+        {accompOpt && userPayment.accompanyingPersons && userPayment.accompanyingPersons.length > 0 && (
+          <div className="text-slate-650 bg-slate-50/50 rounded-lg p-1.5 border border-slate-100">
+            <span className="font-bold text-slate-500 uppercase text-[8px] tracking-wider block mb-0.5">
+              Accompanying ({userPayment.accompanyingPersons.length}):
+            </span>
+            <span className="pl-0.5 truncate block" title={userPayment.accompanyingPersons.map(p => `${p.firstName} ${p.lastName}`).join(', ')}>
+              {userPayment.accompanyingPersons.map(p => `${p.firstName} ${p.lastName}`).join(', ')}
+            </span>
+          </div>
+        )}
+
+        {/* Payment Total */}
+        <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between font-bold text-teal-700">
+          <span>Gross Paid:</span>
+          <span>{formatPrice(userPayment.totalAmount)}</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
       {/* Admin Dashboard header */}
@@ -346,6 +418,7 @@ export const AdminDashboardPage = () => {
                       <th className="px-4 py-3.5">Paper Info</th>
                       <th className="px-4 py-3.5">Current Grade</th>
                       <th className="px-4 py-3.5">Manual Grade Control</th>
+                      <th className="px-4 py-3.5">Registration & Options</th>
                       <th className="px-4 py-3.5">Registered At</th>
                       <th className="px-4 py-3.5 text-center">Actions</th>
                     </tr>
@@ -412,6 +485,9 @@ export const AdminDashboardPage = () => {
                             <option value="NON_MEMBER_PLUS">NON-MEMBER PLUS</option>
                             <option value="YOUNG_ENGINEER">YOUNG ENGINEER</option>
                           </select>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          {renderUserRegistrationAndOptions(u.email)}
                         </td>
                         <td className="px-4 py-3.5 text-slate-500 font-medium">
                           {formatDate(u.createdAt)}

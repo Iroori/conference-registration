@@ -11,6 +11,7 @@ import type {
   RegistrationPeriods,
   AdminUser,
   IasbseMember,
+  UpdateProfileRequest,
 } from '../types';
 
 // ─── Password hashing ────────────────────────────────────────────────────────
@@ -141,4 +142,9 @@ export const apiUpdateOptionCapacity = async (optionId: string, maxCapacity: num
 
 export const apiDeleteUser = async (userId: number): Promise<void> => {
   await apiClient.delete(`/admin/users/${userId}`);
+};
+
+export const apiUpdateProfile = async (req: UpdateProfileRequest): Promise<AuthUser> => {
+  const res = await apiClient.put<{ data: AuthUser }>('/user/profile', req);
+  return res.data.data;
 };

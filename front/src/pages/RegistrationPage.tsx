@@ -12,6 +12,8 @@ import { Step3Payment, Step4Complete } from '../components/Step3Payment';
 import { PaymentHistoryTab } from '../components/PaymentHistory';
 import { StepProgress } from '../components/Shared';
 import { useAuth } from '../context/AuthContext';
+import { POSITION_OPTIONS, COUNTRIES } from './SignupPage';
+import { apiUpdateProfile } from '../lib/api';
 import type {
   PaymentResponse,
   RegistrationStep,
@@ -24,7 +26,7 @@ import { INVITATION_OPTION_ID, DEFAULT_SELECTED_OPTION_IDS } from '../types';
 const initialQuantities = (): Record<string, number> =>
   Object.fromEntries(DEFAULT_SELECTED_OPTION_IDS.map((id) => [id, 1]));
 
-type NavTab = 'REGISTER' | 'HISTORY' | 'ADMIN';
+type NavTab = 'REGISTER' | 'HISTORY' | 'ADMIN' | 'PROFILE';
 
 const STEP_LABELS = ['Category', 'Options', 'Tours', 'Visa', 'Hotel', 'Confirm', 'Pay'];
 
@@ -186,7 +188,7 @@ export const RegistrationPage = () => {
               </span>
             </div>
             <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-0.5">
-              {(['REGISTER', 'HISTORY', ...(user.admin ? ['ADMIN'] : [])] as NavTab[]).map((tab) => (
+              {(['REGISTER', 'HISTORY', 'PROFILE', ...(user.admin ? ['ADMIN'] : [])] as NavTab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => {
@@ -207,6 +209,8 @@ export const RegistrationPage = () => {
                     ? 'Registration'
                     : tab === 'HISTORY'
                     ? 'My Payments'
+                    : tab === 'PROFILE'
+                    ? 'My Profile'
                     : 'Admin Panel'}
                 </button>
               ))}
@@ -289,6 +293,7 @@ export const RegistrationPage = () => {
                   setAdditionalQuantities((prev) => ({ ...prev, [id]: qty }))
                 }
                 waitlistedOptionIds={waitlistedOptionIds}
+                onWaitlistChange={setWaitlistedOptionIds}
                 onNext={() => setCurrentStep('INVITATION')}
                 onBack={() => setCurrentStep('ADD_OPTIONS')}
               />
@@ -381,10 +386,196 @@ export const RegistrationPage = () => {
           <AdminDashboardPage />
         )}
 
+        {/* User Profile Self-Correction */}
+        {navTab === 'PROFILE' && (
+          <MyProfileTab />
+        )}
+
         <p className="mt-6 text-center text-[11px] tracking-wide text-ink-faint">
           iabse2026@kibse.or.kr
         </p>
       </div>
+    </div>
+  );
+};
+
+export const MyProfileTab = () => {
+  const { user, login } = useAuth();
+  const [firstName, setFirstName] = useState(user?.firstName || '');
+  const [lastName, setLastName] = useState(user?.lastName || '');
+  const [affiliation, setAffiliation] = useState(user?.affiliation || '');
+  const [country, setCountry] = useState(user?.country || 'South Korea');
+  const [position, setPosition] = useState(user?.position || 'Mr.');
+  const [phone, setPhone] = useState(user?.phone || '');
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<boolean>(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!firstName.trim() || !lastName.trim() || !affiliation.trim() || !phone.trim()) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      const refreshedUser = await apiUpdateProfile({
+        firstName,
+        lastName,
+        affiliation,
+        country,
+        position,
+        phone,
+      });
+
+      login(refreshedUser);
+      setSuccess(true);
+      alert('Profile updated successfully.');
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.response?.data?.message || 'Failed to update profile. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+      <div className="bg-navy px-6 py-3.5 flex justify-between items-center">
+        <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-white">
+          <span className="text-gold">·</span> My Profile
+        </span>
+      </div>
+
+      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <p className="text-xs text-ink-muted leading-relaxed">
+          You can edit your personal details below. Changes will immediately synchronize across your session.
+        </p>
+
+        {error && (
+          <div className="rounded-xl border border-red-100 bg-red-50 p-4 text-xs font-medium text-red-600">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="rounded-xl border border-teal-100 bg-teal-50/50 p-4 text-xs font-medium text-teal-700">
+            Your profile has been successfully updated and synchronized.
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* First Name */}
+          <div>
+            <label className="block label-section mb-1.5">
+              First Name <span className="text-red-500 font-bold">*</span>
+            </label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="input-base"
+              placeholder="First name"
+              required
+            />
+          </div>
+
+          {/* Last Name */}
+          <div>
+            <label className="block label-section mb-1.5">
+              Last Name <span className="text-red-500 font-bold">*</span>
+            </label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="input-base"
+              placeholder="Last name"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Affiliation */}
+        <div>
+          <label className="block label-section mb-1.5">
+            Affiliation <span className="text-red-500 font-bold">*</span>
+          </label>
+          <input
+            type="text"
+            value={affiliation}
+            onChange={(e) => setAffiliation(e.target.value)}
+            className="input-base"
+            placeholder="University or Organization"
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* Country */}
+          <div>
+            <label className="block label-section mb-1.5">
+              Country <span className="text-red-500 font-bold">*</span>
+            </label>
+            <select
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              className="input-base text-slate-800"
+              required
+            >
+              {COUNTRIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Position */}
+          <div>
+            <label className="block label-section mb-1.5">
+              Position / Title <span className="text-red-500 font-bold">*</span>
+            </label>
+            <select
+              value={position}
+              onChange={(e) => setPosition(e.target.value)}
+              className="input-base text-slate-800"
+              required
+            >
+              {POSITION_OPTIONS.map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label className="block label-section mb-1.5">
+            Phone <span className="text-red-500 font-bold">*</span>
+          </label>
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="input-base"
+            placeholder="+82 10-1234-5678"
+            required
+          />
+        </div>
+
+        <div className="flex justify-end pt-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="rounded-lg bg-gold hover:bg-gold-soft text-navy px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.1em] transition disabled:opacity-50"
+          >
+            {loading ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

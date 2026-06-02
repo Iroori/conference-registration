@@ -149,7 +149,6 @@ public class DataInitializer implements ApplicationRunner {
                         "현장등록 (전시자 추가 배지)",
                         "On-site Registration — Additional Badge for Exhibitors", 600_000L),
 
-                // ── 옵션비: 사회 행사 / 부대 프로그램 ────────────────────────────
                 new ConferenceOption(
                         "OPT-WELCOME", OptionCategory.PROGRAM,
                         "환영 리셉션", "Welcome Reception",
@@ -158,7 +157,12 @@ public class DataInitializer implements ApplicationRunner {
                 new ConferenceOption(
                         "OPT-YE-PROGRAM", OptionCategory.PROGRAM,
                         "Young Engineer 프로그램", "Young Engineers Programme",
-                        "I would like to attend the Young Engineer Programme",
+                        "I will attend the Young Engineer Programme social networking event.",
+                        0L, true, false, false, null, null),
+                new ConferenceOption(
+                        "OPT-PECHAKUCHA", OptionCategory.PROGRAM,
+                        "Pechakucha 세션 발표 신청", "Pechakucha Session Presentation",
+                        "I would like to present in the Pechakucha session.",
                         0L, true, false, false, null, null),
                 new ConferenceOption(
                         "OPT-GALA-DINNER", OptionCategory.PROGRAM,
@@ -169,7 +173,7 @@ public class DataInitializer implements ApplicationRunner {
                         "OPT-GALA-DINNER-YE", OptionCategory.PROGRAM,
                         "갈라 디너 (Young Engineer)", "Gala Dinner (Young Engineer)",
                         "I would like to attend the Gala dinner at the Gyeongwonjae",
-                        250_000L, false, false, false, MemberType.YOUNG_ENGINEER, 80),
+                        0L, true, false, false, MemberType.YOUNG_ENGINEER, 80),
                 new ConferenceOption(
                         "OPT-TECH-TOUR-1", OptionCategory.PROGRAM,
                         "기술 투어 I", "Technical Tour I — Cheongna Sky Bridge",

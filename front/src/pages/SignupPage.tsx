@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { apiSignup } from '../lib/api';
 import type { DietaryRequirement, SignupRequest } from '../types';
 
-const POSITION_OPTIONS = [
+export const POSITION_OPTIONS = [
   'Professor',
   'Dr.',
   'Mr.',
@@ -21,7 +21,7 @@ const DIETARY_OPTIONS: { value: DietaryRequirement; label: string }[] = [
   { value: 'OTHER', label: 'Other' },
 ];
 
-const COUNTRIES = [
+export const COUNTRIES = [
   'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Australia', 'Austria',
   'Bangladesh', 'Belgium', 'Bolivia', 'Brazil', 'Bulgaria',
   'Cambodia', 'Canada', 'Chile', 'China', 'Colombia', 'Croatia', 'Czech Republic',
@@ -393,10 +393,10 @@ export const SignupPage = () => {
               </div>
             </div>
 
-            {/* ── [Billing address] Section ── */}
+            {/* ── Billing Address Section ── */}
             <div className="border-t border-slate-200 pt-5">
               <p className="text-lg font-bold text-slate-900 mb-2">
-                [Billing address]
+                Billing Address
               </p>
               <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-4 mb-4">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-700">Section 2 - Billing Address</p>
@@ -512,62 +512,63 @@ export const SignupPage = () => {
             </div>
 
             {/* ── Paper Author and Presenter Status Section ── */}
-            <div className="border-t border-slate-200 pt-5 space-y-4">
-              <div>
-                <p className="text-sm font-bold text-slate-850 uppercase tracking-wider mb-1">
-                  Paper Author and Presenter Status
-                </p>
-                <p className="text-[12px] text-slate-550 leading-relaxed">
-                  Please check all that apply. Leave this section blank if none apply.
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-                {/* Author Checkbox */}
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.isAuthor}
-                    onChange={(e) => setForm((f) => ({ ...f, isAuthor: e.target.checked }))}
-                    className="mt-0.5 h-4 w-4 rounded border-slate-355 text-gold focus:ring-gold"
-                  />
-                  <span className="text-sm font-semibold text-slate-800">
-                    I am an author or co-author of a paper at the Congress.
-                  </span>
-                </label>
-
-                {/* Presenter Checkbox */}
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.isPresenter}
-                    onChange={(e) => setForm((f) => ({ ...f, isPresenter: e.target.checked }))}
-                    className="mt-0.5 h-4 w-4 rounded border-slate-355 text-gold focus:ring-gold"
-                  />
-                  <span className="text-sm font-semibold text-slate-800">
-                    I am the presenter of a paper at the Congress.
-                  </span>
-                </label>
-              </div>
-
-              {/* Paper Information Input */}
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+            <div className="border-t border-slate-200 pt-5">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4">
                 <div>
-                  <label className="block label-section text-[11px] uppercase mb-1.5 text-slate-800">
-                    Please enter your paper number or title here.
-                  </label>
-                  <input
-                    type="text"
-                    value={form.paperInfo}
-                    onChange={set('paperInfo')}
-                    className="input-base"
-                    placeholder="123 or A Novel Bridge Design…"
-                    maxLength={300}
-                  />
+                  <p className="text-sm font-bold text-slate-850 uppercase tracking-wider mb-1">
+                    Paper Author and Presenter Status
+                  </p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Please check all that apply. Leave this section blank if none apply.
+                  </p>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
-                  Full papers accepted by the Scientific Committee will be published in the IABSE Congress 2026 Proceedings. If your abstract or full paper is accepted, please enter its number or title.
-                </p>
+
+                <div className="space-y-2.5">
+                  {/* Author Checkbox */}
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.isAuthor}
+                      onChange={(e) => setForm((f) => ({ ...f, isAuthor: e.target.checked }))}
+                      className="mt-0.5 h-4 w-4 rounded border-slate-355 text-gold focus:ring-gold"
+                    />
+                    <span className="text-sm font-semibold text-slate-800">
+                      I am an author or co-author of a paper at the Congress.
+                    </span>
+                  </label>
+
+                  {/* Presenter Checkbox */}
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.isPresenter}
+                      onChange={(e) => setForm((f) => ({ ...f, isPresenter: e.target.checked }))}
+                      className="mt-0.5 h-4 w-4 rounded border-slate-355 text-gold focus:ring-gold"
+                    />
+                    <span className="text-sm font-semibold text-slate-800">
+                      I am the presenter of a paper at the Congress.
+                    </span>
+                  </label>
+                </div>
+
+                <div className="border-t border-slate-200/80 pt-3.5 space-y-3">
+                  <div>
+                    <label className="block label-section text-[11px] uppercase mb-1.5 text-slate-800">
+                      Please enter your paper number or title here.
+                    </label>
+                    <input
+                      type="text"
+                      value={form.paperInfo}
+                      onChange={set('paperInfo')}
+                      className="input-base"
+                      placeholder="123 or A Novel Bridge Design…"
+                      maxLength={300}
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                    Full papers accepted by the Scientific Committee will be published in the IABSE Congress 2026 Proceedings. If your abstract or full paper is accepted, please enter its number or title.
+                  </p>
+                </div>
               </div>
             </div>
 

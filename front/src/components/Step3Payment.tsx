@@ -45,6 +45,7 @@ export const Step3Payment = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pgError, setPgError] = useState<string | null>(null);
   const [policyAgreed, setPolicyAgreed] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank'>('card');
 
   const domestic = isKoreanUser(user?.country);
   const mid = domestic
@@ -185,122 +186,150 @@ export const Step3Payment = ({
             </div>
           )}
 
-          {/* Payment method info */}
-          <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4">
-            <p className="label-section text-sm mb-3">
+          {/* Payment Method Selector */}
+          <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4 space-y-3">
+            <p className="label-section text-sm mb-1">
               Payment Method
             </p>
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gold-soft">
-                <svg className="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-                  <line x1="1" y1="10" x2="23" y2="10" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-base font-semibold text-ink">Credit / Debit Card</p>
-                <p className="text-sm text-ink-faint">
-                  {domestic ? 'Domestic card payment (KRW)' : 'International card payment (KRW)'}
-                </p>
-              </div>
+            
+            <div className="space-y-2.5">
+              {/* Card option */}
+              <label className="flex items-start gap-3 cursor-pointer p-2.5 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition">
+                <input
+                  type="radio"
+                  name="paymentMethodSelector"
+                  checked={paymentMethod === 'card'}
+                  onChange={() => setPaymentMethod('card')}
+                  className="mt-1 h-4 w-4 border-slate-350 text-gold focus:ring-gold"
+                />
+                <div className="-mt-0.5">
+                  <p className="text-sm font-semibold text-ink">Credit / Debit card</p>
+                  <p className="text-xs text-ink-faint mt-0.5">
+                    {domestic ? 'Domestic card payment (KRW)' : 'International card payment (KRW)'}
+                  </p>
+                </div>
+              </label>
+
+              {/* Bank transfer option */}
+              <label className="flex items-start gap-3 cursor-pointer p-2.5 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition">
+                <input
+                  type="radio"
+                  name="paymentMethodSelector"
+                  checked={paymentMethod === 'bank'}
+                  onChange={() => setPaymentMethod('bank')}
+                  className="mt-1 h-4 w-4 border-slate-350 text-gold focus:ring-gold"
+                />
+                <div className="-mt-0.5">
+                  <p className="text-sm font-semibold text-ink">Bank transfer</p>
+                  <p className="text-xs text-ink-faint mt-0.5">
+                    Direct bank remittance via invoice details
+                  </p>
+                </div>
+              </label>
             </div>
           </div>
 
           {/* Bank transfer notice */}
-          <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <svg
-                className="h-4 w-4 flex-shrink-0 text-amber-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
-                />
-              </svg>
-              <p className="text-sm font-semibold text-amber-800">
-                Notice for Registration Payment
-              </p>
+          {paymentMethod === 'bank' && (
+            <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 p-4 animate-fadeIn">
+              <div className="flex items-center gap-2 mb-2">
+                <svg
+                  className="h-4 w-4 flex-shrink-0 text-amber-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                  />
+                </svg>
+                <p className="text-sm font-semibold text-amber-800">
+                  Notice for Registration Payment
+                </p>
+              </div>
+              <div className="space-y-2 text-xs leading-relaxed text-amber-805">
+                <p>
+                  Currently, our online registration system only accepts Credit Card payments.
+                </p>
+                <p>
+                  If you prefer to pay via Bank Transfer, please do not proceed with the online
+                  payment. Instead, kindly contact the Secretariat directly at{' '}
+                  <span className="font-bold text-amber-900">iabse2026@kibse.or.kr</span> with
+                  your registration details. We will provide you with the official invoice and
+                  bank account details required for the transfer.
+                </p>
+                <p>
+                  <span className="font-bold">Note:</span> Any bank remittance fees incurred
+                  during the wire transfer must be covered by the participant.
+                </p>
+              </div>
             </div>
-            <div className="space-y-2 text-xs leading-relaxed text-amber-800">
-              <p>
-                Currently, our online registration system only accepts Credit Card payments.
-              </p>
-              <p>
-                If you prefer to pay via Bank Transfer, please do not proceed with the online
-                payment. Instead, kindly contact the Secretariat directly at{' '}
-                <span className="font-bold text-amber-900">iabse2026@kibse.or.kr</span> with
-                your registration details. We will provide you with the official invoice and
-                bank account details required for the transfer.
-              </p>
-              <p>
-                <span className="font-bold">Note:</span> Any bank remittance fees incurred
-                during the wire transfer must be covered by the participant.
-              </p>
-            </div>
-          </div>
+          )}
 
           {/* Cancellation & Refund Policy */}
           <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4">
             <p className="label-section text-sm mb-2">Cancellation &amp; Refund Policy</p>
-            <div className="rounded-md border border-slate-100 bg-slate-50/60 p-3 text-xs leading-relaxed text-ink-muted space-y-2.5">
+            <div className="rounded-md border border-slate-100 bg-slate-50/60 p-3 text-xs leading-relaxed text-ink-muted space-y-3">
               <div>
-                <p className="font-semibold text-ink">1. How to Request a Cancellation</p>
-                <p>
-                  All cancellation requests must be submitted in writing via email to the
-                  Secretariat at iabse2026@kibse.or.kr.
-                </p>
-                <p>
-                  Please note that cancellations cannot be processed automatically through
-                  the registration website, and requests made by phone will not be accepted.
-                  The official date of your cancellation will be recorded as the date the
-                  written request is received by the Secretariat.
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold text-ink">2. General Refund Policy</p>
-                <p>
-                  Refunds will be granted based on the date of receipt of the written cancellation request. The following cancellation schedule applies:
-                </p>
-                <ul className="list-disc ml-4 space-y-1">
-                  <li>
-                    On the Early Bird Registration Deadline (30 June): A refund of the registration fee will be provided minus a standard administrative fee. Please note that all payment processing fees (bank transfer charges and credit card transaction fees) are the responsibility of the participant and will be strictly deducted from the final refund amount.
-                  </li>
-                  <li>
-                    From July 1, 2026 and No-shows: No refunds will be issued under any circumstances.
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <p className="font-semibold text-ink">3. Refund Processing</p>
-                <p>
-                  <span className="font-medium text-ink">Confirmation:</span> Upon receiving
-                  your cancellation request, the Secretariat will send a confirmation email
-                  detailing your cancellation status and the expected refund amount.
-                </p>
-                <p>
-                  <span className="font-medium text-ink">Processing Timeline:</span> To ensure
-                  accuracy, all approved refunds will be processed in a single batch within
-                  30 to 60 days after the official conclusion of the IABSE Congress Incheon
-                  2026.
-                </p>
-                <p>
-                  <span className="font-medium text-ink">Deductions:</span> Please be aware
-                  that any bank transfer charges, credit card processing fees, or currency
-                  exchange differences incurred during the transaction will be strictly
-                  deducted from the final refund amount.
-                </p>
-                <p>
-                  <span className="font-medium text-ink">Payment Method:</span> Refunds will
-                  be issued using the same payment method originally used during the
-                  registration process. If the original payment method is unavailable,
-                  alternative arrangements will be coordinated via email.
-                </p>
+                <p className="font-bold text-sm text-ink mb-1.5">Terms and Conditions</p>
+                <p className="text-ink-muted mb-2 font-medium">You have accepted below terms and conditions:</p>
+                
+                <div className="space-y-3.5 pl-0.5">
+                  <div>
+                    <p className="font-bold text-ink mb-1">Registration Terms and Conditions</p>
+                    <ul className="list-disc pl-4 space-y-1.5 text-ink-muted">
+                      <li>
+                        All registration fees are quoted and will be charged in Korean Won (KRW). Registration fees are exempt from standard administrative fees.
+                      </li>
+                      <li>
+                        Please read the letter of confirmation carefully and contact the Congress Secretariat immediately in case of any discrepancies.
+                      </li>
+                      <li>
+                        Bank charges and currency exchange fees are at the delegate's own expense. These should be factored in when transferring funds to ensure the full registration fee is received in the congress bank account.
+                      </li>
+                      <li>
+                        All payments must be made upon receipt of the invoice.
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="font-bold text-ink mb-1">Registration Cancellation Terms &amp; Conditions</p>
+                    <ul className="list-disc pl-4 space-y-1.5 text-ink-muted">
+                      <li>
+                        Notice of cancellation must be sent by email to the Congress Secretariat (iabse2026@kibse.or.kr).
+                      </li>
+                      <li>
+                        Cancellations made during the Early Bird period (until 30 June 2026) will be refunded minus a standard administrative fee. Please note that all payment processing fees (bank transfer charges and credit card transaction fees) are the responsibility of the participant and will be strictly deducted from the final refund amount.
+                      </li>
+                      <li>
+                        From July 1, 2026 and No-shows: No refunds will be issued under any circumstances.
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="font-bold text-ink mb-1">Refund Processing</p>
+                    <ul className="list-disc pl-4 space-y-1.5 text-ink-muted">
+                      <li>
+                        <span className="font-medium text-ink">Confirmation:</span> Upon receiving your cancellation request, the Secretariat will send a confirmation email detailing your cancellation status and the expected refund amount.
+                      </li>
+                      <li>
+                        <span className="font-medium text-ink">Processing Timeline:</span> To ensure accuracy, all approved refunds will be processed in a single batch within 30 to 60 days after the official conclusion of the IABSE Congress Incheon 2026.
+                      </li>
+                      <li>
+                        <span className="font-medium text-ink">Deductions:</span> Please be aware that any bank transfer charges, credit card processing fees, or currency exchange differences incurred during the transaction will be strictly deducted from the final refund amount.
+                      </li>
+                      <li>
+                        <span className="font-medium text-ink">Payment Method:</span> Refunds will be issued using the same payment method originally used during the registration process. If the original payment method is unavailable, alternative arrangements will be coordinated via email.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
             <label className="mt-3 flex items-start gap-2.5 cursor-pointer">
@@ -354,19 +383,37 @@ export const Step3Payment = ({
             )}
           </div>
 
-          {!policyAgreed && (
-            <p className="mb-2 text-center text-[11px] text-ink-faint">
-              Please agree to the Cancellation and Refund Policy to continue.
-            </p>
+          {paymentMethod === 'bank' ? (
+            /* Bank transfer disabled block */
+            <div className="space-y-2">
+              <p className="text-center text-[11px] text-amber-600 font-semibold leading-relaxed bg-amber-50 rounded-lg p-2.5 border border-amber-100">
+                Please refer to the Bank Transfer notice box on the left and contact us via email.
+              </p>
+              <button
+                disabled
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-200 py-2.5 text-sm font-semibold text-slate-400 cursor-not-allowed border border-slate-300"
+              >
+                Bank Transfer Selected
+              </button>
+            </div>
+          ) : (
+            /* Card payment block */
+            <>
+              {!policyAgreed && (
+                <p className="mb-2 text-center text-[11px] text-ink-faint">
+                  Please agree to the Cancellation and Refund Policy to continue.
+                </p>
+              )}
+              <button
+                onClick={handlePay}
+                disabled={isPending || isSubmitting || !policyAgreed}
+                className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg bg-gold py-2.5 text-sm font-semibold text-white transition hover:bg-gold-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-gold-soft disabled:text-gold"
+              >
+                {(isPending || isSubmitting) && <LoadingSpinner size="sm" />}
+                {isPending ? 'Processing…' : isSubmitting ? 'Opening payment window…' : 'Confirm & Pay'}
+              </button>
+            </>
           )}
-          <button
-            onClick={handlePay}
-            disabled={isPending || isSubmitting || !policyAgreed}
-            className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg bg-gold py-2.5 text-sm font-semibold text-white transition hover:bg-gold-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-gold-soft disabled:text-gold"
-          >
-            {(isPending || isSubmitting) && <LoadingSpinner size="sm" />}
-            {isPending ? 'Processing…' : isSubmitting ? 'Opening payment window…' : 'Confirm & Pay'}
-          </button>
           <button
             onClick={onBack}
             className="w-full rounded-lg border border-slate-200 py-2 text-sm text-ink-muted transition hover:bg-slate-50"
