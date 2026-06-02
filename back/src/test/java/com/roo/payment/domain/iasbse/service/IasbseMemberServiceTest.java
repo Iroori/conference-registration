@@ -25,9 +25,9 @@ public class IasbseMemberServiceTest {
     @BeforeEach
     public void setUp() {
         iasbseMemberRepository.deleteAll();
-        iasbseMemberRepository.save(new IasbseMember("Brindarica", "Bose", "IABSE", "Active"));
-        iasbseMemberRepository.save(new IasbseMember("Jessa Lee", "Brady", "IABSE", "Active"));
-        iasbseMemberRepository.save(new IasbseMember("Firat", "Cicek", "Stanford University", "Active"));
+        iasbseMemberRepository.save(new IasbseMember("1001", "Brindarica", "Bose"));
+        iasbseMemberRepository.save(new IasbseMember("1002", "Jessa", "Brady"));
+        iasbseMemberRepository.save(new IasbseMember("1003", "Firat", "Cicek"));
     }
 
     @Test
@@ -44,34 +44,26 @@ public class IasbseMemberServiceTest {
 
     @Test
     public void testIsIasbseMember_mismatch() {
-        boolean result = iasbseMemberService.isIasbseMember("Brindarica", "Bose", "Stanford University");
+        boolean result = iasbseMemberService.isIasbseMember("Brindarica", "NoMatch", "IABSE");
         assertThat(result).isFalse();
     }
 
     @Test
     public void testGetDistinctCompanies() {
         List<String> companies = iasbseMemberService.getDistinctCompanies();
-        assertThat(companies).hasSize(2);
-        assertThat(companies).containsExactly("IABSE", "Stanford University");
+        assertThat(companies).isEmpty();
     }
 
     @Test
     public void testIsIasbseMember_emptyCompanySeeded() {
-        // Save a member with empty company ""
-        iasbseMemberRepository.save(new IasbseMember("Ming", "Chen", "", "Active"));
-        
-        // Match when registering with a custom affiliation
+        iasbseMemberRepository.save(new IasbseMember("1004", "Ming", "Chen"));
         boolean resultCustomCompany = iasbseMemberService.isIasbseMember("Ming", "Chen", "Tsinghua University");
         assertThat(resultCustomCompany).isTrue();
-        
-        // Match when registering with no company / empty string
-        boolean resultEmptyCompany = iasbseMemberService.isIasbseMember("Ming", "Chen", "");
-        assertThat(resultEmptyCompany).isTrue();
     }
 
     @Test
     public void testImportFromLocalFile() {
-        String testExcelPath = "/Users/roor2i/Desktop/sw/conference-registration/docs/payment/2026-04-28 Members IABSE (1).xls";
+        String testExcelPath = "/Users/roor2i/Desktop/sw/conference-registration/docs/payment/2026-06-02 Members IABSE.xls";
         int imported = iasbseMemberService.importFromLocalFile(testExcelPath);
         
         System.out.println("=== TEST IMPORT DIAGNOSTICS ===");
@@ -81,11 +73,7 @@ public class IasbseMemberServiceTest {
         
         assertThat(imported).isGreaterThan(0);
         
-        // Check that some seeded data exists
-        boolean hasBose = iasbseMemberService.isIasbseMember("Brindarica", "Bose", "IABSE");
+        boolean hasBose = iasbseMemberService.isIasbseMember("AZMI", "ABDUL AZIZ", "");
         assertThat(hasBose).isTrue();
-        
-        List<String> companies = iasbseMemberService.getDistinctCompanies();
-        assertThat(companies).contains("IABSE");
     }
 }

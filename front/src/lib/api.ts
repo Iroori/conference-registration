@@ -72,6 +72,13 @@ export const apiGetIasbseCompanies = async (): Promise<string[]> => {
   return res.data.data;
 };
 
+export const apiVerifyIabseId = async (iabseId: string): Promise<boolean> => {
+  const res = await apiClient.get<{ data: boolean }>(
+    `/iasbse/verify-id?iabseId=${encodeURIComponent(iabseId)}`
+  );
+  return res.data.data;
+};
+
 // ─── Options ─────────────────────────────────────────────────────────────────
 export const apiFetchOptions = async (memberType: MemberType): Promise<ConferenceOption[]> => {
   const res = await apiClient.get<{ data: ConferenceOption[] }>(

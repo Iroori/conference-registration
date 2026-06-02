@@ -52,12 +52,18 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void seedIasbseMembersFromExcel() {
-        if (iasbseMemberRepository.count() > 0) {
+        long totalCount = iasbseMemberRepository.count();
+        long withIdCount = iasbseMemberRepository.countByIabseIdNotNull();
+        if (totalCount > 0 && withIdCount == totalCount) {
             org.slf4j.LoggerFactory.getLogger(DataInitializer.class)
-                    .info("IABSE members database already contains records. Skipping excel seeding to preserve data.");
+                    .info("IABSE members database already contains new format records. Skipping excel seeding to preserve data.");
             return;
         }
-        String defaultPath = "2026-04-28 Members IABSE (1).xls";
+        org.slf4j.LoggerFactory.getLogger(DataInitializer.class)
+                .info("IABSE members database needs update or is empty. Clearing and seeding from new excel.");
+        iasbseMemberRepository.deleteAll();
+
+        String defaultPath = "2026-06-02 Members IABSE.xls";
         int imported = iasbseMemberService.importFromResource(defaultPath);
         if (imported > 0) {
             org.slf4j.LoggerFactory.getLogger(DataInitializer.class)

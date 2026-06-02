@@ -1,7 +1,8 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useConferenceOptions, useRegistrationPeriods } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, MemberTypePill, SectionLabel, formatKRW } from './Shared';
+import { apiVerifyIabseId } from '../lib/api';
 import type {
   MemberType,
   RegistrationTierKey,
@@ -68,6 +69,9 @@ export const StepRegistrationType = ({
   const { data: periods } = useRegistrationPeriods();
   const currentTier = getCurrentTier(periods);
   const tierCfg = REG_TIER_CONFIG[currentTier];
+
+  const [isValidating, setIsValidating] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const periodByKey: Record<RegistrationTierKey, { endDate: string | null }> = {
     PRE_REGISTRATION: periods?.preRegistration ?? { endDate: null },
     EARLY_BIRD:       periods?.earlyBird        ?? { endDate: null },
@@ -102,6 +106,7 @@ export const StepRegistrationType = ({
   }, [options, tierCfg]);
 
   const isLocked = (category: RegistrationCategory) => {
+    if (category === 'MEMBER') return false;
     const meta = REGISTRATION_CATEGORIES.find((c) => c.key === category);
     return Boolean(meta?.iabseMemberOnly) && memberType !== 'MEMBER';
   };
@@ -115,7 +120,7 @@ export const StepRegistrationType = ({
   }, [options, currentTier]);
 
   const canContinue = useMemo(() => {
-    if (!selectedCategory) return false;
+    if (!selectedCategory || isValidating) return false;
     if (selectedCategory === 'MEMBER') {
       return iabseId.trim().length > 0;
     }
@@ -131,7 +136,7 @@ export const StepRegistrationType = ({
       );
     }
     return true;
-  }, [selectedCategory, iabseId, birthDate, exhibitorQuantity, exhibitorBadges]);
+  }, [selectedCategory, iabseId, birthDate, exhibitorQuantity, exhibitorBadges, isValidating]);
 
   if (isLoading) {
     return (
@@ -475,8 +480,37 @@ export const StepRegistrationType = ({
         </div>
 
         <div className="mt-auto">
-          <button onClick={onNext} disabled={!canContinue} className="btn-primary">
-            Continue to Additional Options
+          {errorMessage && (
+            <div className="mb-3 rounded-xl border border-red-100 bg-red-50 p-3 text-xs font-semibold text-red-600 animate-fadeIn">
+              {errorMessage}
+            </div>
+          )}
+          <button
+            onClick={async () => {
+              if (selectedCategory === 'MEMBER') {
+                setIsValidating(true);
+                setErrorMessage(null);
+                try {
+                  const isValid = await apiVerifyIabseId(iabseId.trim());
+                  if (!isValid) {
+                    setErrorMessage('The entered IABSE ID does not exist. Please check your ID and try again.');
+                    setIsValidating(false);
+                    return;
+                  }
+                } catch (err) {
+                  console.error(err);
+                  setErrorMessage('Failed to verify IABSE ID. Please try again.');
+                  setIsValidating(false);
+                  return;
+                }
+                setIsValidating(false);
+              }
+              onNext();
+            }}
+            disabled={!canContinue}
+            className="btn-primary flex items-center justify-center gap-2"
+          >
+            {isValidating ? 'Verifying IABSE ID...' : 'Continue to Additional Options'}
           </button>
         </div>
       </div>

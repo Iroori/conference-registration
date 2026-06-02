@@ -22,25 +22,24 @@ public class IasbseMemberService {
     }
 
     /**
-     * 이름과 소속으로 IASBSE 회원 여부 확인
+     * 이름으로 IASBSE 회원 여부 확인 (소속 정보 제외)
      */
     public boolean isIasbseMember(String firstName, String lastName, String company) {
         if (firstName == null || lastName == null) return false;
-        
-        // 1) First name + Last name + Company exact match (case-insensitive)
-        if (company != null && !company.trim().isEmpty()) {
-            boolean exactMatch = iasbseMemberRepository.existsByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndCompanyIgnoreCase(
-                    firstName.trim(), lastName.trim(), company.trim());
-            if (exactMatch) return true;
-        }
-        
-        // 2) If no exact match, check if there's a seeded member with same name but empty company ""
-        return iasbseMemberRepository.existsByFirstNameIgnoreCaseAndLastNameIgnoreCaseAndCompanyIgnoreCase(
-                firstName.trim(), lastName.trim(), "");
+        return iasbseMemberRepository.existsByFirstNameIgnoreCaseAndLastNameIgnoreCase(
+                firstName.trim(), lastName.trim());
     }
 
     public List<String> getDistinctCompanies() {
-        return iasbseMemberRepository.findDistinctCompanies();
+        return java.util.Collections.emptyList();
+    }
+
+    /**
+     * IABSE ID의 유효성 검증
+     */
+    public boolean isValidIabseId(String iabseId) {
+        if (iabseId == null || iabseId.trim().isEmpty()) return false;
+        return iasbseMemberRepository.existsByIabseIdIgnoreCase(iabseId.trim());
     }
 
     /**
@@ -63,21 +62,17 @@ public class IasbseMemberService {
                 Row row = sheet.getRow(rowIdx);
                 if (row == null) continue;
 
-                String firstName = getCellString(row, 0);
-                String lastName = getCellString(row, 1);
-                String company = getCellString(row, 2);
-                String status = getCellString(row, 6);
+                String iabseId = getCellString(row, 0);
+                String firstName = getCellString(row, 1);
+                String lastName = getCellString(row, 2);
 
-                if (firstName == null || firstName.isBlank() || 
+                if (iabseId == null || iabseId.isBlank() ||
+                    firstName == null || firstName.isBlank() || 
                     lastName == null || lastName.isBlank()) {
                     continue;
                 }
 
-                if (company == null) {
-                    company = "";
-                }
-
-                toSave.add(new IasbseMember(firstName.trim(), lastName.trim(), company.trim(), status));
+                toSave.add(new IasbseMember(iabseId.trim(), firstName.trim(), lastName.trim()));
             }
 
             if (!toSave.isEmpty()) {
@@ -112,21 +107,17 @@ public class IasbseMemberService {
                 Row row = sheet.getRow(rowIdx);
                 if (row == null) continue;
 
-                String firstName = getCellString(row, 0);
-                String lastName = getCellString(row, 1);
-                String company = getCellString(row, 2);
-                String status = getCellString(row, 6);
+                String iabseId = getCellString(row, 0);
+                String firstName = getCellString(row, 1);
+                String lastName = getCellString(row, 2);
 
-                if (firstName == null || firstName.isBlank() || 
+                if (iabseId == null || iabseId.isBlank() ||
+                    firstName == null || firstName.isBlank() || 
                     lastName == null || lastName.isBlank()) {
                     continue;
                 }
 
-                if (company == null) {
-                    company = "";
-                }
-
-                toSave.add(new IasbseMember(firstName.trim(), lastName.trim(), company.trim(), status));
+                toSave.add(new IasbseMember(iabseId.trim(), firstName.trim(), lastName.trim()));
             }
 
             if (!toSave.isEmpty()) {
@@ -143,7 +134,6 @@ public class IasbseMemberService {
 
     /**
      * 엑셀 파일로 IASBSE 회원 데이터 일괄 업로드 (Truncate and Insert)
-     * 컬럼 순서: First name | Last name | Company | Country | Fellowship | Membership level | Membership status
      */
     @Transactional
     public int importFromExcel(MultipartFile file) throws IOException {
@@ -157,21 +147,17 @@ public class IasbseMemberService {
                 Row row = sheet.getRow(rowIdx);
                 if (row == null) continue;
 
-                String firstName = getCellString(row, 0);
-                String lastName = getCellString(row, 1);
-                String company = getCellString(row, 2);
-                String status = getCellString(row, 6);
+                String iabseId = getCellString(row, 0);
+                String firstName = getCellString(row, 1);
+                String lastName = getCellString(row, 2);
 
-                if (firstName == null || firstName.isBlank() || 
+                if (iabseId == null || iabseId.isBlank() ||
+                    firstName == null || firstName.isBlank() || 
                     lastName == null || lastName.isBlank()) {
                     continue;
                 }
 
-                if (company == null) {
-                    company = "";
-                }
-
-                toSave.add(new IasbseMember(firstName.trim(), lastName.trim(), company.trim(), status));
+                toSave.add(new IasbseMember(iabseId.trim(), firstName.trim(), lastName.trim()));
             }
 
             if (!toSave.isEmpty()) {

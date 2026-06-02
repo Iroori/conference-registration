@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Table(
     name = "iasbse_members",
     indexes = {
-        @Index(name = "idx_iasbse_member_name_company", columnList = "first_name, last_name, company")
+        @Index(name = "idx_iasbse_member_iabse_id", columnList = "iabse_id")
     }
 )
 @Getter
@@ -27,26 +27,18 @@ public class IasbseMember extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "iabse_id", nullable = false, columnDefinition = "NVARCHAR(50)")
+    private String iabseId;
+
     @Column(name = "first_name", nullable = false, columnDefinition = "NVARCHAR(100)")
     private String firstName;
  
     @Column(name = "last_name", nullable = false, columnDefinition = "NVARCHAR(100)")
     private String lastName;
- 
-    @Column(name = "company", nullable = false, columnDefinition = "NVARCHAR(200)")
-    private String company;
- 
-    @Column(name = "status", columnDefinition = "NVARCHAR(50)")
-    private String status;
 
-    public IasbseMember(String firstName, String lastName, String company, String status) {
+    public IasbseMember(String iabseId, String firstName, String lastName) {
+        this.iabseId = iabseId;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.company = company;
-        this.status = status;
-    }
-
-    public void update(String status) {
-        this.status = status;
     }
 }

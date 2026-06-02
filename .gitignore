@@ -68,5 +68,7 @@ temp/
 *.xls
 *.xlsx
 *.csv
+!back/src/main/resources/*.xls
+!back/src/main/resources/*.xlsx
 docs/payment/*.xls
 docs/payment/*.xlsx

@@ -45,6 +45,15 @@ public class IasbseMemberController {
     }
 
     /**
+     * IABSE ID 유효성 확인 API (인증 불필요)
+     */
+    @GetMapping("/verify-id")
+    public ResponseEntity<ApiResponse<Boolean>> verifyIabseId(@RequestParam String iabseId) {
+        boolean isValid = iasbseMemberService.isValidIabseId(iabseId);
+        return ResponseEntity.ok(ApiResponse.ok(isValid));
+    }
+
+    /**
      * 관리자: 엑셀 파일 업로드
      */
     @PostMapping("/admin/import")

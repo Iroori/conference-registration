@@ -347,10 +347,9 @@ export interface AdminUser {
 
 export interface IasbseMember {
   id: number;
+  iabseId: string;
   firstName: string;
   lastName: string;
-  company: string;
-  status: string;
   createdAt: string;
   updatedAt: string;
 }
