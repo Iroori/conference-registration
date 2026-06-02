@@ -256,7 +256,6 @@ export const programOptionIds = (
 export const DECLINE_LABELS: Record<string, string> = {
   'OPT-WELCOME': 'I will not attend the Welcome reception',
   'OPT-GALA-DINNER': 'I will not attend the Gala dinner',
-  'OPT-GALA-DINNER-YE': 'I will not attend the Gala dinner',
 };
 
 /** Program options pre-selected by default (attendance assumed unless declined) */

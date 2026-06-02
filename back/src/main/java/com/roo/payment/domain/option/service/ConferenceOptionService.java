@@ -32,6 +32,7 @@ public class ConferenceOptionService {
     /** 관리자용 전체 옵션 조회 — 잔여 좌석 포함 */
     public List<AdminConferenceOptionResponse> getAllOptionsForAdmin() {
         return optionRepository.findAll().stream()
+                .filter(com.roo.payment.domain.option.entity.ConferenceOption::isActive)
                 .map(AdminConferenceOptionResponse::from)
                 .toList();
     }
