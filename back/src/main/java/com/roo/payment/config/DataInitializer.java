@@ -54,9 +54,10 @@ public class DataInitializer implements ApplicationRunner {
     private void seedIasbseMembersFromExcel() {
         long totalCount = iasbseMemberRepository.count();
         long withIdCount = iasbseMemberRepository.countByIabseIdNotNull();
-        if (totalCount > 0 && withIdCount == totalCount) {
+        boolean hasFellowSeeded = iasbseMemberRepository.existsByIabseIdIgnoreCase("66811267");
+        if (totalCount > 0 && withIdCount == totalCount && hasFellowSeeded) {
             org.slf4j.LoggerFactory.getLogger(DataInitializer.class)
-                    .info("IABSE members database already contains new format records. Skipping excel seeding to preserve data.");
+                    .info("IABSE members database already contains new format records including Fellow. Skipping excel seeding to preserve data.");
             return;
         }
         org.slf4j.LoggerFactory.getLogger(DataInitializer.class)
