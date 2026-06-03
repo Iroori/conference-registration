@@ -9,7 +9,6 @@ import com.roo.payment.security.JwtTokenProvider;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import com.roo.payment.common.exception.BusinessException;
@@ -36,10 +35,9 @@ public class UserController {
     @PutMapping("/profile")
     @Transactional
     public ResponseEntity<ApiResponse<AuthResponse>> updateProfile(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal String email,
             @Valid @RequestBody UpdateProfileRequest req) {
 
-        String email = userDetails.getUsername();
         User user = userRepository.findByEmailAndActiveTrue(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
@@ -68,7 +66,7 @@ public class UserController {
         userRepository.save(user);
 
         // Generate refreshed JWT Token with new details
-        String newAccessToken = jwtTokenProvider.generateToken(user.getEmail(), user.getMemberType().name());
+        String newAccessToken = jwtTokenProvider.generateToken(user.getEmail(), user.getMemberType().name(), user.isAdmin());
         AuthResponse response = AuthResponse.of(newAccessToken, "", user);
 
         return ResponseEntity.ok(ApiResponse.ok("Profile updated successfully.", response));
