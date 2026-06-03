@@ -63,7 +63,7 @@ public class IasbseMemberServiceTest {
 
     @Test
     public void testImportFromLocalFile() {
-        String testExcelPath = "/Users/roor2i/Desktop/sw/conference-registration/docs/payment/2026-06-02 Members IABSE.xls";
+        String testExcelPath = "src/main/resources/2026-06-02 Members IABSE.xls";
         int imported = iasbseMemberService.importFromLocalFile(testExcelPath);
         
         System.out.println("=== TEST IMPORT DIAGNOSTICS ===");

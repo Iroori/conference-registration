@@ -169,21 +169,8 @@ export const RegistrationPage = () => {
             <h1 className="text-base font-medium tracking-wide text-white">IABSE Congress Incheon 2026</h1>
           </div>
           <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2.5">
+            <div className="hidden sm:flex items-center">
               <span className="text-xs text-white/70">{`${user.firstName} ${user.lastName}`}</span>
-              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] ${
-                user.memberType === 'MEMBER'
-                  ? 'border-gold-soft bg-gold-soft text-gold'
-                  : 'border-white/30 bg-white/10 text-white'
-              }`}>
-                {user.memberType === 'MEMBER'
-                  ? 'MEMBER'
-                  : user.isYoungEngineer
-                    ? 'YOUNG ENGINEER'
-                    : user.memberType === 'NON_MEMBER'
-                      ? 'NON-MEMBER'
-                      : 'NON-MEMBER PLUS'}
-              </span>
             </div>
             <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-0.5">
               {(['REGISTER', 'HISTORY', 'PROFILE', ...(user.admin ? ['ADMIN'] : [])] as NavTab[]).map((tab) => (

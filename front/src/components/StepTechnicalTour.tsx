@@ -331,8 +331,7 @@ export const StepTechnicalTour = ({
               <p className="text-sm text-ink">
                 {isTourWaitlisted ? `[Waitlist] ` : ''}{selectedTourOption.nameEn}
               </p>
-              <div className="mt-2 flex justify-between items-baseline">
-                <span className="text-[11px] text-ink font-semibold">Tour fee</span>
+              <div className="mt-2 flex justify-end items-baseline">
                 <span className="text-sm font-semibold text-ink">
                   {isTourWaitlisted ? '₩0 (Waitlist)' : formatKRW(tourPrice)}
                 </span>

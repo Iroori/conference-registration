@@ -22,6 +22,8 @@ public enum ErrorCode {
 
     // IASBSE
     IASBSE_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "Email not found in IASBSE registry."),
+    IABSE_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "IABSE member not found."),
+    IABSE_ID_ALREADY_EXISTS(HttpStatus.CONFLICT, "This IABSE ID is already registered."),
 
     // Payment
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Payment history not found."),

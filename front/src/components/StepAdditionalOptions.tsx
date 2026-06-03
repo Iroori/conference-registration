@@ -302,7 +302,8 @@ export const StepAdditionalOptions = ({
                       {active && <span className="h-2 w-2 rounded-full bg-gold" />}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-ink mb-3">Young Engineer programme on 16<sup>th</sup> September</p>
+                      <p className="text-sm font-bold text-ink mb-1">Young Engineer programme on 16<sup>th</sup> September</p>
+                      <p className="text-xs font-semibold text-red-700/80 mb-3">This option is reserved for registered under the Young Engineer.</p>
 
                       <div className="space-y-2.5">
                         <CheckRow

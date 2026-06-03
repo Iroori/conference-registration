@@ -8,7 +8,7 @@ import java.io.FileInputStream;
 public class ExcelDumpTest {
     @Test
     public void dumpExcel() throws Exception {
-        File file = new File("/Users/roor2i/Desktop/sw/conference-registration/docs/payment/2026-04-28 Members IABSE (1).xls");
+        File file = new File("src/main/resources/2026-04-28 Members IABSE (1).xls");
         try (FileInputStream fis = new FileInputStream(file);
              Workbook workbook = WorkbookFactory.create(fis)) {
             Sheet sheet = workbook.getSheetAt(0);

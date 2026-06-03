@@ -2,6 +2,7 @@ package com.roo.payment.domain.user.service;
 
 import com.roo.payment.common.exception.BusinessException;
 import com.roo.payment.common.exception.ErrorCode;
+import com.roo.payment.domain.iasbse.dto.AddIasbseMemberRequest;
 import com.roo.payment.domain.iasbse.entity.IasbseMember;
 import com.roo.payment.domain.iasbse.repository.IasbseMemberRepository;
 import com.roo.payment.domain.payment.entity.Payment;
@@ -143,5 +144,30 @@ public class AdminUserService {
                 .collect(java.util.stream.Collectors.joining(", "));
         auditService.log("USER_DELETED_BY_ADMIN", userEmail, 
                 String.format("Deleted user id=%d, removed payments=[%s]", userId, deletedRegs));
+    }
+
+    /**
+     * IABSE 회원 수기 추가
+     */
+    @Transactional
+    public IasbseMember addIasbseMember(AddIasbseMemberRequest request) {
+        log.info("[ADMIN] Request to add manual IABSE member: {}", request);
+        if (iasbseMemberRepository.existsByIabseIdIgnoreCase(request.iabseId())) {
+            throw new BusinessException(ErrorCode.IABSE_ID_ALREADY_EXISTS);
+        }
+        IasbseMember member = new IasbseMember(request.iabseId(), request.firstName(), request.lastName());
+        return iasbseMemberRepository.save(member);
+    }
+
+    /**
+     * IABSE 회원 수기 삭제
+     */
+    @Transactional
+    public void deleteIasbseMember(Long id) {
+        log.info("[ADMIN] Request to delete manual IABSE member: id={}", id);
+        if (!iasbseMemberRepository.existsById(id)) {
+            throw new BusinessException(ErrorCode.IABSE_MEMBER_NOT_FOUND);
+        }
+        iasbseMemberRepository.deleteById(id);
     }
 }

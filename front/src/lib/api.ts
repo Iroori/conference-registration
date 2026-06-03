@@ -133,6 +133,19 @@ export const apiGetAdminIasbseMembers = async (search?: string): Promise<IasbseM
   return res.data.data;
 };
 
+export const apiAddAdminIasbseMember = async (req: {
+  iabseId: string;
+  firstName: string;
+  lastName: string;
+}): Promise<IasbseMember> => {
+  const res = await apiClient.post<{ data: IasbseMember }>('/admin/iasbse-members', req);
+  return res.data.data;
+};
+
+export const apiDeleteAdminIasbseMember = async (id: number): Promise<void> => {
+  await apiClient.delete(`/admin/iasbse-members/${id}`);
+};
+
 export const apiGetAdminPayments = async (): Promise<PaymentResponse[]> => {
   const res = await apiClient.get<{ data: PaymentResponse[] }>('/admin/payments');
   return res.data.data;

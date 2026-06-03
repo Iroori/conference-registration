@@ -1,6 +1,7 @@
 package com.roo.payment.domain.user.controller;
 
 import com.roo.payment.common.response.ApiResponse;
+import com.roo.payment.domain.iasbse.dto.AddIasbseMemberRequest;
 import com.roo.payment.domain.iasbse.entity.IasbseMember;
 import com.roo.payment.domain.user.dto.AdminUserResponse;
 import com.roo.payment.domain.user.dto.ChangeMemberTypeRequest;
@@ -62,5 +63,26 @@ public class AdminUserController {
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
         adminUserService.deleteUser(id);
         return ResponseEntity.ok(ApiResponse.ok("Successfully deleted user and all associated records.", null));
+    }
+
+    /**
+     * IABSE 회원 수기 추가
+     * POST /api/admin/iasbse-members
+     */
+    @PostMapping("/iasbse-members")
+    public ResponseEntity<ApiResponse<IasbseMember>> addIasbseMember(
+            @Valid @RequestBody AddIasbseMemberRequest request) {
+        IasbseMember created = adminUserService.addIasbseMember(request);
+        return ResponseEntity.ok(ApiResponse.ok("Successfully added IABSE member.", created));
+    }
+
+    /**
+     * IABSE 회원 수기 삭제
+     * DELETE /api/admin/iasbse-members/{id}
+     */
+    @DeleteMapping("/iasbse-members/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteIasbseMember(@PathVariable Long id) {
+        adminUserService.deleteIasbseMember(id);
+        return ResponseEntity.ok(ApiResponse.ok("Successfully deleted IABSE member.", null));
     }
 }

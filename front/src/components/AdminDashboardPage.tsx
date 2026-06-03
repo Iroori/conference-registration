@@ -8,6 +8,8 @@ import {
   apiGetAdminOptions,
   apiUpdateOptionCapacity,
   apiDeleteUser,
+  apiAddAdminIasbseMember,
+  apiDeleteAdminIasbseMember,
 } from '../lib/api';
 import type { MemberType } from '../types';
 
@@ -75,6 +77,10 @@ export const AdminDashboardPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedPaymentId, setExpandedPaymentId] = useState<number | null>(null);
+  const [isAddingMember, setIsAddingMember] = useState(false);
+  const [newIabseId, setNewIabseId] = useState('');
+  const [newFirstName, setNewFirstName] = useState('');
+  const [newLastName, setNewLastName] = useState('');
   
   const toggleExpandPayment = (id: number) => {
     setExpandedPaymentId((prev) => (prev === id ? null : id));
@@ -161,6 +167,55 @@ export const AdminDashboardPage = () => {
     if (window.confirm(message)) {
       deleteUserMutation.mutate(userId);
     }
+  };
+
+  // IABSE manual member mutations
+  const addIasbseMemberMutation = useMutation({
+    mutationFn: (req: { iabseId: string; firstName: string; lastName: string }) =>
+      apiAddAdminIasbseMember(req),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminIasbseMembers'] });
+      setNewIabseId('');
+      setNewFirstName('');
+      setNewLastName('');
+      setIsAddingMember(false);
+      alert('IABSE member added successfully.');
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || 'Failed to add IABSE member. Please try again.';
+      alert(msg);
+    },
+  });
+
+  const deleteIasbseMemberMutation = useMutation({
+    mutationFn: (id: number) => apiDeleteAdminIasbseMember(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminIasbseMembers'] });
+      alert('IABSE member deleted successfully.');
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || 'Failed to delete IABSE member. Please try again.';
+      alert(msg);
+    },
+  });
+
+  const handleDeleteIasbseMember = (id: number, name: string) => {
+    if (window.confirm(`Are you sure you want to permanently delete IABSE member "${name}"?`)) {
+      deleteIasbseMemberMutation.mutate(id);
+    }
+  };
+
+  const handleAddIasbseMemberSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newIabseId.trim() || !newFirstName.trim() || !newLastName.trim()) {
+      alert('Please fill in all fields.');
+      return;
+    }
+    addIasbseMemberMutation.mutate({
+      iabseId: newIabseId.trim(),
+      firstName: newFirstName.trim(),
+      lastName: newLastName.trim(),
+    });
   };
 
   const {
@@ -575,8 +630,90 @@ export const AdminDashboardPage = () => {
                     Clear Filter
                   </button>
                 )}
+                <button
+                  type="button"
+                  onClick={() => setIsAddingMember(!isAddingMember)}
+                  className={`px-3 py-2 ${
+                    isAddingMember
+                      ? 'bg-slate-700 hover:bg-slate-800 text-white'
+                      : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm hover:shadow'
+                  } font-semibold rounded-lg text-xs transition active:scale-95 flex items-center gap-1`}
+                >
+                  {isAddingMember ? 'Cancel' : '+ Add Member'}
+                </button>
               </div>
             </div>
+
+            {isAddingMember && (
+              <form
+                onSubmit={handleAddIasbseMemberSubmit}
+                className="bg-white rounded-xl border border-slate-205 p-4 shadow-sm space-y-4 animate-fadeIn"
+              >
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-indigo-650"></span>
+                    Manually Add IABSE Member
+                  </h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
+                      IABSE ID <span className="text-red-500 font-bold">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newIabseId}
+                      onChange={(e) => setNewIabseId(e.target.value)}
+                      placeholder="e.g. 66811267"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
+                      First Name <span className="text-red-500 font-bold">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newFirstName}
+                      onChange={(e) => setNewFirstName(e.target.value)}
+                      placeholder="First name"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
+                      Last Name <span className="text-red-500 font-bold">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newLastName}
+                      onChange={(e) => setNewLastName(e.target.value)}
+                      placeholder="Last name"
+                      className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingMember(false)}
+                    className="px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-650 font-semibold rounded-lg text-xs transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={addIasbseMemberMutation.isPending}
+                    className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-semibold rounded-lg text-xs shadow-sm transition"
+                  >
+                    {addIasbseMemberMutation.isPending ? 'Adding...' : 'Add Member'}
+                  </button>
+                </div>
+              </form>
+            )}
 
             {loadingIasbse && (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
@@ -605,6 +742,7 @@ export const AdminDashboardPage = () => {
                       <th className="px-4 py-3.5">IABSE ID</th>
                       <th className="px-4 py-3.5">First Name</th>
                       <th className="px-4 py-3.5">Last Name</th>
+                      <th className="px-4 py-3.5 text-center w-[100px]">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -613,6 +751,16 @@ export const AdminDashboardPage = () => {
                         <td className="px-4 py-3.5 font-mono font-bold text-gold">{m.iabseId}</td>
                         <td className="px-4 py-3.5 font-semibold text-slate-800">{m.firstName}</td>
                         <td className="px-4 py-3.5 font-semibold text-slate-800">{m.lastName}</td>
+                        <td className="px-4 py-3.5 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteIasbseMember(m.id, `${m.firstName} ${m.lastName}`)}
+                            disabled={deleteIasbseMemberMutation.isPending}
+                            className="px-2 py-1 bg-red-500 hover:bg-red-600 active:bg-red-700 disabled:bg-slate-150 disabled:text-slate-400 text-white font-semibold rounded-lg text-[10px] shadow-sm hover:shadow active:scale-95 transition-all duration-200"
+                          >
+                            Delete
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
