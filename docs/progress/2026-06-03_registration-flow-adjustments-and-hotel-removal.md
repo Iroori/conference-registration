@@ -76,6 +76,8 @@
 ### 백엔드 (Backend)
 - **인증 예외 처리 커스텀 엔트리 포인트 등록 (`SecurityConfig.java`)**:
   - `filterChain` 내에 `.exceptionHandling()` 옵션을 추가하여, 미인증 사용자(만료되거나 없는 토큰)가 인가 권한이 필요한 API에 접근해 거부당했을 때 Spring Security 기본값인 anonymous 403이 아닌 표준 규격인 `401 Unauthorized` (JSON 형식) 응답을 반환하도록 설정 완료.
+- **발송 이메일 행사명(IABSE Congress Incheon 2026) 반영 (`EmailService.java`, `SmtpEmailSender.java`, `SesEmailSender.java`)**:
+  - 이메일 인증코드 발송 및 결제 확인 알림 메일 전송 시, 메일 발송인 명칭을 `IABSE Congress Incheon 2026 Registration`으로 통일하고 이메일 제목 및 HTML 템플릿 내의 행사 표기명을 `IABSE 2026`에서 정식 명칭인 `IABSE Congress Incheon 2026`으로 변경하여 일관된 브랜딩 확보.
 
 ---
 
@@ -83,6 +85,9 @@
 
 ### Backend
 - `back/src/main/java/com/roo/payment/config/SecurityConfig.java` (수정)
+- `back/src/main/java/com/roo/payment/domain/user/service/EmailService.java` (수정)
+- `back/src/main/java/com/roo/payment/email/provider/SmtpEmailSender.java` (수정)
+- `back/src/main/java/com/roo/payment/email/provider/SesEmailSender.java` (수정)
 
 ### Frontend
 - `front/tailwind.config.js` (수정)

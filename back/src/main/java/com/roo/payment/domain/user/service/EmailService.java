@@ -137,7 +137,7 @@ public class EmailService {
             return;
         }
         sendHtmlMail(to,
-                "[IABSE 2026] Email Verification Code",
+                "[IABSE Congress Incheon 2026] Email Verification Code",
                 buildVerificationHtml(code, expMin));
     }
 
@@ -222,7 +222,7 @@ public class EmailService {
                     to, registrationNumber, String.format("%,d", totalAmount));
             return;
         }
-        sendHtmlMail(to, "[IABSE 2026] Registration Payment Confirmed",
+        sendHtmlMail(to, "[IABSE Congress Incheon 2026] Registration Payment Confirmed",
                 buildPaymentConfirmationHtml(fullName, registrationNumber, totalAmount, paidAt));
     }
 
@@ -246,7 +246,7 @@ public class EmailService {
                 <body style="font-family:'Segoe UI',sans-serif;background:#f8fafc;padding:40px 0">
                   <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
                     <div style="background:#1e293b;padding:24px 32px">
-                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">IABSE 2026</p>
+                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">IABSE Congress Incheon 2026</p>
                       <h1 style="color:#fff;font-size:20px;margin:4px 0 0">Email Verification</h1>
                     </div>
                     <div style="padding:32px">
@@ -268,7 +268,7 @@ public class EmailService {
                 <body style="font-family:'Segoe UI',sans-serif;background:#f8fafc;padding:40px 0">
                   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
                     <div style="background:#1e293b;padding:24px 32px">
-                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">IABSE 2026</p>
+                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">IABSE Congress Incheon 2026</p>
                       <h1 style="color:#fff;font-size:20px;margin:4px 0 0">Payment Confirmed</h1>
                     </div>
                     <div style="padding:32px">

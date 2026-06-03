@@ -40,7 +40,7 @@ public class SmtpEmailSender implements EmailSender {
         try {
             MimeMessage mime = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mime, true, "UTF-8");
-            helper.setFrom(new InternetAddress(fromAddress, "IABSE 2026 Registration", "UTF-8"));
+            helper.setFrom(new InternetAddress(fromAddress, "IABSE Congress Incheon 2026 Registration", "UTF-8"));
             helper.setTo(message.to());
             helper.setSubject(message.subject());
             helper.setText(message.body(), message.html());
