@@ -60,7 +60,7 @@
   }
 
   .amount-total {
-    @apply text-[24px] font-bold text-gold;
+    @apply text-[24px] font-bold text-ink;
   }
 }
 

@@ -110,7 +110,7 @@ export const StepInvitationLetter = ({
               <svg className="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
               </svg>
-              <p className="text-sm font-semibold text-gold">Invitation Letter Requested</p>
+              <p className="text-sm font-semibold text-ink">Invitation Letter Requested</p>
             </div>
             <p className="text-xs text-ink-faint">
               Will be sent to your email within 5 business days of payment confirmation.

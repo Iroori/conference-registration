@@ -578,12 +578,12 @@ export const StepAdditionalOptions = ({
         <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4">
           {categoryLabel ? (
             <div>
-              <p className="text-sm font-semibold text-gold">{categoryLabel}</p>
+              <p className="text-sm font-semibold text-ink">{categoryLabel}</p>
               <p className="text-xs text-ink-faint mt-0.5">
                 {tierCfg.label} · Deadline {deadlineLabel(periods, selectedTier)}
               </p>
               <div className="mt-2 flex justify-between items-baseline">
-                <span className="text-[11px] text-ink-faint">Registration fee</span>
+                <span className="text-[11px] text-ink font-semibold">Registration fee</span>
                 <span className="text-sm font-semibold text-ink">{formatKRW(registrationPrice)}</span>
               </div>
             </div>
@@ -623,7 +623,7 @@ export const StepAdditionalOptions = ({
               </div>
             )}
             <div className="border-t border-gold-soft pt-2 flex justify-between items-baseline">
-              <span className="text-[11px] text-ink-faint">Programs subtotal</span>
+              <span className="text-[11px] text-ink font-semibold">Programs subtotal</span>
               <span className="text-sm font-semibold text-ink">{formatKRW(subtotal)}</span>
             </div>
           </div>

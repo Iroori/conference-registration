@@ -463,7 +463,7 @@ export const StepRegistrationType = ({
           <p className="label-section mb-2">Selected Category</p>
           {selectedCategory ? (
             <div>
-              <p className="text-sm font-semibold text-gold">
+              <p className="text-sm font-semibold text-ink">
                 {REGISTRATION_CATEGORIES.find((c) => c.key === selectedCategory)?.label}
               </p>
               <p className="text-xs text-ink-faint mt-0.5">

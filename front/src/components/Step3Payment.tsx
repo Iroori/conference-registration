@@ -321,6 +321,34 @@ export const Step3Payment = ({
                       </li>
                     </ul>
                   </div>
+
+                  <div className="mt-3.5 border-t border-slate-100 pt-3.5">
+                    <p className="font-bold text-ink mb-1.5">Disclaimer</p>
+                    <div className="space-y-2 text-ink-muted">
+                      <p>
+                        (1) The IABSE Congress Incheon 2026 Secretariat reserves the right to cancel, postpone, modify the schedule, or change the venue of the Congress without prior notice due to force majeure, including but not limited to natural disasters, pandemics (such as COVID-19), government restrictions, or other unforeseen circumstances.
+                      </p>
+                      <p>
+                        (2) If such an event occurs before the Congress begins, the Secretariat will refund any received registration fees, minus applicable costs. If electronic proceedings are being prepared for registered participants at the time of cancellation, refunds will be issued minus the costs of production, packaging, and shipping.
+                      </p>
+                      <p>
+                        (3) The IABSE Congress Incheon 2026 Secretariat is not responsible for any additional expenses incurred by participants, such as airfare, accommodation, or other costs. These remain the responsibility of the participant and their respective service providers.
+                      </p>
+                      <div>
+                        <p>(4) If a force majeure event occurs:</p>
+                        <ul className="list-disc pl-4 mt-1 space-y-1">
+                          <li>During the Congress: No refunds will be issued.</li>
+                          <li>Before the Congress, preventing it from taking place: Registration fees will be refunded in principle. However, if a postponement, schedule modification, or venue change prevents a participant from attending, they may request a refund.</li>
+                        </ul>
+                      </div>
+                      <p>
+                        (5) If cancellation is due to COVID-19-related travel bans (or flu or other contagious illnesses) or quarantine requirements, the Secretariat will assess refund requests on a case-by-case basis, considering official regulations in effect at the time.
+                      </p>
+                      <p>
+                        (6) The IABSE Congress Incheon 2026 Secretariat is not liable for damages or compensation beyond the registration fee refund outlined in point (2).
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

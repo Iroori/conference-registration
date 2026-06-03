@@ -23,6 +23,10 @@
    - 최종 등록 확인 단계에서 불필요해진 'Member Type' 항목 표시를 제외하여 UI를 더 정돈되게 개편.
 10. **Payment Breakdown 내 Technical Tour 폰트 스타일 일관성 수정**
     - 최종 확인 화면의 우측 금액 상세 명세(Payment Breakdown)에서 기술 투어(Technical Tour) 항목만 굵은 글씨(`font-semibold`)로 튀게 출력되던 현상을 수정하여 다른 항목(등록비, 소셜 프로그램 등)들과 동일하게 일반 글씨체 두께로 통일.
+11. **우측 사이드바 요약 정보 텍스트 색상 통일 (골드 -> 검은색)**
+    - 우측 사이드바 요약 정보 패널에서 선택된 요율 명칭, 선택된 투어 명칭, 최종 합계 금액(`.amount-total`)의 색상을 기존의 골드 색상(`text-gold`)에서 테마의 대표 검은색(`text-ink`)으로 일괄 변경하여 가독성 강화.
+12. **우측 사이드바 내 선택한 항목별 중간 합계/요율 라벨 검은색 및 굵은 글씨 변경**
+    - 우측 사이드바 내 `Registration fee`, `Programs subtotal`, `Tour fee` 등의 중간 요율 및 소계 라벨들의 색상을 기존의 회색 계열(`text-ink-faint`)에서 뚜렷한 굵은 검은색(`text-ink font-semibold`)으로 변경하여 선택 내역 가독성 강화.
 
 ---
 
@@ -47,8 +51,9 @@
   - `STEP_INDEX` 객체와 `RegistrationStep` 타입 유니온에서 `'ADDITIONAL_INFO'`를 삭제하여 단계를 전면 정리.
   - 비자 단계(`INVITATION`)에서 다음으로 진행 시 최종 확인(`SUMMARY`) 단계로 가고, 최종 확인 단계에서 뒤로 이동 시 비자 단계로 복귀하도록 라우팅 논리 동기화.
   - 미사용 컴포넌트인 `StepAdditionalInfo.tsx` 파일 삭제 완료.
-- **취소 및 환불 규정 문구 개정 (`Step3Payment.tsx`)**:
+- **취소 및 환불 규정 문구 개정 및 Disclaimer 추가 (`Step3Payment.tsx`)**:
   - `Cancellation & Refund Policy` 렌더링 영역 내의 HTML 목록(`<li>`) 항목들의 영문 문구를 유저가 제공한 새로운 규정(Early Bird 100% 환불 및 공제 조항, 7/1~8/26 기간 30% 환불, 대리 참석 무료 변경, No-show 책임 규정, 환불 소요 기간 4주 안내 등)으로 전면 교체.
+  - Insurance 항목 아래에 불가항력(Force Majeure) 면책 조항, 항공/숙박 추가 비용 부담 및 COVID-19 관련 규정을 정의하는 **Disclaimer (1)~(6) 조항**을 새로 설계하여 추가.
 - **갈라 디너 가격 표시 복원 (`StepAdditionalOptions.tsx`)**:
   - 갈라 디너 선택 카드 헤더 우측 영역에 `{waitlisted ? '0 KRW' : formatKRW(opt.price)}`를 다시 추가하여 가격(250,000 KRW)이 보이도록 복원.
 - **기술 투어 단계 소셜 프로그램 목록 노출 (`StepTechnicalTour.tsx`)**:
@@ -57,6 +62,8 @@
   - Personal Details 내부에 표시되던 'Member Type' 항목 렌더링을 삭제하고, 이로 인해 사용되지 않게 된 `MemberTypePill` 컴포넌트 임포트 코드를 제거.
 - **등록 확인 화면 내 기술 투어 금액 명세 스타일 통일 (`StepSummary.tsx`)**:
   - Payment Breakdown의 기술 투어 항목 렌더링 코드에서 불일치를 유발하던 `font-semibold` 클래스를 제거하여 다른 요율 상세 항목들과 폰트 두께를 통일성 있게 매칭.
+- **사이드바 소계/합계 라벨 스타일 수정 (`StepAdditionalOptions.tsx`, `StepTechnicalTour.tsx`)**:
+  - `Registration fee`, `Programs subtotal`, `Tour fee` 등 요약 정보 내 주요 소계 및 합계 라벨들의 글자색을 `text-ink font-semibold`로 일괄 지정하여 진한 검은색 글씨로 시각적 일관성을 확보하고 가독성을 강화.
 
 ### 백엔드 (Backend)
 - **인증 예외 처리 커스텀 엔트리 포인트 등록 (`SecurityConfig.java`)**:

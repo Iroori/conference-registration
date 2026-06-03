@@ -283,12 +283,12 @@ export const StepTechnicalTour = ({
         <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4">
           {categoryLabel ? (
             <div>
-              <p className="text-sm font-semibold text-gold">{categoryLabel}</p>
+              <p className="text-sm font-semibold text-ink">{categoryLabel}</p>
               <p className="text-xs text-ink-faint mt-0.5">
                 {tierCfg.label} · Deadline {deadlineLabel(periods, selectedTier)}
               </p>
               <div className="mt-2 flex justify-between items-baseline">
-                <span className="text-[11px] text-ink-faint">Registration fee</span>
+                <span className="text-[11px] text-ink font-semibold">Registration fee</span>
                 <span className="text-sm font-semibold text-ink">{formatKRW(registrationPrice)}</span>
               </div>
             </div>
@@ -316,8 +316,8 @@ export const StepTechnicalTour = ({
                 );
               })}
               <div className="border-t border-slate-100 pt-2 flex justify-between items-baseline">
-                <span className="text-[11px] text-ink-faint">Programs subtotal</span>
-                <span className="text-xs font-semibold text-ink">{formatKRW(additionalOptionsPrice)}</span>
+                <span className="text-[11px] text-ink font-semibold">Programs subtotal</span>
+                <span className="text-sm font-semibold text-ink">{formatKRW(additionalOptionsPrice)}</span>
               </div>
             </div>
           </>
@@ -328,11 +328,11 @@ export const StepTechnicalTour = ({
         <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4">
           {selectedTourOption ? (
             <div>
-              <p className="text-sm font-semibold text-gold truncate">
+              <p className="text-sm font-semibold text-ink truncate">
                 {isTourWaitlisted ? `[Waitlist] ` : ''}{selectedTourOption.nameEn}
               </p>
               <div className="mt-2 flex justify-between items-baseline">
-                <span className="text-[11px] text-ink-faint">Tour fee</span>
+                <span className="text-[11px] text-ink font-semibold">Tour fee</span>
                 <span className="text-sm font-semibold text-ink">
                   {isTourWaitlisted ? '₩0 (Waitlist)' : formatKRW(tourPrice)}
                 </span>
