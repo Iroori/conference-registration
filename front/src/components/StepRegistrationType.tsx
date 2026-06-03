@@ -78,18 +78,45 @@ export const StepRegistrationType = ({
     REGULAR:          periods?.regular          ?? { endDate: null },
   };
 
-  const [bYear, bMonth, bDay] = useMemo(() => {
-    if (!birthDate) return ['', '', ''];
-    const parts = birthDate.split('-');
-    return [parts[0] || '', parts[1] || '', parts[2] || ''];
+  const [localYear, setLocalYear] = useState('');
+  const [localMonth, setLocalMonth] = useState('');
+  const [localDay, setLocalDay] = useState('');
+
+  useEffect(() => {
+    if (birthDate) {
+      const parts = birthDate.split('-');
+      setLocalYear(parts[0] || '');
+      setLocalMonth(parts[1] || '');
+      setLocalDay(parts[2] || '');
+    } else {
+      setLocalYear('');
+      setLocalMonth('');
+      setLocalDay('');
+    }
   }, [birthDate]);
 
-  const handleDatePartChange = (part: 'y' | 'm' | 'd', val: string) => {
-    const nextY = part === 'y' ? val : bYear;
-    const nextM = part === 'm' ? val : bMonth;
-    const nextD = part === 'd' ? val : bDay;
-    if (nextY && nextM && nextD) {
-      onBirthDateChange(`${nextY}-${nextM.padStart(2, '0')}-${nextD.padStart(2, '0')}`);
+  const handleYearChange = (val: string) => {
+    setLocalYear(val);
+    if (val && localMonth && localDay) {
+      onBirthDateChange(`${val}-${localMonth.padStart(2, '0')}-${localDay.padStart(2, '0')}`);
+    } else {
+      onBirthDateChange('');
+    }
+  };
+
+  const handleMonthChange = (val: string) => {
+    setLocalMonth(val);
+    if (localYear && val && localDay) {
+      onBirthDateChange(`${localYear}-${val.padStart(2, '0')}-${localDay.padStart(2, '0')}`);
+    } else {
+      onBirthDateChange('');
+    }
+  };
+
+  const handleDayChange = (val: string) => {
+    setLocalDay(val);
+    if (localYear && localMonth && val) {
+      onBirthDateChange(`${localYear}-${localMonth.padStart(2, '0')}-${val.padStart(2, '0')}`);
     } else {
       onBirthDateChange('');
     }
@@ -255,8 +282,8 @@ export const StepRegistrationType = ({
                       <div className="flex gap-2 flex-wrap">
                         {/* Year Select */}
                         <select
-                          value={bYear}
-                          onChange={(e) => handleDatePartChange('y', e.target.value)}
+                          value={localYear}
+                          onChange={(e) => handleYearChange(e.target.value)}
                           className="input-base py-1.5 text-xs text-slate-800 w-28"
                           required
                         >
@@ -268,8 +295,8 @@ export const StepRegistrationType = ({
 
                         {/* Month Select */}
                         <select
-                          value={bMonth}
-                          onChange={(e) => handleDatePartChange('m', e.target.value)}
+                          value={localMonth}
+                          onChange={(e) => handleMonthChange(e.target.value)}
                           className="input-base py-1.5 text-xs text-slate-800 w-40"
                           required
                         >
@@ -299,8 +326,8 @@ export const StepRegistrationType = ({
 
                         {/* Day Select */}
                         <select
-                          value={bDay}
-                          onChange={(e) => handleDatePartChange('d', e.target.value)}
+                          value={localDay}
+                          onChange={(e) => handleDayChange(e.target.value)}
                           className="input-base py-1.5 text-xs text-slate-800 w-24"
                           required
                         >
