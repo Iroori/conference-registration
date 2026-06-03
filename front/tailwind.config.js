@@ -16,7 +16,7 @@ export default {
         },
         cream: '#FAFAF8',
         ink: {
-          DEFAULT: '#1A1A2E',
+          DEFAULT: '#0D1B3E',
           muted: '#6B6B7A',
           faint: '#A0A0AD',
         },

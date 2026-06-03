@@ -255,7 +255,7 @@ export const StepSummary = ({
             <div className="flex items-start justify-between gap-3 text-sm">
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="font-semibold text-ink">{selectedTour.nameEn}</p>
+                  <p className="text-ink">{selectedTour.nameEn}</p>
                   {isWaitlisted(selectedTour.id) && (
                     <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600 uppercase tracking-wider">
                       Waitlisted

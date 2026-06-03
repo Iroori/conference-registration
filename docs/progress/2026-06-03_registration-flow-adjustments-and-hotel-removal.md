@@ -64,6 +64,10 @@
   - Payment Breakdown의 기술 투어 항목 렌더링 코드에서 불일치를 유발하던 `font-semibold` 클래스를 제거하여 다른 요율 상세 항목들과 폰트 두께를 통일성 있게 매칭.
 - **사이드바 소계/합계 라벨 스타일 수정 (`StepAdditionalOptions.tsx`, `StepTechnicalTour.tsx`)**:
   - `Registration fee`, `Programs subtotal`, `Tour fee` 등 요약 정보 내 주요 소계 및 합계 라벨들의 글자색을 `text-ink font-semibold`로 일괄 지정하여 진한 검은색 글씨로 시각적 일관성을 확보하고 가독성을 강화.
+- **선택된 투어 명칭 폰트 두께 일반화 (`StepTechnicalTour.tsx`, `StepSummary.tsx`)**:
+  - 투어 선택 단계 우측 사이드바 및 등록 요약 화면 내 선택된 투어 명칭(Technical Tour)에 적용되어 있던 `font-semibold` 클래스를 제거하여 일반 굵기로 렌더링되도록 수정.
+- **기본 텍스트 색상 남색(Navy)으로 변경 (`tailwind.config.js`)**:
+  - 기존의 검은색 계열 글씨 색상(`text-ink` 기본값: `#1A1A2E`)이 너무 까맣다는 의견에 따라, 해당 토큰 기본값을 연동된 남색 테마 색상인 `#0D1B3E`로 재매핑하여 웹앱 전체의 주요 텍스트 톤을 부드러운 남색 계열로 변경.
 
 ### 백엔드 (Backend)
 - **인증 예외 처리 커스텀 엔트리 포인트 등록 (`SecurityConfig.java`)**:
@@ -77,14 +81,17 @@
 - `back/src/main/java/com/roo/payment/config/SecurityConfig.java` (수정)
 
 ### Frontend
+- `front/tailwind.config.js` (수정)
 - `front/src/types/index.ts` (수정)
 - `front/src/pages/RegistrationPage.tsx` (수정)
 - `front/src/components/StepRegistrationType.tsx` (수정)
 - `front/src/components/StepAdditionalOptions.tsx` (수정)
 - `front/src/components/StepInvitationLetter.tsx` (수정)
 - `front/src/components/StepSummary.tsx` (수정)
+- `front/src/components/StepTechnicalTour.tsx` (수정)
 - `front/src/components/Step3Payment.tsx` (수정)
 - `front/src/components/StepAdditionalInfo.tsx` (삭제)
+- `front/src/index.css` (수정)
 
 ---
 
