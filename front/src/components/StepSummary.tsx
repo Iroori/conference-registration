@@ -163,7 +163,7 @@ export const StepSummary = ({
             <div className="space-y-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-base font-semibold text-ink">{regOption.nameEn}</p>
+                  <p className="text-base text-ink">{regOption.nameEn}</p>
                   <p className="text-sm text-gold mt-1 font-semibold uppercase tracking-[0.1em]">
                     {REG_TIER_CONFIG[selectedTier].label} {selectedCategory === 'EXHIBITOR' && `· Qty: ${exhibitorQuantity}`}
                   </p>
@@ -208,7 +208,7 @@ export const StepSummary = ({
                 <div key={opt.id} className="flex items-start justify-between gap-3 text-sm border-b border-slate-50 pb-3 last:border-0 last:pb-0">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-ink">{opt.nameEn}</p>
+                      <p className="text-ink">{opt.nameEn}</p>
                       {isWaitlisted(opt.id) && (
                         <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600 uppercase tracking-wider">
                           Waitlisted
@@ -322,7 +322,7 @@ export const StepSummary = ({
 
           {selectedTour && (
             <div className="flex justify-between text-sm">
-              <span className="text-ink-muted truncate pr-2">
+              <span className="text-ink-muted pr-2">
                 {selectedTour.nameEn} {isWaitlisted(selectedTour.id) && ' (Waitlisted)'}
               </span>
               <span className="font-medium text-ink">

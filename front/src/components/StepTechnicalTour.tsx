@@ -328,7 +328,7 @@ export const StepTechnicalTour = ({
         <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4">
           {selectedTourOption ? (
             <div>
-              <p className="text-sm text-ink truncate">
+              <p className="text-sm text-ink">
                 {isTourWaitlisted ? `[Waitlist] ` : ''}{selectedTourOption.nameEn}
               </p>
               <div className="mt-2 flex justify-between items-baseline">
