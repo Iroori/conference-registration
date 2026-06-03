@@ -146,7 +146,7 @@ export const StepTechnicalTour = ({
       <div className="border-b border-slate-100 p-6 lg:border-b-0 lg:border-r">
         <SectionLabel>Technical Tours (Optional)</SectionLabel>
         <p className="text-xs text-ink-muted mb-5 leading-relaxed">
-          Select one of the technical tours scheduled for 19th September 2026. These are optional, and you can only select one. All fees are shown in KRW.
+          Select one of the technical tours scheduled for 19 September 2026 (SAT). These are optional, and you can only select one. All fees are shown in KRW.
         </p>
 
         <div className="space-y-3">
