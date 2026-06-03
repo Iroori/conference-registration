@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useConferenceOptions } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
-import { LoadingSpinner, MemberTypePill, SectionLabel, formatKRW } from './Shared';
+import { LoadingSpinner, SectionLabel, formatKRW } from './Shared';
 import type {
   MemberType,
   RegistrationTierKey,
@@ -144,10 +144,6 @@ export const StepSummary = ({
                   <span className="font-medium text-ink">{birthDate}</span>
                 </div>
               )}
-              <div className="col-span-2 flex items-center justify-between">
-                <span className="text-ink-faint">Member Type</span>
-                <MemberTypePill type={memberType} />
-              </div>
             </div>
           </div>
         )}
@@ -294,7 +290,6 @@ export const StepSummary = ({
                 <p className="font-medium text-ink">Official Invitation Letter (Visa)</p>
                 <p className="text-ink-faint mt-0.5">Issued within 5 business days of payment</p>
               </div>
-              <p className="font-semibold text-gold">Free</p>
             </div>
           ) : (
             <p className="text-sm text-ink-faint">Not requested.</p>
@@ -327,19 +322,12 @@ export const StepSummary = ({
 
           {selectedTour && (
             <div className="flex justify-between text-sm">
-              <span className="text-ink-muted truncate pr-2 font-semibold">
+              <span className="text-ink-muted truncate pr-2">
                 {selectedTour.nameEn} {isWaitlisted(selectedTour.id) && ' (Waitlisted)'}
               </span>
-              <span className="font-medium text-ink font-semibold">
+              <span className="font-medium text-ink">
                 {isWaitlisted(selectedTour.id) ? '0 KRW' : formatKRW(selectedTour.price)}
               </span>
-            </div>
-          )}
-
-          {needsInvitationLetter && (
-            <div className="flex justify-between text-sm">
-              <span className="text-ink-muted">Invitation Letter</span>
-              <span className="font-medium text-gold">Free</span>
             </div>
           )}
 

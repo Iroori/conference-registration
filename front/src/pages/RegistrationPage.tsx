@@ -6,7 +6,6 @@ import { StepRegistrationType } from '../components/StepRegistrationType';
 import { StepAdditionalOptions } from '../components/StepAdditionalOptions';
 import { StepTechnicalTour } from '../components/StepTechnicalTour';
 import { StepInvitationLetter } from '../components/StepInvitationLetter';
-import { StepAdditionalInfo } from '../components/StepAdditionalInfo';
 import { StepSummary } from '../components/StepSummary';
 import { Step3Payment, Step4Complete } from '../components/Step3Payment';
 import { PaymentHistoryTab } from '../components/PaymentHistory';
@@ -28,17 +27,16 @@ const initialQuantities = (): Record<string, number> =>
 
 type NavTab = 'REGISTER' | 'HISTORY' | 'ADMIN' | 'PROFILE';
 
-const STEP_LABELS = ['Category', 'Options', 'Tours', 'Visa', 'Hotel', 'Confirm', 'Pay'];
+const STEP_LABELS = ['Category', 'Options', 'Tours', 'Visa', 'Confirm', 'Pay'];
 
 const STEP_INDEX: Record<RegistrationStep, number> = {
   REG_TYPE: 1,
   ADD_OPTIONS: 2,
   TECHNICAL_TOUR: 3,
   INVITATION: 4,
-  ADDITIONAL_INFO: 5,
-  SUMMARY: 6,
-  PAYMENT: 7,
-  COMPLETE: 8,
+  SUMMARY: 5,
+  PAYMENT: 6,
+  COMPLETE: 7,
 };
 
 export const RegistrationPage = () => {
@@ -303,15 +301,8 @@ export const RegistrationPage = () => {
               <StepInvitationLetter
                 needsLetter={needsInvitationLetter}
                 onSelect={(needs) => setNeedsInvitationLetter(needs)}
-                onNext={() => setCurrentStep('ADDITIONAL_INFO')}
-                onBack={() => setCurrentStep('TECHNICAL_TOUR')}
-              />
-            )}
-
-            {currentStep === 'ADDITIONAL_INFO' && (
-              <StepAdditionalInfo
                 onNext={() => setCurrentStep('SUMMARY')}
-                onBack={() => setCurrentStep('INVITATION')}
+                onBack={() => setCurrentStep('TECHNICAL_TOUR')}
               />
             )}
 
@@ -332,7 +323,7 @@ export const RegistrationPage = () => {
                 onEditTours={() => setCurrentStep('TECHNICAL_TOUR')}
                 onEditInvitation={() => setCurrentStep('INVITATION')}
                 onNext={() => setCurrentStep('PAYMENT')}
-                onBack={() => setCurrentStep('ADDITIONAL_INFO')}
+                onBack={() => setCurrentStep('INVITATION')}
               />
             )}
 

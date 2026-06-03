@@ -47,23 +47,23 @@ export const StepInvitationLetter = ({
         <button
           onClick={() => onSelect(true)}
           className={`rounded-xl border p-5 text-left transition ${needsLetter === true
-            ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
-            : 'border-slate-200 bg-white hover:border-gold/40'
+            ? 'border-navy bg-navy/5 text-navy ring-1 ring-navy'
+            : 'border-slate-200 bg-white hover:border-navy/30'
             }`}
         >
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full ${needsLetter === true ? 'bg-gold-soft' : 'bg-slate-100'
+              className={`flex h-8 w-8 items-center justify-center rounded-full ${needsLetter === true ? 'bg-navy/10' : 'bg-slate-100'
                 }`}
             >
               <svg
-                className={`h-4 w-4 ${needsLetter === true ? 'text-gold' : 'text-ink-faint'}`}
+                className={`h-4 w-4 ${needsLetter === true ? 'text-navy' : 'text-ink-faint'}`}
                 fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 9v.906a2.25 2.25 0 01-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 001.183 1.981l6.478 3.488m8.839 2.51l-4.66-2.51m0 0l-1.023-.55a2.25 2.25 0 00-2.134 0l-1.022.55m0 0l-4.661 2.51m16.5 1.615a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V8.844a2.25 2.25 0 011.183-1.98l7.5-4.04a2.25 2.25 0 012.134 0l7.5 4.04a2.25 2.25 0 011.183 1.98V19.5z" />
               </svg>
             </div>
-            <p className={`text-sm font-semibold ${needsLetter === true ? 'text-gold' : 'text-ink'}`}>
+            <p className={`text-sm ${needsLetter === true ? 'text-navy font-bold' : 'text-ink font-semibold'}`}>
               Yes, I need an invitation letter.
             </p>
           </div>
@@ -73,23 +73,23 @@ export const StepInvitationLetter = ({
         <button
           onClick={() => onSelect(false)}
           className={`rounded-xl border p-5 text-left transition ${needsLetter === false
-            ? 'border-slate-300 bg-slate-50 ring-1 ring-slate-200'
-            : 'border-slate-200 bg-white hover:border-slate-300'
+            ? 'border-navy bg-navy/5 text-navy ring-1 ring-navy'
+            : 'border-slate-200 bg-white hover:border-navy/30'
             }`}
         >
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full ${needsLetter === false ? 'bg-slate-200' : 'bg-slate-100'
+              className={`flex h-8 w-8 items-center justify-center rounded-full ${needsLetter === false ? 'bg-navy/10' : 'bg-slate-100'
                 }`}
             >
               <svg
-                className="h-4 w-4 text-ink-faint"
+                className={`h-4 w-4 ${needsLetter === false ? 'text-navy' : 'text-ink-faint'}`}
                 fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <p className="text-sm font-semibold text-ink">
+            <p className={`text-sm ${needsLetter === false ? 'text-navy font-bold' : 'text-ink font-semibold'}`}>
               No, I do not need one.
             </p>
           </div>
@@ -115,7 +115,6 @@ export const StepInvitationLetter = ({
             <p className="text-xs text-ink-faint">
               Will be sent to your email within 5 business days of payment confirmation.
             </p>
-            <p className="amount-total mt-2">Free</p>
           </div>
         ) : (
           <div className="flex items-center gap-2">
@@ -133,7 +132,7 @@ export const StepInvitationLetter = ({
           disabled={needsLetter === null}
           className="btn-primary"
         >
-          Continue to Accommodation
+          Continue
         </button>
         <button
           onClick={onBack}

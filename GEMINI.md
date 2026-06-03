@@ -409,6 +409,7 @@ docs/
 | 2026-06-02 | social-programme-options-redesign.md | 추가 프로그램(Option Step 2) 내 웰컴 리셉션, Young Engineers, 갈라 디너의 수량 조절기/거절체크박스/대기자 리디자인 및 PechaKucha 무료 옵션 추가 |
 | 2026-06-02 | payment-method-and-refund-policy-update.md | 결제 방식 선택(카드/계좌이체 라디오) 신설 및 계좌이체 시 안내 박스 팝업, 카드 결제 버튼 비활성화 차단 구현 및 환불정책 Terms 영문 텍스트 개정 |
 | 2026-06-03 | social-programme-ui-unification.md | 추가 프로그램(Option Step 2) 카드 제목 빨간색 스타일을 text-ink로 변경 및 좌측 골드 원형 라디오 인디케이터 구현, 비회원 요율 subLabel(*Includes a one-year...) 갱신, 환불규정 Refund Processing 제거 및 Insurance 섹션 추가, 마이 프로필 탭 내 빌링 주소 9개 필드 자가수정 기능 연동, 웰컴 리셉션 초기 정원 600명 어드민 재고 관리 편입, 영 엔지니어용 갈라 디너 옵션 전면 폐지 |
+| 2026-06-03 | registration-flow-adjustments-and-hotel-removal.md | Category 검증 에러 초기화, Options 사이드바 모바일 정렬 하단 배치, Visa 탭 Yes/No 남색 테두리/남색 글씨 강조 및 결제 흐름 내 Free 문구 제거, Hotel 단계 전체 삭제 및 관련 라우팅 논리 축소, 토큰 만료 시 403 Forbidden 오류 및 미로그아웃 해결, 최종 확인(Summary) 화면 내 Member Type 안내 제거, Payment Breakdown 내 Technical Tour 폰트 굵기 통일 |
 
 ---
 

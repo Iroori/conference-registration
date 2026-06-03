@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, SectionLabel, MemberTypePill, formatKRW } from './Shared';
 import { apiReportPaymentFailure } from '../lib/api';
 import type { MemberType, PaymentResponse, AccompanyingPersonInfo, ExhibitorBadgeInfo } from '../types';
+import { INVITATION_OPTION_ID } from '../types';
 
 
 interface Step3PaymentProps {
@@ -286,13 +287,7 @@ export const Step3Payment = ({
                         All registration fees are quoted and will be charged in Korean Won (KRW). Registration fees are exempt from standard administrative fees.
                       </li>
                       <li>
-                        Please read the letter of confirmation carefully and contact the Congress Secretariat immediately in case of any discrepancies.
-                      </li>
-                      <li>
                         Bank charges and currency exchange fees are at the delegate's own expense. These should be factored in when transferring funds to ensure the full registration fee is received in the congress bank account.
-                      </li>
-                      <li>
-                        All payments must be made upon receipt of the invoice.
                       </li>
                     </ul>
                   </div>
@@ -301,13 +296,19 @@ export const Step3Payment = ({
                     <p className="font-bold text-ink mb-1">Registration Cancellation Terms &amp; Conditions</p>
                     <ul className="list-disc pl-4 space-y-1.5 text-ink-muted">
                       <li>
-                        Notice of cancellation must be sent by email to the Congress Secretariat (iabse2026@kibse.or.kr).
+                        Notice of cancellation must be sent by email to the Congress Secretariat.
                       </li>
                       <li>
-                        Cancellations made during the Early Bird period (until 30 June 2026) will be refunded minus a standard administrative fee. Please note that all payment processing fees (bank transfer charges and credit card transaction fees) are the responsibility of the participant and will be strictly deducted from the final refund amount.
+                        Cancellations made during the Early Bird period (until 30 June 2026) will be refunded in full, Please note that all payment processing fees (bank transfer charges and credit card transaction fees) are the responsibility of the participant and will be strictly deducted from the final refund amount. For cancellations received between 1 July and 26 August 2026, a refund of 30% will apply. After this date, no refunds will be made.
                       </li>
                       <li>
-                        From July 1, 2026 and No-shows: No refunds will be issued under any circumstances.
+                        If you are unable to attend, you may transfer your registration to a colleague. Name changes are free of charge. All requests for changes must be submitted in writing to the Congress Secretariat.
+                      </li>
+                      <li>
+                        No-shows will not receive a refund. As per the terms and conditions accepted during registration, participants who do not attend the Congress remain fully responsible for any outstanding balances.
+                      </li>
+                      <li>
+                        Please allow up to 4 weeks for the processing of any refunds.
                       </li>
                     </ul>
                   </div>
@@ -482,7 +483,7 @@ export const Step4Complete = ({ result, onGoHistory }: Step4CompleteProps) => (
         {result.selectedOptions.map((opt) => (
           <div key={opt.id} className="mb-1.5 flex justify-between text-xs">
             <span className="text-ink-muted">{opt.nameEn}</span>
-            <span className="text-ink">{opt.isFree ? 'Free' : formatKRW(opt.price)}</span>
+            <span className="text-ink">{opt.id === INVITATION_OPTION_ID ? '' : (opt.isFree ? 'Free' : formatKRW(opt.price))}</span>
           </div>
         ))}
         {result.accompanyingPersons && result.accompanyingPersons.length > 0 && (

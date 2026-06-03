@@ -327,7 +327,6 @@ export type RegistrationStep =
   | 'ADD_OPTIONS'
   | 'TECHNICAL_TOUR'
   | 'INVITATION'
-  | 'ADDITIONAL_INFO'
   | 'SUMMARY'
   | 'PAYMENT'
   | 'COMPLETE';

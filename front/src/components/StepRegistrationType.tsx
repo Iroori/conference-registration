@@ -178,6 +178,7 @@ export const StepRegistrationType = ({
             const optionId = tierCfg.optionIds[cat.key];
             const handleClick = () => {
               if (locked) return;
+              setErrorMessage(null);
               onSelect(currentTier, cat.key, optionId);
             };
             return (

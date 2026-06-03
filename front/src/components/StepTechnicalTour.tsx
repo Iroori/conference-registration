@@ -112,6 +112,18 @@ export const StepTechnicalTour = ({
 
   const grandTotal = registrationPrice + additionalOptionsPrice + tourPrice;
 
+  const selectedProgramOptions = useMemo(() => {
+    if (!options) return [];
+    const tourSet = new Set<string>(TECH_TOUR_OPTION_IDS);
+    return Object.entries(quantities)
+      .filter(([id, qty]) => qty > 0 && id !== selectedRegOptionId && !tourSet.has(id))
+      .map(([id, qty]) => {
+        const opt = options.find((o) => o.id === id);
+        return opt ? { opt, qty } : null;
+      })
+      .filter((item): item is { opt: ConferenceOption; qty: number } => item !== null);
+  }, [options, quantities, selectedRegOptionId]);
+
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
@@ -284,6 +296,32 @@ export const StepTechnicalTour = ({
             <p className="text-xs text-ink-faint">No category selected.</p>
           )}
         </div>
+
+        {/* Programs Selected section */}
+        {selectedProgramOptions.length > 0 && (
+          <>
+            <SectionLabel>Programs Selected</SectionLabel>
+            <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4 space-y-2">
+              {selectedProgramOptions.map(({ opt, qty }) => {
+                const waitlisted = waitlistedOptionIds.includes(opt.id);
+                return (
+                  <div key={opt.id} className="flex justify-between text-xs">
+                    <span className="text-ink-muted truncate pr-2">
+                      {opt.nameEn} {qty > 1 ? ` × ${qty}` : ''} {waitlisted && '(Waitlisted)'}
+                    </span>
+                    <span className="flex-shrink-0 font-medium text-ink">
+                      {waitlisted ? '0 KRW' : opt.isFree ? 'Free' : formatKRW(opt.price * qty)}
+                    </span>
+                  </div>
+                );
+              })}
+              <div className="border-t border-slate-100 pt-2 flex justify-between items-baseline">
+                <span className="text-[11px] text-ink-faint">Programs subtotal</span>
+                <span className="text-xs font-semibold text-ink">{formatKRW(additionalOptionsPrice)}</span>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Selected Tour section */}
         <SectionLabel>Selected Tour</SectionLabel>

@@ -364,6 +364,13 @@ export const StepAdditionalOptions = ({
                         <p className="text-sm font-bold text-ink">
                           Gala dinner on 17<sup>th</sup> September
                         </p>
+                        <p
+                          className={`flex-shrink-0 text-sm font-semibold ${
+                            active ? 'text-gold' : 'text-ink-muted'
+                          }`}
+                        >
+                          {waitlisted ? '0 KRW' : formatKRW(opt.price)}
+                        </p>
                       </div>
 
                       {isSoldOut ? (
@@ -565,7 +572,7 @@ export const StepAdditionalOptions = ({
       </div>
 
       {/* Right sidebar */}
-      <div className="order-first lg:order-none sticky top-0 z-20 lg:top-6 lg:self-start bg-gold-tint p-6 flex flex-col max-h-screen lg:max-h-[calc(100vh-3rem)] overflow-y-auto">
+      <div className="sticky top-0 z-20 lg:top-6 lg:self-start bg-gold-tint p-6 flex flex-col max-h-screen lg:max-h-[calc(100vh-3rem)] overflow-y-auto">
         {/* Registration section */}
         <SectionLabel>Registration</SectionLabel>
         <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4">
