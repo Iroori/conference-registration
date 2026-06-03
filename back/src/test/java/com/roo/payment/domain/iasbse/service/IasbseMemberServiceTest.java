@@ -71,9 +71,19 @@ public class IasbseMemberServiceTest {
         System.out.println("Repository.count() after import: " + iasbseMemberRepository.count());
         System.out.println("==================================");
         
-        assertThat(imported).isGreaterThan(0);
+        // Sheet 0 has 1795 rows and Sheet 1 has 113 rows.
+        // Total count should be at least greater than 1795.
+        assertThat(imported).isGreaterThan(1795);
         
-        boolean hasBose = iasbseMemberService.isIasbseMember("AZMI", "ABDUL AZIZ", "");
-        assertThat(hasBose).isTrue();
+        // Assert that a member from sheet 0 is imported
+        boolean hasAzmi = iasbseMemberService.isIasbseMember("AZMI", "ABDUL AZIZ", "");
+        assertThat(hasAzmi).isTrue();
+        
+        // Assert that a member from sheet 1 (Fellow) is imported
+        boolean hasFellow = iasbseMemberService.isIasbseMember("Scott Thomas", "Smith", "");
+        assertThat(hasFellow).isTrue();
+        
+        boolean validFellowId = iasbseMemberService.isValidIabseId("66811267");
+        assertThat(validFellowId).isTrue();
     }
 }

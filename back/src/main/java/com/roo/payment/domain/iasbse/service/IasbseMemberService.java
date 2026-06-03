@@ -55,25 +55,7 @@ public class IasbseMemberService {
         List<IasbseMember> toSave = new ArrayList<>();
         try (java.io.FileInputStream fis = new java.io.FileInputStream(file);
              Workbook workbook = WorkbookFactory.create(fis)) {
-            Sheet sheet = workbook.getSheetAt(0);
-
-            // 1행은 헤더 → 2행부터 처리
-            for (int rowIdx = 1; rowIdx <= sheet.getLastRowNum(); rowIdx++) {
-                Row row = sheet.getRow(rowIdx);
-                if (row == null) continue;
-
-                String iabseId = getCellString(row, 0);
-                String firstName = getCellString(row, 1);
-                String lastName = getCellString(row, 2);
-
-                if (iabseId == null || iabseId.isBlank() ||
-                    firstName == null || firstName.isBlank() || 
-                    lastName == null || lastName.isBlank()) {
-                    continue;
-                }
-
-                toSave.add(new IasbseMember(iabseId.trim(), firstName.trim(), lastName.trim()));
-            }
+            toSave = parseMembersFromWorkbook(workbook);
 
             if (!toSave.isEmpty()) {
                 iasbseMemberRepository.deleteAll(); // Truncate existing data
@@ -100,25 +82,7 @@ public class IasbseMemberService {
         List<IasbseMember> toSave = new ArrayList<>();
         try (java.io.InputStream is = resource.getInputStream();
              Workbook workbook = WorkbookFactory.create(is)) {
-            Sheet sheet = workbook.getSheetAt(0);
-
-            // 1행은 헤더 → 2행부터 처리
-            for (int rowIdx = 1; rowIdx <= sheet.getLastRowNum(); rowIdx++) {
-                Row row = sheet.getRow(rowIdx);
-                if (row == null) continue;
-
-                String iabseId = getCellString(row, 0);
-                String firstName = getCellString(row, 1);
-                String lastName = getCellString(row, 2);
-
-                if (iabseId == null || iabseId.isBlank() ||
-                    firstName == null || firstName.isBlank() || 
-                    lastName == null || lastName.isBlank()) {
-                    continue;
-                }
-
-                toSave.add(new IasbseMember(iabseId.trim(), firstName.trim(), lastName.trim()));
-            }
+            toSave = parseMembersFromWorkbook(workbook);
 
             if (!toSave.isEmpty()) {
                 iasbseMemberRepository.deleteAll(); // Truncate existing data
@@ -137,11 +101,27 @@ public class IasbseMemberService {
      */
     @Transactional
     public int importFromExcel(MultipartFile file) throws IOException {
-        List<IasbseMember> toSave = new ArrayList<>();
+        List<IasbseMember> toSave;
 
         try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-            Sheet sheet = workbook.getSheetAt(0);
+            toSave = parseMembersFromWorkbook(workbook);
 
+            if (!toSave.isEmpty()) {
+                iasbseMemberRepository.deleteAll(); // Truncate existing data
+                iasbseMemberRepository.saveAll(toSave);
+            }
+        }
+
+        return toSave.size();
+    }
+
+    private List<IasbseMember> parseMembersFromWorkbook(Workbook workbook) {
+        List<IasbseMember> members = new ArrayList<>();
+        java.util.Set<String> uniqueIds = new java.util.HashSet<>();
+
+        int sheetCount = workbook.getNumberOfSheets();
+        for (int s = 0; s < sheetCount; s++) {
+            Sheet sheet = workbook.getSheetAt(s);
             // 1행은 헤더 → 2행부터 처리
             for (int rowIdx = 1; rowIdx <= sheet.getLastRowNum(); rowIdx++) {
                 Row row = sheet.getRow(rowIdx);
@@ -157,16 +137,14 @@ public class IasbseMemberService {
                     continue;
                 }
 
-                toSave.add(new IasbseMember(iabseId.trim(), firstName.trim(), lastName.trim()));
-            }
-
-            if (!toSave.isEmpty()) {
-                iasbseMemberRepository.deleteAll(); // Truncate existing data
-                iasbseMemberRepository.saveAll(toSave);
+                String cleanId = iabseId.trim();
+                String lookupKey = cleanId.toLowerCase();
+                if (uniqueIds.add(lookupKey)) {
+                    members.add(new IasbseMember(cleanId, firstName.trim(), lastName.trim()));
+                }
             }
         }
-
-        return toSave.size();
+        return members;
     }
 
     private String getCellString(Row row, int colIdx) {
