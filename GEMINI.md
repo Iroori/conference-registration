@@ -414,6 +414,7 @@ docs/
 | 2026-06-03 | header-member-type-and-tour-ui-adjustments.md | 상단 헤더 내 회원 유형 배지 제거, 선택한 기술 투어 사이드바 내 Tour fee 문구 제거 및 Young Engineer 프로그램 카드에 경고 문구 추가 |
 | 2026-06-03 | admin-iasbse-members-manual-crud.md | 관리자 페이지 내 IABSE 공식 등록 회원 검색 지원 확인 및 수기 생성/삭제(중복 방지 유효성 검증 포함) API 및 관리 UI 구현 |
 | 2026-06-03 | young-engineer-birthdate-dropdown-fix.md | Young Engineer 생년월일 영문 select 드롭다운 클릭 불가 오류 수정 및 세부 날짜 선택 시 값 초기화 상태 업데이트 버그 해결 |
+| 2026-06-03 | technical-tour-wording-update.md | 기술 투어 선택 단계 설명 문구 날짜 표기 형식 업데이트 (19th → 19 September 2026 (SAT)) |
 
 ---
 
