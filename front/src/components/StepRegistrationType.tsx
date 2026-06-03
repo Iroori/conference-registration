@@ -183,16 +183,14 @@ export const StepRegistrationType = ({
             };
             return (
               <div key={cat.key}>
-                <button
-                  type="button"
+                <div
                   onClick={handleClick}
-                  disabled={locked}
                   className={`w-full text-left rounded-xl border p-4 transition ${
                     selected
                       ? 'border-gold-soft bg-gold-tint ring-1 ring-gold-soft'
                       : locked
                       ? 'border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed'
-                      : 'border-slate-200 bg-white hover:border-gold/40'
+                      : 'border-slate-200 bg-white hover:border-gold/40 cursor-pointer'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -393,7 +391,7 @@ export const StepRegistrationType = ({
                       </div>
                     </div>
                   )}
-                </button>
+                </div>
 
                 {locked && (
                   <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-4">

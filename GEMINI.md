@@ -413,6 +413,7 @@ docs/
 | 2026-06-03 | import-all-excel-sheets-fellow.md | IABSE 회원 엑셀 파일 로드 시 모든 시트(Fellow 탭 포함)를 읽어들이도록 수정 및 중복 데이터(iabseId 기준) 제거 로직 적용 |
 | 2026-06-03 | header-member-type-and-tour-ui-adjustments.md | 상단 헤더 내 회원 유형 배지 제거, 선택한 기술 투어 사이드바 내 Tour fee 문구 제거 및 Young Engineer 프로그램 카드에 경고 문구 추가 |
 | 2026-06-03 | admin-iasbse-members-manual-crud.md | 관리자 페이지 내 IABSE 공식 등록 회원 검색 지원 확인 및 수기 생성/삭제(중복 방지 유효성 검증 포함) API 및 관리 UI 구현 |
+| 2026-06-03 | young-engineer-birthdate-dropdown-fix.md | Young Engineer 생년월일 영문 select 드롭다운 클릭 불가 오류 수정 (카드 컨테이너 button 태그를 div 태그로 전환) |
 
 ---
 
