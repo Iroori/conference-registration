@@ -316,7 +316,6 @@ export const RegistrationPage = () => {
 
             {currentStep === 'PAYMENT' && (
               <Step3Payment
-                memberType={memberType}
                 selectedOptionIds={paymentPayload.selectedOptionIds}
                 quantities={paymentPayload.quantities}
                 accompanyingPersons={accompanyingPersons}

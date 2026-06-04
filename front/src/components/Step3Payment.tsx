@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useCreatePayment } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
-import { ErrorBanner, LoadingSpinner, SectionLabel, MemberTypePill, formatKRW } from './Shared';
+import { ErrorBanner, LoadingSpinner, SectionLabel, formatKRW } from './Shared';
 import { apiReportPaymentFailure } from '../lib/api';
-import type { MemberType, PaymentResponse, AccompanyingPersonInfo, ExhibitorBadgeInfo } from '../types';
+import type { PaymentResponse, AccompanyingPersonInfo, ExhibitorBadgeInfo } from '../types';
 import { INVITATION_OPTION_ID } from '../types';
 
 
 interface Step3PaymentProps {
-  memberType: MemberType;
   selectedOptionIds: string[];
   quantities: Record<string, number>;
   accompanyingPersons: AccompanyingPersonInfo[];
@@ -30,7 +29,6 @@ function isKoreanUser(country: string | undefined): boolean {
 }
 
 export const Step3Payment = ({
-  memberType,
   selectedOptionIds,
   quantities,
   accompanyingPersons,
@@ -387,7 +385,6 @@ export const Step3Payment = ({
                 <p className="text-sm font-semibold text-ink truncate">{`${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email}</p>
                 <p className="text-xs text-ink-faint truncate">{user.affiliation || '-'}</p>
               </div>
-              <MemberTypePill type={memberType} />
             </div>
           )}
 

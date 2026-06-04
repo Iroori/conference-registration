@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useConferenceOptions } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
-import { ErrorBanner, LoadingSpinner, MemberTypePill, SectionLabel, formatKRW } from './Shared';
+import { ErrorBanner, LoadingSpinner, SectionLabel, formatKRW } from './Shared';
 import type { MemberType, ConferenceOption } from '../types';
 
 interface Step2OptionsProps {
@@ -158,7 +158,6 @@ export const Step2Options = ({ memberType, onNext }: Step2OptionsProps) => {
               <p className="truncate text-sm font-semibold text-slate-800">{`${user.firstName} ${user.lastName}`}</p>
               <p className="truncate text-xs text-slate-400">{user.affiliation}</p>
             </div>
-            <MemberTypePill type={memberType} />
           </div>
         )}
 

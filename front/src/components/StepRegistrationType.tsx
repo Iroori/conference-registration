@@ -1,7 +1,7 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useConferenceOptions, useRegistrationPeriods } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
-import { ErrorBanner, LoadingSpinner, MemberTypePill, SectionLabel, formatKRW } from './Shared';
+import { ErrorBanner, LoadingSpinner, SectionLabel, formatKRW } from './Shared';
 import { apiVerifyIabseId } from '../lib/api';
 import type {
   MemberType,
@@ -480,7 +480,6 @@ export const StepRegistrationType = ({
               <p className="text-sm font-semibold text-ink truncate">{`${user.firstName} ${user.lastName}`}</p>
               <p className="text-xs text-ink-faint truncate">{user.affiliation}</p>
             </div>
-            <MemberTypePill type={memberType} />
           </div>
         )}
 

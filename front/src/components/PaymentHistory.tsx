@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { usePaymentHistory } from '../hooks/useRegistration';
-import { ErrorBanner, LoadingSpinner, SectionLabel, StatusPill, MemberTypePill, formatKRW } from './Shared';
+import { ErrorBanner, LoadingSpinner, SectionLabel, StatusPill, formatKRW } from './Shared';
 
 export const PaymentHistoryTab = () => {
   const { data, isLoading, error, refetch } = usePaymentHistory();
@@ -71,7 +71,6 @@ export const PaymentHistoryTab = () => {
                   </p>
                   <div className="mt-0.5 flex items-center gap-1.5">
                     <p className="text-xs text-ink-faint">{`${record.firstName} ${record.lastName}`}</p>
-                    <MemberTypePill type={record.memberType} />
                   </div>
                 </div>
                 <p className="truncate pr-4 text-xs text-ink-muted">

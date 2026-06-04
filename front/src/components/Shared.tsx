@@ -1,5 +1,5 @@
 import React from 'react';
-import type { PaymentStatus, MemberType } from '../types';
+import type { PaymentStatus } from '../types';
 
 interface ErrorBannerProps {
   message: string;
@@ -51,22 +51,6 @@ export const StatusPill = ({ status }: { status: PaymentStatus }) => {
   const { label, classes } = STATUS_MAP[status];
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wide ${classes}`}>
-      {label}
-    </span>
-  );
-};
-
-const MEMBER_TYPE_MAP: Record<MemberType, { label: string; classes: string }> = {
-  MEMBER:           { label: 'MEMBER',          classes: 'bg-gold-soft text-gold border-gold-soft' },
-  NON_MEMBER:       { label: 'NON-MEMBER',      classes: 'bg-navy text-white border-navy' },
-  NON_MEMBER_PLUS:  { label: 'NON-MEMBER PLUS', classes: 'bg-navy text-white border-navy' },
-  YOUNG_ENGINEER:   { label: 'YOUNG ENGINEER',  classes: 'bg-amber-50 text-amber-700 border-amber-200' },
-};
-
-export const MemberTypePill = ({ type }: { type: MemberType }) => {
-  const { label, classes } = MEMBER_TYPE_MAP[type];
-  return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] ${classes}`}>
       {label}
     </span>
   );
