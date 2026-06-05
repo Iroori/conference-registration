@@ -265,9 +265,7 @@ export const AdminDashboardPage = () => {
       'Email',
       'Member Type',
       'Affiliation',
-      'Net Amount (KRW)',
-      'VAT (KRW)',
-      'Gross Total (KRW)',
+      'Total Amount (KRW)',
       'Payment Method',
       'Status',
       'Processed At',
@@ -290,8 +288,6 @@ export const AdminDashboardPage = () => {
         p.email || '',
         p.memberType || '',
         p.affiliation || '',
-        p.subtotal || 0,
-        p.tax || 0,
         p.totalAmount || 0,
         p.paymentMethod ? p.paymentMethod.replace('_', ' ') : '',
         p.status || '',
@@ -820,9 +816,7 @@ export const AdminDashboardPage = () => {
                       <th className="px-4 py-3.5">Reg No.</th>
                       <th className="px-4 py-3.5">Attendee / Contact</th>
                       <th className="px-4 py-3.5">Type & Affiliation</th>
-                      <th className="px-4 py-3.5 text-right">Net Amount</th>
-                      <th className="px-4 py-3.5 text-right">VAT (10%)</th>
-                      <th className="px-4 py-3.5 text-right font-bold text-slate-800">Gross Total</th>
+                      <th className="px-4 py-3.5 text-right font-bold text-slate-800">Total Amount</th>
                       <th className="px-4 py-3.5">Method</th>
                       <th className="px-4 py-3.5 text-center">Status</th>
                       <th className="px-4 py-3.5">Processed At</th>
@@ -833,7 +827,7 @@ export const AdminDashboardPage = () => {
                       const isExpanded = expandedPaymentId === p.id;
                       return (
                         <tr key={p.id} className="divide-y divide-slate-100 bg-white">
-                          <td colSpan={10} className="p-0">
+                          <td colSpan={8} className="p-0">
                             <table className="w-full border-collapse text-left text-xs">
                               <tbody>
                                 <tr 
@@ -861,15 +855,9 @@ export const AdminDashboardPage = () => {
                                     <div className="font-semibold text-[9px] uppercase tracking-wider text-slate-500">
                                       {p.memberType}
                                     </div>
-                                    <div className="text-[10px] text-slate-600 font-medium truncate max-w-[150px]">
+                                    <div className="text-[10px] text-slate-660 font-medium truncate max-w-[150px]">
                                       {p.affiliation}
                                     </div>
-                                  </td>
-                                  <td className="px-4 py-3.5 text-right font-medium text-slate-500">
-                                    {formatPrice(p.subtotal)}
-                                  </td>
-                                  <td className="px-4 py-3.5 text-right font-medium text-slate-500">
-                                    {formatPrice(p.tax)}
                                   </td>
                                   <td className="px-4 py-3.5 text-right font-bold text-teal-600">
                                     {formatPrice(p.totalAmount)}
@@ -894,7 +882,7 @@ export const AdminDashboardPage = () => {
                                 </tr>
                                 {isExpanded && (
                                   <tr className="bg-slate-50/50 border-t border-slate-100">
-                                    <td colSpan={10} className="px-6 py-4">
+                                    <td colSpan={8} className="px-6 py-4">
                                       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
                                         <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                                           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
@@ -967,18 +955,10 @@ export const AdminDashboardPage = () => {
 
                                           {/* Financial calculations */}
                                           <div className="space-y-3">
-                                            <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tax &amp; Price Breakdown</h5>
+                                            <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Summary</h5>
                                             <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2.5">
-                                              <div className="flex justify-between text-xs text-slate-650 font-medium">
-                                                <span>Supply Net Value (Subtotal):</span>
-                                                <span className="font-mono text-slate-800 font-semibold">{formatPrice(p.subtotal)}</span>
-                                              </div>
-                                              <div className="flex justify-between text-xs text-slate-650 font-medium">
-                                                <span>VAT (10% Tax):</span>
-                                                <span className="font-mono text-slate-800 font-semibold">{formatPrice(p.tax)}</span>
-                                              </div>
-                                              <div className="border-t border-slate-200 pt-2 flex justify-between text-sm font-bold text-slate-850">
-                                                <span>Gross Total Amount:</span>
+                                              <div className="flex justify-between text-sm font-bold text-slate-850">
+                                                <span>Total Amount Paid:</span>
                                                 <span className="font-mono text-teal-600 text-base">{formatPrice(p.totalAmount)}</span>
                                               </div>
                                             </div>

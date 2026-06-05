@@ -168,17 +168,9 @@ export const PaymentHistoryTab = () => {
                     {/* Financial details */}
                     <div className="space-y-2">
                       <h5 className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Total Calculation</h5>
-                      <div className="bg-white border border-slate-200/60 rounded-lg p-3 space-y-2">
-                        <div className="flex justify-between text-xs text-slate-500 font-medium">
-                          <span>Net Price (Subtotal):</span>
-                          <span className="font-mono text-slate-700">{formatKRW(record.subtotal)}</span>
-                        </div>
-                        <div className="flex justify-between text-xs text-slate-500 font-medium">
-                          <span>VAT (10% Tax):</span>
-                          <span className="font-mono text-slate-700">{formatKRW(record.tax)}</span>
-                        </div>
-                        <div className="border-t border-slate-100 pt-2 flex justify-between text-xs font-bold text-slate-800">
-                          <span>Gross Total Amount Paid:</span>
+                      <div className="bg-white border border-slate-200/60 rounded-lg p-3">
+                        <div className="flex justify-between text-xs font-bold text-slate-800">
+                          <span>Total Amount Paid:</span>
                           <span className="font-mono text-gold text-sm">{formatKRW(record.totalAmount)}</span>
                         </div>
                       </div>

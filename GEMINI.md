@@ -415,6 +415,7 @@ docs/
 | 2026-06-03 | admin-iasbse-members-manual-crud.md | 관리자 페이지 내 IABSE 공식 등록 회원 검색 지원 확인 및 수기 생성/삭제(중복 방지 유효성 검증 포함) API 및 관리 UI 구현 |
 | 2026-06-03 | young-engineer-birthdate-dropdown-fix.md | Young Engineer 생년월일 영문 select 드롭다운 클릭 불가 오류 수정 및 세부 날짜 선택 시 값 초기화 상태 업데이트 버그 해결 |
 | 2026-06-03 | technical-tour-wording-update.md | 기술 투어 선택 단계 설명 문구 날짜 표기 형식 업데이트 (19th → 19 September 2026 (SAT)) |
+| 2026-06-05 | remove-vat-ui-display.md | 결제 내역, 어드민 대시보드 등의 UI 화면에서 10% VAT 부가세 계산 및 내역 표시 제거 및 엑셀 내보내기 통합 |
 
 ---
 
