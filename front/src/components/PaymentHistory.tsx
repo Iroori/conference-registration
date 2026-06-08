@@ -168,7 +168,44 @@ export const PaymentHistoryTab = () => {
                     {/* Financial details */}
                     <div className="space-y-2">
                       <h5 className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Total Calculation</h5>
-                      <div className="bg-white border border-slate-200/60 rounded-lg p-3">
+                      <div className="bg-white border border-slate-200/60 rounded-lg p-3 space-y-2">
+                        {record.appliedDiscountCode && (
+                          <>
+                            <div className="flex justify-between text-xs text-slate-600">
+                              <span>Subtotal:</span>
+                              <span className="font-mono">{formatKRW(record.subtotal)}</span>
+                            </div>
+                            <div className="flex justify-between text-xs text-emerald-600 font-semibold">
+                              <span>Discount (Code: {record.appliedDiscountCode}):</span>
+                              <span className="font-mono">-{formatKRW(record.discountTotalAmount || 0)}</span>
+                            </div>
+                            {record.discountRegAmount !== undefined && record.discountRegAmount > 0 && (
+                              <div className="flex justify-between text-[10px] text-slate-500 pl-3">
+                                <span>• Registration Fee Discount:</span>
+                                <span className="font-mono">-{formatKRW(record.discountRegAmount)}</span>
+                              </div>
+                            )}
+                            {record.discountGalaAmount !== undefined && record.discountGalaAmount > 0 && (
+                              <div className="flex justify-between text-[10px] text-slate-500 pl-3">
+                                <span>• Gala Dinner:</span>
+                                <span className="font-mono">-{formatKRW(record.discountGalaAmount)}</span>
+                              </div>
+                            )}
+                            {record.discountAccompAmount !== undefined && record.discountAccompAmount > 0 && (
+                              <div className="flex justify-between text-[10px] text-slate-500 pl-3">
+                                <span>• Accompanying Person:</span>
+                                <span className="font-mono">-{formatKRW(record.discountAccompAmount)}</span>
+                              </div>
+                            )}
+                            {record.discountTourAmount !== undefined && record.discountTourAmount > 0 && (
+                              <div className="flex justify-between text-[10px] text-slate-500 pl-3">
+                                <span>• Technical Tour:</span>
+                                <span className="font-mono">-{formatKRW(record.discountTourAmount)}</span>
+                              </div>
+                            )}
+                            <div className="border-t border-slate-100 my-1"></div>
+                          </>
+                        )}
                         <div className="flex justify-between text-xs font-bold text-slate-800">
                           <span>Total Amount Paid:</span>
                           <span className="font-mono text-gold text-sm">{formatKRW(record.totalAmount)}</span>

@@ -195,7 +195,7 @@ export const Step3Payment = ({
         });
       }
     };
-  }, [createPayment, selectedOptionIds, quantities, accompanyingPersons, exhibitorBadges, waitlistedOptionIds, iabseId, birthDate, onComplete]);
+  }, [createPayment, selectedOptionIds, quantities, accompanyingPersons, exhibitorBadges, waitlistedOptionIds, iabseId, birthDate, appliedCodeEntity, onComplete]);
 
   const handleFreeRegistration = () => {
     if (isSubmitting || isPending) return;

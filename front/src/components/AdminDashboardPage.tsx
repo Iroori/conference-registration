@@ -1189,6 +1189,43 @@ export const AdminDashboardPage = () => {
                                           <div className="space-y-3">
                                             <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Summary</h5>
                                             <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2.5">
+                                              {p.appliedDiscountCode && (
+                                                <>
+                                                  <div className="flex justify-between text-xs text-slate-600">
+                                                    <span>Subtotal:</span>
+                                                    <span className="font-mono">{formatPrice(p.subtotal)}</span>
+                                                  </div>
+                                                  <div className="flex justify-between text-xs text-emerald-600 font-semibold">
+                                                    <span>Discount (Code: {p.appliedDiscountCode}):</span>
+                                                    <span className="font-mono">-{formatPrice(p.discountTotalAmount || 0)}</span>
+                                                  </div>
+                                                  {p.discountRegAmount !== undefined && p.discountRegAmount > 0 && (
+                                                    <div className="flex justify-between text-[10px] text-slate-500 pl-3">
+                                                      <span>• Registration Fee Discount:</span>
+                                                      <span className="font-mono">-{formatPrice(p.discountRegAmount)}</span>
+                                                    </div>
+                                                  )}
+                                                  {p.discountGalaAmount !== undefined && p.discountGalaAmount > 0 && (
+                                                    <div className="flex justify-between text-[10px] text-slate-500 pl-3">
+                                                      <span>• Gala Dinner:</span>
+                                                      <span className="font-mono">-{formatPrice(p.discountGalaAmount)}</span>
+                                                    </div>
+                                                  )}
+                                                  {p.discountAccompAmount !== undefined && p.discountAccompAmount > 0 && (
+                                                    <div className="flex justify-between text-[10px] text-slate-500 pl-3">
+                                                      <span>• Accompanying Person:</span>
+                                                      <span className="font-mono">-{formatPrice(p.discountAccompAmount)}</span>
+                                                    </div>
+                                                  )}
+                                                  {p.discountTourAmount !== undefined && p.discountTourAmount > 0 && (
+                                                    <div className="flex justify-between text-[10px] text-slate-500 pl-3">
+                                                      <span>• Technical Tour:</span>
+                                                      <span className="font-mono">-{formatPrice(p.discountTourAmount)}</span>
+                                                    </div>
+                                                  )}
+                                                  <div className="border-t border-slate-200 my-1"></div>
+                                                </>
+                                              )}
                                               <div className="flex justify-between text-sm font-bold text-slate-850">
                                                 <span>Total Amount Paid:</span>
                                                 <span className="font-mono text-teal-600 text-base">{formatPrice(p.totalAmount)}</span>
