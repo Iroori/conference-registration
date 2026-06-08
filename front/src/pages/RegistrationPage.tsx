@@ -218,157 +218,132 @@ export const RegistrationPage = () => {
         {/* Registration Flow */}
         {navTab === 'REGISTER' && (
           <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-            {hasCompletedPayment ? (
-              <div className="p-8 text-center space-y-4">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold-tint text-gold">
-                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-base font-bold text-slate-900">Registration Already Completed</h3>
-                <p className="mx-auto max-w-md text-xs text-ink-muted leading-relaxed">
-                  You have already processed and completed your conference registration payment. 
-                  Multiple registrations under the same account are not permitted.
-                </p>
-                <div className="pt-2">
-                  <button
-                    onClick={() => setNavTab('HISTORY')}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-gold hover:bg-gold-soft text-navy px-5 py-2 text-xs font-semibold uppercase tracking-[0.1em] transition"
-                  >
-                    View My Payment History
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center justify-between bg-navy px-6 py-3.5">
-                  <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-white">
-                    <span className="text-gold">·</span>
-                    {currentStep === 'COMPLETE' ? 'Registration Complete' : 'Registration'}
-                  </span>
-                  {currentStep !== 'COMPLETE' && (
-                    <StepProgress
-                      currentStep={stepIndex}
-                      stepLabels={STEP_LABELS}
-                    />
-                  )}
-                </div>
+            <div className="flex items-center justify-between bg-navy px-6 py-3.5">
+              <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-white">
+                <span className="text-gold">·</span>
+                {currentStep === 'COMPLETE' ? 'Registration Complete' : 'Registration'}
+              </span>
+              {currentStep !== 'COMPLETE' && (
+                <StepProgress
+                  currentStep={stepIndex}
+                  stepLabels={STEP_LABELS}
+                />
+              )}
+            </div>
 
-                {currentStep === 'REG_TYPE' && (
-                  <StepRegistrationType
-                    memberType={memberType}
-                    selectedCategory={selectedCategory}
-                    iabseId={iabseId}
-                    onIabseIdChange={setIabseId}
-                    birthDate={birthDate}
-                    onBirthDateChange={setBirthDate}
-                    exhibitorQuantity={exhibitorQuantity}
-                    onExhibitorQuantityChange={setExhibitorQuantity}
-                    exhibitorBadges={exhibitorBadges}
-                    onExhibitorBadgesChange={setExhibitorBadges}
-                    onSelect={(tier, category, optionId) => {
-                      setSelectedTier(tier);
-                      setSelectedCategory(category);
-                      setSelectedRegOptionId(optionId);
-                    }}
-                    onNext={() => setCurrentStep('ADD_OPTIONS')}
-                  />
-                )}
+            {currentStep === 'REG_TYPE' && (
+              <StepRegistrationType
+                memberType={memberType}
+                selectedCategory={selectedCategory}
+                iabseId={iabseId}
+                onIabseIdChange={setIabseId}
+                birthDate={birthDate}
+                onBirthDateChange={setBirthDate}
+                exhibitorQuantity={exhibitorQuantity}
+                onExhibitorQuantityChange={setExhibitorQuantity}
+                exhibitorBadges={exhibitorBadges}
+                onExhibitorBadgesChange={setExhibitorBadges}
+                onSelect={(tier, category, optionId) => {
+                  setSelectedTier(tier);
+                  setSelectedCategory(category);
+                  setSelectedRegOptionId(optionId);
+                }}
+                onNext={() => setCurrentStep('ADD_OPTIONS')}
+              />
+            )}
 
-                {currentStep === 'ADD_OPTIONS' && selectedTier && (
-                  <StepAdditionalOptions
-                    memberType={memberType}
-                    selectedTier={selectedTier}
-                    selectedCategory={selectedCategory}
-                    selectedRegOptionId={selectedRegOptionId}
-                    quantities={additionalQuantities}
-                    onQuantityChange={(id, qty) =>
-                      setAdditionalQuantities((prev) => ({ ...prev, [id]: qty }))
-                    }
-                    accompanyingPersons={accompanyingPersons}
-                    onAccompanyingChange={setAccompanyingPersons}
-                    waitlistedOptionIds={waitlistedOptionIds}
-                    onWaitlistChange={setWaitlistedOptionIds}
-                    onNext={() => setCurrentStep('TECHNICAL_TOUR')}
-                    onBack={() => setCurrentStep('REG_TYPE')}
-                  />
-                )}
+            {currentStep === 'ADD_OPTIONS' && selectedTier && (
+              <StepAdditionalOptions
+                memberType={memberType}
+                selectedTier={selectedTier}
+                selectedCategory={selectedCategory}
+                selectedRegOptionId={selectedRegOptionId}
+                quantities={additionalQuantities}
+                onQuantityChange={(id, qty) =>
+                  setAdditionalQuantities((prev) => ({ ...prev, [id]: qty }))
+                }
+                accompanyingPersons={accompanyingPersons}
+                onAccompanyingChange={setAccompanyingPersons}
+                waitlistedOptionIds={waitlistedOptionIds}
+                onWaitlistChange={setWaitlistedOptionIds}
+                onNext={() => setCurrentStep('TECHNICAL_TOUR')}
+                onBack={() => setCurrentStep('REG_TYPE')}
+              />
+            )}
 
-                {currentStep === 'TECHNICAL_TOUR' && selectedTier && (
-                  <StepTechnicalTour
-                    memberType={memberType}
-                    selectedTier={selectedTier}
-                    selectedCategory={selectedCategory}
-                    selectedRegOptionId={selectedRegOptionId}
-                    quantities={additionalQuantities}
-                    onQuantityChange={(id, qty) =>
-                      setAdditionalQuantities((prev) => ({ ...prev, [id]: qty }))
-                    }
-                    waitlistedOptionIds={waitlistedOptionIds}
-                    onWaitlistChange={setWaitlistedOptionIds}
-                    onNext={() => setCurrentStep('INVITATION')}
-                    onBack={() => setCurrentStep('ADD_OPTIONS')}
-                  />
-                )}
+            {currentStep === 'TECHNICAL_TOUR' && selectedTier && (
+              <StepTechnicalTour
+                memberType={memberType}
+                selectedTier={selectedTier}
+                selectedCategory={selectedCategory}
+                selectedRegOptionId={selectedRegOptionId}
+                quantities={additionalQuantities}
+                onQuantityChange={(id, qty) =>
+                  setAdditionalQuantities((prev) => ({ ...prev, [id]: qty }))
+                }
+                waitlistedOptionIds={waitlistedOptionIds}
+                onWaitlistChange={setWaitlistedOptionIds}
+                onNext={() => setCurrentStep('INVITATION')}
+                onBack={() => setCurrentStep('ADD_OPTIONS')}
+              />
+            )}
 
-                {currentStep === 'INVITATION' && (
-                  <StepInvitationLetter
-                    needsLetter={needsInvitationLetter}
-                    onSelect={(needs) => setNeedsInvitationLetter(needs)}
-                    onNext={() => setCurrentStep('SUMMARY')}
-                    onBack={() => setCurrentStep('TECHNICAL_TOUR')}
-                  />
-                )}
+            {currentStep === 'INVITATION' && (
+              <StepInvitationLetter
+                needsLetter={needsInvitationLetter}
+                onSelect={(needs) => setNeedsInvitationLetter(needs)}
+                onNext={() => setCurrentStep('SUMMARY')}
+                onBack={() => setCurrentStep('TECHNICAL_TOUR')}
+              />
+            )}
 
-                {currentStep === 'SUMMARY' && selectedTier && (
-                  <StepSummary
-                    memberType={memberType}
-                    selectedTier={selectedTier}
-                    selectedRegOptionId={selectedRegOptionId}
-                    additionalQuantities={additionalQuantities}
-                    accompanyingPersons={accompanyingPersons}
-                    exhibitorBadges={exhibitorBadges}
-                    waitlistedOptionIds={waitlistedOptionIds}
-                    iabseId={iabseId}
-                    birthDate={birthDate}
-                    needsInvitationLetter={needsInvitationLetter ?? false}
-                    onEditPackage={() => setCurrentStep('REG_TYPE')}
-                    onEditAddons={() => setCurrentStep('ADD_OPTIONS')}
-                    onEditTours={() => setCurrentStep('TECHNICAL_TOUR')}
-                    onEditInvitation={() => setCurrentStep('INVITATION')}
-                    onNext={() => setCurrentStep('PAYMENT')}
-                    onBack={() => setCurrentStep('INVITATION')}
-                  />
-                )}
+            {currentStep === 'SUMMARY' && selectedTier && (
+              <StepSummary
+                memberType={memberType}
+                selectedTier={selectedTier}
+                selectedRegOptionId={selectedRegOptionId}
+                additionalQuantities={additionalQuantities}
+                accompanyingPersons={accompanyingPersons}
+                exhibitorBadges={exhibitorBadges}
+                waitlistedOptionIds={waitlistedOptionIds}
+                iabseId={iabseId}
+                birthDate={birthDate}
+                needsInvitationLetter={needsInvitationLetter ?? false}
+                onEditPackage={() => setCurrentStep('REG_TYPE')}
+                onEditAddons={() => setCurrentStep('ADD_OPTIONS')}
+                onEditTours={() => setCurrentStep('TECHNICAL_TOUR')}
+                onEditInvitation={() => setCurrentStep('INVITATION')}
+                onNext={() => setCurrentStep('PAYMENT')}
+                onBack={() => setCurrentStep('INVITATION')}
+              />
+            )}
 
-                {currentStep === 'PAYMENT' && (
-                  <Step3Payment
-                    selectedOptionIds={paymentPayload.selectedOptionIds}
-                    quantities={paymentPayload.quantities}
-                    accompanyingPersons={accompanyingPersons}
-                    exhibitorBadges={exhibitorBadges}
-                    waitlistedOptionIds={waitlistedOptionIds}
-                    iabseId={iabseId}
-                    birthDate={birthDate}
-                    totalAmount={totalAmount}
-                    onComplete={(result) => {
-                      setPaymentResult(result);
-                      setCurrentStep('COMPLETE');
-                    }}
-                    onBack={() => setCurrentStep('SUMMARY')}
-                  />
-                )}
+            {currentStep === 'PAYMENT' && (
+              <Step3Payment
+                selectedOptionIds={paymentPayload.selectedOptionIds}
+                quantities={paymentPayload.quantities}
+                accompanyingPersons={accompanyingPersons}
+                exhibitorBadges={exhibitorBadges}
+                waitlistedOptionIds={waitlistedOptionIds}
+                iabseId={iabseId}
+                birthDate={birthDate}
+                totalAmount={totalAmount}
+                onComplete={(result) => {
+                  setPaymentResult(result);
+                  setCurrentStep('COMPLETE');
+                }}
+                onBack={() => setCurrentStep('SUMMARY')}
+              />
+            )}
 
-                {currentStep === 'COMPLETE' && paymentResult && (
-                  <Step4Complete
-                    result={paymentResult}
-                    onGoHistory={() => {
-                      setNavTab('HISTORY');
-                      resetRegistration();
-                    }}
-                  />
-                )}
-              </>
+            {currentStep === 'COMPLETE' && paymentResult && (
+              <Step4Complete
+                result={paymentResult}
+                onGoHistory={() => {
+                  setNavTab('HISTORY');
+                  resetRegistration();
+                }}
+              />
             )}
           </div>
         )}

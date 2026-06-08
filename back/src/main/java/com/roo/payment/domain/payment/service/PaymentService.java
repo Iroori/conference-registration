@@ -76,12 +76,6 @@ public class PaymentService {
         User user = userRepository.findByEmailAndActiveTrue(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        // 중복 결제 방지: COMPLETED 결제가 이미 있으면 차단
-        if (paymentRepository.existsByUserAndStatus(user, PaymentStatus.COMPLETED)) {
-            log.warn("[PAYMENT] Duplicate payment blocked — email={}", maskEmail(email));
-            throw new BusinessException(ErrorCode.PAYMENT_ALREADY_EXISTS);
-        }
-
         // 옵션 조회 및 검증
         List<String> uniqueIds = request.selectedOptionIds().stream().distinct().toList();
         List<ConferenceOption> options = optionRepository.findAllById(uniqueIds);
