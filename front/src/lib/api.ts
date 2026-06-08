@@ -193,6 +193,10 @@ export const apiCreateAdminDiscountCode = async (req: {
   return res.data.data;
 };
 
+export const apiDeleteAdminPayment = async (paymentId: number): Promise<void> => {
+  await apiClient.delete(`/admin/payments/${paymentId}`);
+};
+
 export const apiDeleteAdminDiscountCode = async (id: number): Promise<void> => {
   await apiClient.delete(`/admin/discount-codes/${id}`);
 };

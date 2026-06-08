@@ -13,6 +13,7 @@ import {
   apiGetAdminDiscountCodes,
   apiCreateAdminDiscountCode,
   apiDeleteAdminDiscountCode,
+  apiDeleteAdminPayment,
 } from '../lib/api';
 import type { MemberType } from '../types';
 
@@ -208,6 +209,27 @@ export const AdminDashboardPage = () => {
     const message = `[WARNING - PERMANENT DELETION]\n\nAre you sure you want to PERMANENTLY delete registered user "${name}"?\n\nThis will:\n1. Erase their user account from the database.\n2. Permanently delete all associated payment records.\n3. Remove their Accompanying Person registration.\n4. Release and restore all reserved seats/tickets (like Technical Tour, Gala Dinner, etc.) back to the inventory.\n\nThis action CANNOT be undone. Click OK to proceed.`;
     if (window.confirm(message)) {
       deleteUserMutation.mutate(userId);
+    }
+  };
+
+  // Payment delete mutation
+  const deletePaymentMutation = useMutation({
+    mutationFn: (paymentId: number) => apiDeleteAdminPayment(paymentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminPayments'] });
+      queryClient.invalidateQueries({ queryKey: ['adminOptions'] });
+      alert('Payment record deleted successfully, options capacity and discount code status have been restored.');
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || 'Failed to delete payment record. Please try again.';
+      alert(msg);
+    },
+  });
+
+  const handleDeletePayment = (paymentId: number, regNo: string) => {
+    const message = `[WARNING - PAYMENT RECORD DELETION]\n\nAre you sure you want to PERMANENTLY delete payment record "${regNo}"?\n\nThis will:\n1. Delete the payment record itself.\n2. Release and restore reserved program/registration option counts.\n3. Mark the applied discount code (if any) as unused so it can be used again.\n\nThis action cannot be undone. Click OK to proceed.`;
+    if (window.confirm(message)) {
+      deletePaymentMutation.mutate(paymentId);
     }
   };
 
@@ -1229,6 +1251,15 @@ export const AdminDashboardPage = () => {
                                               <div className="flex justify-between text-sm font-bold text-slate-850">
                                                 <span>Total Amount Paid:</span>
                                                 <span className="font-mono text-teal-600 text-base">{formatPrice(p.totalAmount)}</span>
+                                              </div>
+                                              <div className="border-t border-slate-200 pt-3 mt-3 flex justify-end">
+                                                <button
+                                                  onClick={() => handleDeletePayment(p.id, p.registrationNumber)}
+                                                  disabled={deletePaymentMutation.isPending}
+                                                  className="px-3 py-1.5 bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold rounded-lg text-xs shadow-sm transition"
+                                                >
+                                                  {deletePaymentMutation.isPending ? 'Deleting...' : 'Delete Payment Record'}
+                                                </button>
                                               </div>
                                             </div>
                                           </div>

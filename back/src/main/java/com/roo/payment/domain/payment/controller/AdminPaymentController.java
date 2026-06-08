@@ -4,7 +4,9 @@ import com.roo.payment.common.response.ApiResponse;
 import com.roo.payment.config.AppProperties;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
 import com.roo.payment.domain.payment.entity.Payment;
+import com.roo.payment.domain.payment.entity.PaymentStatus;
 import com.roo.payment.domain.payment.repository.PaymentRepository;
+import com.roo.payment.domain.payment.repository.DiscountCodeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +29,12 @@ public class AdminPaymentController {
     private static final Logger log = LoggerFactory.getLogger(AdminPaymentController.class);
 
     private final PaymentRepository paymentRepository;
+    private final DiscountCodeRepository discountCodeRepository;
     private final AppProperties appProperties;
 
-    public AdminPaymentController(PaymentRepository paymentRepository, AppProperties appProperties) {
+    public AdminPaymentController(PaymentRepository paymentRepository, DiscountCodeRepository discountCodeRepository, AppProperties appProperties) {
         this.paymentRepository = paymentRepository;
+        this.discountCodeRepository = discountCodeRepository;
         this.appProperties = appProperties;
     }
 
@@ -71,6 +75,51 @@ public class AdminPaymentController {
 
         log.info("[ADMIN] 결제 단건 조회 — id={}", id);
         return ResponseEntity.ok(ApiResponse.ok(PaymentResponse.from(payment)));
+    }
+
+    /**
+     * 결제 내역 삭제 및 관련 상태 복원 (어드민용)
+     * DELETE /api/admin/payments/{id}
+     */
+    @DeleteMapping("/{id}")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<ApiResponse<Void>> deletePayment(
+            @RequestHeader(value = "X-Admin-Key", required = false) String adminKey,
+            @PathVariable Long id) {
+
+        validateAdminKey(adminKey);
+
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new com.roo.payment.common.exception.BusinessException(
+                        com.roo.payment.common.exception.ErrorCode.PAYMENT_NOT_FOUND));
+
+        log.info("[ADMIN] Deleting payment record id={}, regNo={}", id, payment.getRegistrationNumber());
+
+        // 1. COMPLETED 결제 건에 대해서 옵션 정원 복원
+        if (payment.getStatus() == PaymentStatus.COMPLETED) {
+            payment.getSelectedOptions().forEach(o -> {
+                o.decreaseCount();
+                log.info("[ADMIN] Restored option count for '{}' due to payment deletion", o.getNameEn());
+            });
+        }
+
+        // 2. 할인 코드를 사용한 결제 건의 경우, 할인 코드 미사용으로 상태 복원
+        String appliedCode = payment.getAppliedDiscountCode();
+        if (appliedCode != null && !appliedCode.isBlank()) {
+            discountCodeRepository.findByCode(appliedCode).ifPresent(dc -> {
+                dc.markAsUnused();
+                discountCodeRepository.save(dc);
+                log.info("[ADMIN] Restored discount code '{}' to unused status", appliedCode);
+            });
+        }
+
+        // 3. ManyToMany 옵션 관계 해제
+        payment.getSelectedOptions().clear();
+
+        // 4. 결제 기록 삭제
+        paymentRepository.delete(payment);
+
+        return ResponseEntity.ok(ApiResponse.ok("Payment record deleted successfully.", null));
     }
 
     private void validateAdminKey(String adminKey) {

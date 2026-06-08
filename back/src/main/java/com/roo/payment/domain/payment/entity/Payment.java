@@ -101,7 +101,7 @@ public class Payment extends BaseEntity {
         this.tax = tax;
         this.totalAmount = subtotal + tax;
         this.status = PaymentStatus.PENDING;
-        this.selectedOptions = selectedOptions;
+        this.selectedOptions = selectedOptions != null ? new ArrayList<>(selectedOptions) : new ArrayList<>();
     }
 
     public void complete() {

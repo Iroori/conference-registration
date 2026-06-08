@@ -59,6 +59,10 @@ public class DiscountCode extends BaseEntity {
         this.used = true;
     }
 
+    public void markAsUnused() {
+        this.used = false;
+    }
+
     public void deactivate() {
         this.active = false;
     }
