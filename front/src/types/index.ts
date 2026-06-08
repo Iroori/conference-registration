@@ -383,6 +383,9 @@ export interface UpdateProfileRequest {
   billingPostcode: string;
   billingCity: string;
   billingCountry: string;
+  isPresenter: boolean;
+  isAuthor: boolean;
+  paperInfo?: string;
 }
 
 export interface DiscountCode {

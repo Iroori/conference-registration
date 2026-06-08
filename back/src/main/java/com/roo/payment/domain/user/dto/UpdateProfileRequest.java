@@ -19,5 +19,9 @@ public record UpdateProfileRequest(
     @Size(max = 50) String billingPoBox,
     @NotBlank @Size(max = 50) String billingPostcode,
     @NotBlank @Size(max = 100) String billingCity,
-    @NotBlank @Size(max = 100) String billingCountry
+    @NotBlank @Size(max = 100) String billingCountry,
+
+    boolean isPresenter,
+    boolean isAuthor,
+    @Size(max = 300) String paperInfo
 ) {}

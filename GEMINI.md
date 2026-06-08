@@ -418,6 +418,7 @@ docs/
 | 2026-06-05 | remove-vat-ui-display.md | 결제 내역, 어드민 대시보드 등의 UI 화면에서 10% VAT 부가세 계산 및 내역 표시 제거 및 엑셀 내보내기 통합 |
 | 2026-06-08 | discount-codes-implementation.md | 프로모션/할인 코드 검증 및 결제 적용 기능 구현 |
 | 2026-06-08 | timezone-multiple-payment-and-compile-fix.md | JVM 기본 타임존 한국시 설정, 중복 결제 제한 제거 및 프론트 컴파일 미사용 변수 에러 제거 |
+| 2026-06-08 | profile-paper-status-editing.md | 마이 프로필 탭 내 Paper Author and Presenter Status 조회 및 수정 기능 추가 |
 
 ---
 

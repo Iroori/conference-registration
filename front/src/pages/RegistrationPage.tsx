@@ -385,6 +385,10 @@ export const MyProfileTab = () => {
   const [position, setPosition] = useState(user?.position || 'Mr.');
   const [phone, setPhone] = useState(user?.phone || '');
 
+  const [isPresenter, setIsPresenter] = useState(user?.isPresenter || false);
+  const [isAuthor, setIsAuthor] = useState(user?.isAuthor || false);
+  const [paperInfo, setPaperInfo] = useState(user?.paperInfo || '');
+
   const [billingUniversity, setBillingUniversity] = useState(user?.billingUniversity || '');
   const [billingVat, setBillingVat] = useState(user?.billingVat || '');
   const [billingPoNumber, setBillingPoNumber] = useState(user?.billingPoNumber || '');
@@ -436,6 +440,9 @@ export const MyProfileTab = () => {
         billingPostcode,
         billingCity,
         billingCountry,
+        isPresenter,
+        isAuthor,
+        paperInfo,
       });
 
       login(refreshedUser);
@@ -686,6 +693,67 @@ export const MyProfileTab = () => {
                   ))}
                 </select>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Paper Author and Presenter Status Section ── */}
+        <div className="border-t border-slate-200 pt-5">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4">
+            <div>
+              <p className="text-sm font-bold text-slate-850 uppercase tracking-wider mb-1">
+                Paper Author and Presenter Status
+              </p>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Please check all that apply. Leave this section blank if none apply.
+              </p>
+            </div>
+
+            <div className="space-y-2.5">
+              {/* Author Checkbox */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isAuthor}
+                  onChange={(e) => setIsAuthor(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-slate-355 text-gold focus:ring-gold"
+                />
+                <span className="text-sm font-semibold text-slate-800">
+                  I am an author or co-author of a paper at the Congress.
+                </span>
+              </label>
+
+              {/* Presenter Checkbox */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isPresenter}
+                  onChange={(e) => setIsPresenter(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-slate-355 text-gold focus:ring-gold"
+                />
+                <span className="text-sm font-semibold text-slate-800">
+                  I am the presenter of a paper at the Congress.
+                </span>
+              </label>
+            </div>
+
+            <div className="border-t border-slate-200/80 pt-3.5 space-y-3">
+              <div>
+                <label className="block label-section text-[11px] uppercase mb-1.5 text-slate-800">
+                  Please enter your paper number or title here.
+                </label>
+                <input
+                  type="text"
+                  value={paperInfo}
+                  onChange={(e) => setPaperInfo(e.target.value)}
+                  className="input-base"
+                  placeholder="123 or A Novel Bridge Design…"
+                  maxLength={300}
+                />
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                Full papers accepted by the Scientific Committee will be published in the IABSE Congress 2026 Proceedings. If your abstract or full paper is accepted, please enter its number or title.
+              </p>
             </div>
           </div>
         </div>

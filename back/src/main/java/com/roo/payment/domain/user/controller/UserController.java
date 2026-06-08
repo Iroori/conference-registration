@@ -62,6 +62,9 @@ public class UserController {
                 req.billingCity(),
                 req.billingCountry()
         );
+        user.setPresenter(req.isPresenter());
+        user.setAuthor(req.isAuthor());
+        user.assignPaperInfo(req.paperInfo());
 
         userRepository.save(user);
 

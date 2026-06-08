@@ -179,6 +179,7 @@ public class User extends BaseEntity {
     public boolean isEmailVerified() { return emailVerified; }
     public boolean isActive() { return active; }
     public boolean isPresenter() { return presenter; }
+    public void setPresenter(boolean presenter) { this.presenter = presenter; }
     public boolean isAuthor() { return author; }
     public void setAuthor(boolean author) { this.author = author; }
     public String getPaperInfo() { return paperInfo; }
