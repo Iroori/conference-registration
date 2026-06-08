@@ -738,6 +738,42 @@ export const Step4Complete = ({ result, onGoHistory }: Step4CompleteProps) => (
             ))}
           </div>
         )}
+        {result.appliedDiscountCode && (
+          <div className="space-y-1 mt-1.5 border-t border-gold-soft pt-1.5 text-xs">
+            <div className="flex justify-between text-slate-500 font-medium">
+              <span>Subtotal</span>
+              <span className="font-mono">{formatKRW(result.subtotal)}</span>
+            </div>
+            <div className="flex justify-between text-teal-650 font-bold">
+              <span>Discount ({result.appliedDiscountCode})</span>
+              <span className="font-mono">-{formatKRW(result.discountTotalAmount ?? 0)}</span>
+            </div>
+            {result.discountRegAmount !== undefined && result.discountRegAmount > 0 && (
+              <div className="flex justify-between text-[10px] text-slate-500 pl-2">
+                <span>• Registration Discount:</span>
+                <span className="font-mono">-{formatKRW(result.discountRegAmount)}</span>
+              </div>
+            )}
+            {result.discountGalaAmount !== undefined && result.discountGalaAmount > 0 && (
+              <div className="flex justify-between text-[10px] text-slate-500 pl-2">
+                <span>• Gala Dinner:</span>
+                <span className="font-mono">-{formatKRW(result.discountGalaAmount)}</span>
+              </div>
+            )}
+            {result.discountAccompAmount !== undefined && result.discountAccompAmount > 0 && (
+              <div className="flex justify-between text-[10px] text-slate-500 pl-2">
+                <span>• Accompanying Person:</span>
+                <span className="font-mono">-{formatKRW(result.discountAccompAmount)}</span>
+              </div>
+            )}
+            {result.discountTourAmount !== undefined && result.discountTourAmount > 0 && (
+              <div className="flex justify-between text-[10px] text-slate-500 pl-2">
+                <span>• Technical Tour:</span>
+                <span className="font-mono">-{formatKRW(result.discountTourAmount)}</span>
+              </div>
+            )}
+          </div>
+        )}
         <div className="mt-2 flex justify-between items-baseline border-t border-gold-soft pt-2">
           <span className="label-section">Total</span>
           <span className="amount-total">{formatKRW(result.totalAmount)}</span>
