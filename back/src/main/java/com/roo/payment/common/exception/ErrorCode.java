@@ -37,6 +37,11 @@ public enum ErrorCode {
     OPTION_CAPACITY_EXCEEDED(HttpStatus.BAD_REQUEST, "The selected program's capacity has been exceeded."),
     ACCOMPANYING_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "Accompanying person's name (First/Last) is required."),
 
+    // Discount Code
+    DISCOUNT_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "Discount code not found or inactive."),
+    DISCOUNT_CODE_ALREADY_USED(HttpStatus.BAD_REQUEST, "This discount code has already been used."),
+    DISCOUNT_CODE_INVALID_USER(HttpStatus.FORBIDDEN, "This discount code is not assigned to your account."),
+
     // Common
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "Invalid input value."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "Access denied."),

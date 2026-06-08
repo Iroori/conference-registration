@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   apiGetAdminUsers,
@@ -10,10 +10,13 @@ import {
   apiDeleteUser,
   apiAddAdminIasbseMember,
   apiDeleteAdminIasbseMember,
+  apiGetAdminDiscountCodes,
+  apiCreateAdminDiscountCode,
+  apiDeleteAdminDiscountCode,
 } from '../lib/api';
 import type { MemberType } from '../types';
 
-type SubTab = 'USERS' | 'IABSE' | 'PAYMENTS' | 'OPTIONS';
+type SubTab = 'USERS' | 'IABSE' | 'PAYMENTS' | 'OPTIONS' | 'DISCOUNT_CODES';
 
 const OptionInventoryRow = ({
   option,
@@ -81,6 +84,15 @@ export const AdminDashboardPage = () => {
   const [newIabseId, setNewIabseId] = useState('');
   const [newFirstName, setNewFirstName] = useState('');
   const [newLastName, setNewLastName] = useState('');
+
+  // Discount code form states
+  const [selectedUserEmail, setSelectedUserEmail] = useState('');
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [memberRate, setMemberRate] = useState<number>(0);
+  const [nonMemberRate, setNonMemberRate] = useState<number>(0);
+  const [galaFree, setGalaFree] = useState(false);
+  const [accompFree, setAccompFree] = useState(false);
+  const [tourFree, setTourFree] = useState(false);
   
   const toggleExpandPayment = (id: number) => {
     setExpandedPaymentId((prev) => (prev === id ? null : id));
@@ -96,7 +108,7 @@ export const AdminDashboardPage = () => {
   } = useQuery({
     queryKey: ['adminUsers'],
     queryFn: apiGetAdminUsers,
-    enabled: activeTab === 'USERS',
+    enabled: activeTab === 'USERS' || activeTab === 'DISCOUNT_CODES',
   });
 
   const {
@@ -227,6 +239,57 @@ export const AdminDashboardPage = () => {
     queryFn: apiGetAdminOptions,
     enabled: activeTab === 'OPTIONS',
   });
+
+  const {
+    data: discountCodes,
+    isLoading: loadingCodes,
+    isError: errorCodes,
+  } = useQuery({
+    queryKey: ['adminDiscountCodes'],
+    queryFn: apiGetAdminDiscountCodes,
+    enabled: activeTab === 'DISCOUNT_CODES',
+  });
+
+  const createDiscountCodeMutation = useMutation({
+    mutationFn: (req: {
+      userEmail: string;
+      iabseMemberDiscountRate: number;
+      nonIabseMemberDiscountRate: number;
+      galaDinnerFree: boolean;
+      accompanyingPersonFree: boolean;
+      technicalTourFree: boolean;
+    }) => apiCreateAdminDiscountCode(req),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminDiscountCodes'] });
+      alert('Discount code generated and assigned successfully.');
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || 'Failed to create discount code.';
+      alert(msg);
+    },
+  });
+
+  const deleteDiscountCodeMutation = useMutation({
+    mutationFn: (id: number) => apiDeleteAdminDiscountCode(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminDiscountCodes'] });
+      alert('Discount code deleted successfully.');
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || 'Failed to delete discount code.';
+      alert(msg);
+    },
+  });
+
+  const filteredSuggestions = useMemo(() => {
+    if (!userSearchTerm.trim() || !users) return [];
+    return users
+      .filter((u) => 
+        u.email.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+        `${u.firstName} ${u.lastName}`.toLowerCase().includes(userSearchTerm.toLowerCase())
+      )
+      .slice(0, 5);
+  }, [userSearchTerm, users]);
 
   const updateCapacityMutation = useMutation({
     mutationFn: ({ optionId, maxCapacity }: { optionId: string; maxCapacity: number }) =>
@@ -403,8 +466,8 @@ export const AdminDashboardPage = () => {
         </div>
 
         {/* Sub-tabs switch */}
-        <div className="flex bg-slate-900/50 p-0.5 rounded-xl border border-slate-700/50">
-          {(['USERS', 'IABSE', 'PAYMENTS', 'OPTIONS'] as SubTab[]).map((tab) => (
+        <div className="flex bg-slate-900/50 p-0.5 rounded-xl border border-slate-700/50 flex-wrap">
+          {(['USERS', 'IABSE', 'PAYMENTS', 'OPTIONS', 'DISCOUNT_CODES'] as SubTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -420,7 +483,9 @@ export const AdminDashboardPage = () => {
                 ? 'IABSE Members (Excel)'
                 : tab === 'PAYMENTS'
                 ? 'Total Payments'
-                : 'Ticket Inventory'}
+                : tab === 'OPTIONS'
+                ? 'Ticket Inventory'
+                : 'Discount Codes'}
             </button>
           ))}
         </div>
@@ -1031,6 +1096,295 @@ export const AdminDashboardPage = () => {
                           }}
                         />
                       ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 5: Discount Codes */}
+        {activeTab === 'DISCOUNT_CODES' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-slate-800">Discount Code Management</h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Generate unique 8-character codes and assign them to specific registered users.
+                </p>
+              </div>
+              <span className="text-xs text-slate-500 font-medium bg-slate-200/60 px-2.5 py-1 rounded-full">
+                Total codes: {discountCodes?.length ?? 0}
+              </span>
+            </div>
+
+            {/* Create Code Form */}
+            <div className="bg-white rounded-xl border border-slate-205 p-5 shadow-sm space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-teal-500"></span>
+                Generate & Assign New Discount Code
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* User Search & Selection */}
+                <div className="space-y-2 relative">
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">
+                    Assignee User (Email or Name) <span className="text-red-500 font-bold">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={userSearchTerm}
+                    onChange={(e) => {
+                      setUserSearchTerm(e.target.value);
+                      if (selectedUserEmail && e.target.value !== selectedUserEmail) {
+                        setSelectedUserEmail('');
+                      }
+                    }}
+                    placeholder="Search attendee by email or name..."
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100 bg-slate-50/50 focus:bg-white text-slate-800"
+                  />
+                  {selectedUserEmail && (
+                    <p className="text-[10px] text-green-600 font-semibold mt-1">
+                      ✓ Selected user: {selectedUserEmail}
+                    </p>
+                  )}
+                  {/* Suggestion list */}
+                  {!selectedUserEmail && filteredSuggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-25 divide-y divide-slate-100 max-h-40 overflow-y-auto">
+                      {filteredSuggestions.map((u) => (
+                        <button
+                          key={u.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedUserEmail(u.email);
+                            setUserSearchTerm(u.email);
+                          }}
+                          className="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 transition flex justify-between items-center"
+                        >
+                          <span className="font-semibold text-slate-800">{u.email}</span>
+                          <span className="text-[10px] text-slate-400 font-medium">{u.firstName} {u.lastName}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Optional Program checkboxes */}
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-bold uppercase text-slate-500">
+                    Optional Programs Discounts
+                  </label>
+                  <div className="space-y-2 pt-1">
+                    <label className="flex items-center gap-2 text-xs cursor-pointer select-none text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={galaFree}
+                        onChange={(e) => setGalaFree(e.target.checked)}
+                        className="rounded border-slate-305 text-teal-600 focus:ring-teal-500"
+                      />
+                      <span className="font-medium">Gala Dinner Free (갈라디너 무료)</span>
+                    </label>
+                    <label className="flex items-center gap-2 text-xs cursor-pointer select-none text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={accompFree}
+                        onChange={(e) => setAccompFree(e.target.checked)}
+                        className="rounded border-slate-305 text-teal-600 focus:ring-teal-500"
+                      />
+                      <span className="font-medium">Accompanying Person (동반자 1인 무료)</span>
+                    </label>
+                    <label className="flex items-center gap-2 text-xs cursor-pointer select-none text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={tourFree}
+                        onChange={(e) => setTourFree(e.target.checked)}
+                        className="rounded border-slate-305 text-teal-600 focus:ring-teal-500"
+                      />
+                      <span className="font-medium">Technical Tours Free (기술투어 무료)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Registration Rate select drop downs */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
+                    IABSE Member Registration Fee Discount
+                  </label>
+                  <select
+                    value={memberRate}
+                    onChange={(e) => setMemberRate(Number(e.target.value))}
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 bg-white text-slate-800"
+                  >
+                    <option value={0}>0% (No discount)</option>
+                    <option value={50}>50% Off</option>
+                    <option value={100}>100% Off (Free)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
+                    Non-IABSE Member Registration Fee Discount
+                  </label>
+                  <select
+                    value={nonMemberRate}
+                    onChange={(e) => setNonMemberRate(Number(e.target.value))}
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 bg-white text-slate-800"
+                  >
+                    <option value={0}>0% (No discount)</option>
+                    <option value={50}>50% Off</option>
+                    <option value={100}>100% Off (Free)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedUserEmail('');
+                    setUserSearchTerm('');
+                    setMemberRate(0);
+                    setNonMemberRate(0);
+                    setGalaFree(false);
+                    setAccompFree(false);
+                    setTourFree(false);
+                  }}
+                  className="px-4 py-2 text-xs border border-slate-200 text-slate-650 hover:bg-slate-50 rounded-lg font-semibold transition mr-2"
+                >
+                  Reset Form
+                </button>
+                <button
+                  type="button"
+                  disabled={!selectedUserEmail || createDiscountCodeMutation.isPending}
+                  onClick={() => {
+                    createDiscountCodeMutation.mutate({
+                      userEmail: selectedUserEmail,
+                      iabseMemberDiscountRate: memberRate,
+                      nonIabseMemberDiscountRate: nonMemberRate,
+                      galaDinnerFree: galaFree,
+                      accompanyingPersonFree: accompFree,
+                      technicalTourFree: tourFree,
+                    }, {
+                      onSuccess: () => {
+                        setSelectedUserEmail('');
+                        setUserSearchTerm('');
+                        setMemberRate(0);
+                        setNonMemberRate(0);
+                        setGalaFree(false);
+                        setAccompFree(false);
+                        setTourFree(false);
+                      }
+                    });
+                  }}
+                  className="px-4 py-2 text-xs bg-teal-500 hover:bg-teal-600 active:bg-teal-700 text-white font-semibold rounded-lg shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {createDiscountCodeMutation.isPending ? 'Generating...' : 'Generate & Assign Code'}
+                </button>
+              </div>
+            </div>
+
+            {/* Codes List Table */}
+            {loadingCodes && (
+              <div className="flex flex-col items-center justify-center py-16 gap-3">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-teal-500"></div>
+                <p className="text-xs font-medium text-slate-500">Loading discount codes...</p>
+              </div>
+            )}
+
+            {errorCodes && (
+              <div className="rounded-xl border border-red-100 bg-red-50 p-5 text-center text-red-600 text-xs font-medium">
+                Failed to load discount codes from database.
+              </div>
+            )}
+
+            {discountCodes && discountCodes.length === 0 && (
+              <div className="rounded-xl border border-dashed border-slate-200 bg-white py-16 text-center text-slate-400 text-xs font-medium">
+                No discount codes created yet.
+              </div>
+            )}
+
+            {discountCodes && discountCodes.length > 0 && (
+              <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+                <table className="w-full border-collapse text-left text-xs">
+                  <thead>
+                    <tr className="bg-slate-100 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                      <th className="px-4 py-3.5">Discount Code</th>
+                      <th className="px-4 py-3.5">Assignee User</th>
+                      <th className="px-4 py-3.5">Registration Discount</th>
+                      <th className="px-4 py-3.5">Option Freebies</th>
+                      <th className="px-4 py-3.5 text-center">Status</th>
+                      <th className="px-4 py-3.5 text-center w-[100px]">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
+                    {discountCodes.map((dc) => (
+                      <tr key={dc.id} className="hover:bg-slate-50/50 transition">
+                        <td className="px-4 py-3.5">
+                          <span className="font-mono font-bold text-slate-900 bg-slate-100 border border-slate-200 rounded px-2 py-1 select-all">
+                            {dc.code}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 font-medium text-slate-750">{dc.userEmail}</td>
+                        <td className="px-4 py-3.5">
+                          <div className="space-y-1">
+                            <p className="text-slate-600 font-semibold">
+                              Member: <span className={dc.iabseMemberDiscountRate > 0 ? "text-teal-600 font-extrabold" : "text-slate-400"}>{dc.iabseMemberDiscountRate}%</span>
+                            </p>
+                            <p className="text-slate-650 font-semibold">
+                              Non-Member: <span className={dc.nonIabseMemberDiscountRate > 0 ? "text-teal-600 font-extrabold" : "text-slate-400"}>{dc.nonIabseMemberDiscountRate}%</span>
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-slate-500 font-medium">
+                          <div className="flex flex-wrap gap-1">
+                            {dc.galaDinnerFree && (
+                              <span className="bg-purple-50 text-purple-700 border border-purple-100 px-1.5 py-0.5 rounded text-[10px]">
+                                Gala Dinner Free
+                              </span>
+                            )}
+                            {dc.accompanyingPersonFree && (
+                              <span className="bg-amber-50 text-amber-700 border border-amber-105 px-1.5 py-0.5 rounded text-[10px]">
+                                Accomp. (1 Free)
+                              </span>
+                            )}
+                            {dc.technicalTourFree && (
+                              <span className="bg-blue-50 text-blue-700 border border-blue-105 px-1.5 py-0.5 rounded text-[10px]">
+                                Tours Free
+                              </span>
+                            )}
+                            {!dc.galaDinnerFree && !dc.accompanyingPersonFree && !dc.technicalTourFree && (
+                              <span className="text-slate-400 italic">None</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-center">
+                          {dc.used ? (
+                            <span className="inline-block bg-slate-150 border border-slate-200 text-slate-500 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                              USED
+                            </span>
+                          ) : (
+                            <span className="inline-block bg-green-100 border border-green-200 text-green-800 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">
+                              UNUSED
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3.5 text-center">
+                          <button
+                            type="button"
+                            disabled={deleteDiscountCodeMutation.isPending}
+                            onClick={() => {
+                              if (window.confirm(`Are you sure you want to permanently delete discount code "${dc.code}"?`)) {
+                                deleteDiscountCodeMutation.mutate(dc.id);
+                              }
+                            }}
+                            className="px-2 py-1 bg-red-500 hover:bg-red-600 active:bg-red-700 disabled:opacity-50 text-white font-semibold rounded-lg text-[10px] shadow-sm hover:shadow active:scale-95 transition-all duration-200"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

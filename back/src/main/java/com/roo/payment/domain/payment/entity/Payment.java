@@ -59,6 +59,24 @@ public class Payment extends BaseEntity {
     @Column(length = 100)
     private String tid;
 
+    @Column(name = "applied_discount_code", length = 30)
+    private String appliedDiscountCode;
+
+    @Column(nullable = false)
+    private long discountTotalAmount = 0;
+
+    @Column(nullable = false)
+    private long discountRegAmount = 0;
+
+    @Column(nullable = false)
+    private long discountGalaAmount = 0;
+
+    @Column(nullable = false)
+    private long discountAccompAmount = 0;
+
+    @Column(nullable = false)
+    private long discountTourAmount = 0;
+
     @ManyToMany
     @JoinTable(name = "payment_options", joinColumns = @JoinColumn(name = "payment_id"), inverseJoinColumns = @JoinColumn(name = "option_id"))
     private List<ConferenceOption> selectedOptions = new ArrayList<>();
@@ -94,6 +112,16 @@ public class Payment extends BaseEntity {
     /** PayGate TID 저장 — 결제 완료 시 호출 */
     public void storeTid(String tid) {
         this.tid = tid;
+    }
+
+    public void applyDiscount(String code, long totalDiscount, long regDiscount, long galaDiscount, long accompDiscount, long tourDiscount) {
+        this.appliedDiscountCode = code;
+        this.discountTotalAmount = totalDiscount;
+        this.discountRegAmount = regDiscount;
+        this.discountGalaAmount = galaDiscount;
+        this.discountAccompAmount = accompDiscount;
+        this.discountTourAmount = tourDiscount;
+        this.totalAmount = this.subtotal + this.tax - totalDiscount;
     }
 
     public void cancel(String reason) {
@@ -177,4 +205,11 @@ public class Payment extends BaseEntity {
     public List<ExhibitorBadge> getExhibitorBadges() {
         return exhibitorBadges;
     }
+
+    public String getAppliedDiscountCode() { return appliedDiscountCode; }
+    public long getDiscountTotalAmount() { return discountTotalAmount; }
+    public long getDiscountRegAmount() { return discountRegAmount; }
+    public long getDiscountGalaAmount() { return discountGalaAmount; }
+    public long getDiscountAccompAmount() { return discountAccompAmount; }
+    public long getDiscountTourAmount() { return discountTourAmount; }
 }

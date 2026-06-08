@@ -293,6 +293,7 @@ export interface PaymentRequest {
   waitlistedOptionIds?: string[];
   iabseId?: string;
   birthDate?: string;
+  appliedDiscountCode?: string;
 }
 
 export interface PaymentResponse {
@@ -312,6 +313,12 @@ export interface PaymentResponse {
   selectedOptions: ConferenceOption[];
   accompanyingPersons?: AccompanyingPersonInfo[];
   exhibitorBadges?: ExhibitorBadgeInfo[];
+  appliedDiscountCode?: string | null;
+  discountTotalAmount?: number;
+  discountRegAmount?: number;
+  discountGalaAmount?: number;
+  discountAccompAmount?: number;
+  discountTourAmount?: number;
 }
 
 // ─── Pricing (프론트엔드 계산용) ─────────────────────────────────────────────
@@ -376,4 +383,17 @@ export interface UpdateProfileRequest {
   billingPostcode: string;
   billingCity: string;
   billingCountry: string;
+}
+
+export interface DiscountCode {
+  id: number;
+  code: string;
+  userEmail: string;
+  iabseMemberDiscountRate: number;
+  nonIabseMemberDiscountRate: number;
+  galaDinnerFree: boolean;
+  accompanyingPersonFree: boolean;
+  technicalTourFree: boolean;
+  used: boolean;
+  active: boolean;
 }

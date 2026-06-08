@@ -12,6 +12,7 @@ import type {
   AdminUser,
   IasbseMember,
   UpdateProfileRequest,
+  DiscountCode,
 } from '../types';
 
 // ─── Password hashing ────────────────────────────────────────────────────────
@@ -166,5 +167,31 @@ export const apiDeleteUser = async (userId: number): Promise<void> => {
 
 export const apiUpdateProfile = async (req: UpdateProfileRequest): Promise<AuthUser> => {
   const res = await apiClient.put<{ data: AuthUser }>('/user/profile', req);
+  return res.data.data;
+};
+
+export const apiGetAdminDiscountCodes = async (): Promise<DiscountCode[]> => {
+  const res = await apiClient.get<{ data: DiscountCode[] }>('/admin/discount-codes');
+  return res.data.data;
+};
+
+export const apiCreateAdminDiscountCode = async (req: {
+  userEmail: string;
+  iabseMemberDiscountRate: number;
+  nonIabseMemberDiscountRate: number;
+  galaDinnerFree: boolean;
+  accompanyingPersonFree: boolean;
+  technicalTourFree: boolean;
+}): Promise<DiscountCode> => {
+  const res = await apiClient.post<{ data: DiscountCode }>('/admin/discount-codes', req);
+  return res.data.data;
+};
+
+export const apiDeleteAdminDiscountCode = async (id: number): Promise<void> => {
+  await apiClient.delete(`/admin/discount-codes/${id}`);
+};
+
+export const apiVerifyDiscountCode = async (code: string): Promise<DiscountCode> => {
+  const res = await apiClient.get<{ data: DiscountCode }>(`/payments/discount-code/verify?code=${encodeURIComponent(code)}`);
   return res.data.data;
 };

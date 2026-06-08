@@ -26,7 +26,13 @@ public record PaymentResponse(
         String paidAt,
         List<ConferenceOptionResponse> selectedOptions,
         List<AccompanyingPersonInfo> accompanyingPersons,
-        List<ExhibitorBadgeInfo> exhibitorBadges
+        List<ExhibitorBadgeInfo> exhibitorBadges,
+        String appliedDiscountCode,
+        long discountTotalAmount,
+        long discountRegAmount,
+        long discountGalaAmount,
+        long discountAccompAmount,
+        long discountTourAmount
 ) {
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -68,7 +74,13 @@ public record PaymentResponse(
                         .toList(),
                 payment.getExhibitorBadges().stream()
                         .map(ExhibitorBadgeInfo::from)
-                        .toList()
+                        .toList(),
+                payment.getAppliedDiscountCode(),
+                payment.getDiscountTotalAmount(),
+                payment.getDiscountRegAmount(),
+                payment.getDiscountGalaAmount(),
+                payment.getDiscountAccompAmount(),
+                payment.getDiscountTourAmount()
         );
     }
 }

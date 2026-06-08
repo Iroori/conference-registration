@@ -26,7 +26,8 @@ public record PaymentRequest(
                 @Valid List<ExhibitorBadgeInfo> exhibitorBadges,
                 List<String> waitlistedOptionIds,
                 String iabseId,
-                java.time.LocalDate birthDate) {
+                java.time.LocalDate birthDate,
+                String appliedDiscountCode) {
 
         public record AccompanyingPersonInfo(
                         @NotBlank @Size(max = 100) String lastName,

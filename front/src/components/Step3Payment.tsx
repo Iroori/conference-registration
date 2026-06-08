@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useCreatePayment } from '../hooks/useRegistration';
+import { useEffect, useState, useMemo } from 'react';
+import { useCreatePayment, useConferenceOptions } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, SectionLabel, formatKRW } from './Shared';
-import { apiReportPaymentFailure } from '../lib/api';
-import type { PaymentResponse, AccompanyingPersonInfo, ExhibitorBadgeInfo } from '../types';
+import { apiReportPaymentFailure, apiVerifyDiscountCode } from '../lib/api';
+import type { PaymentResponse, AccompanyingPersonInfo, ExhibitorBadgeInfo, DiscountCode } from '../types';
 import { INVITATION_OPTION_ID } from '../types';
 
 
@@ -46,16 +46,115 @@ export const Step3Payment = ({
   const [policyAgreed, setPolicyAgreed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank'>('card');
 
+  // Discount code states
+  const { data: options } = useConferenceOptions(user?.memberType ?? 'NON_MEMBER');
+  const [discountCodeInput, setDiscountCodeInput] = useState('');
+  const [appliedCodeEntity, setAppliedCodeEntity] = useState<DiscountCode | null>(null);
+  const [discountError, setDiscountError] = useState<string | null>(null);
+  const [verifyingCode, setVerifyingCode] = useState(false);
+
+  const discountBreakdown = useMemo(() => {
+    if (!appliedCodeEntity || !options) {
+      return {
+        regDiscount: 0,
+        galaDiscount: 0,
+        accompDiscount: 0,
+        tourDiscount: 0,
+        totalDiscount: 0,
+      };
+    }
+
+    let regDiscount = 0;
+    let galaDiscount = 0;
+    let accompDiscount = 0;
+    let tourDiscount = 0;
+
+    const regOptId = selectedOptionIds.find((id) => {
+      const opt = options.find((o) => o.id === id);
+      return opt && opt.category === 'REGISTRATION';
+    });
+
+    if (regOptId) {
+      const regOpt = options.find((o) => o.id === regOptId);
+      if (regOpt) {
+        const isMemberOption = regOpt.id.includes('-MEMBER') && !regOpt.id.includes('-NONMEMBER') && !regOpt.id.includes('-NMP');
+        const rate = isMemberOption
+          ? appliedCodeEntity.iabseMemberDiscountRate
+          : appliedCodeEntity.nonIabseMemberDiscountRate;
+        if (rate > 0) {
+          regDiscount = (regOpt.price * rate) / 100;
+        }
+      }
+    }
+
+    if (appliedCodeEntity.galaDinnerFree) {
+      const galaOpt = options.find((o) => o.id === 'OPT-GALA-DINNER');
+      if (galaOpt && selectedOptionIds.includes('OPT-GALA-DINNER')) {
+        galaDiscount = galaOpt.price * (quantities['OPT-GALA-DINNER'] ?? 1);
+      }
+    }
+
+    if (appliedCodeEntity.accompanyingPersonFree) {
+      const accompOptId = selectedOptionIds.find((id) => id.startsWith('OPT-ACCOMP-'));
+      if (accompOptId) {
+        const accompOpt = options.find((o) => o.id === accompOptId);
+        if (accompOpt) {
+          accompDiscount = accompOpt.price;
+        }
+      }
+    }
+
+    if (appliedCodeEntity.technicalTourFree) {
+      const tourOptId = selectedOptionIds.find((id) => id.startsWith('OPT-TECH-TOUR-'));
+      if (tourOptId) {
+        const tourOpt = options.find((o) => o.id === tourOptId);
+        if (tourOpt) {
+          tourDiscount = tourOpt.price * (quantities[tourOptId] ?? 1);
+        }
+      }
+    }
+
+    const totalDiscount = Math.min(regDiscount + galaDiscount + accompDiscount + tourDiscount, totalAmount);
+
+    return {
+      regDiscount,
+      galaDiscount,
+      accompDiscount,
+      tourDiscount,
+      totalDiscount,
+    };
+  }, [appliedCodeEntity, options, selectedOptionIds, quantities, totalAmount]);
+
+  const finalPaidAmount = Math.max(0, totalAmount - discountBreakdown.totalDiscount);
+
   const domestic = isKoreanUser(user?.country);
   const mid = domestic
     ? (import.meta.env.VITE_PAYGATE_MID_DOMESTIC || 'kibse')
     : (import.meta.env.VITE_PAYGATE_MID_OVERSEAS || 'kibse0us');
   // 통화 및 금액: 해외 MID의 통화·환율 변환은 PayGate가 자체 처리 — 항상 KRW(WON) 원화 금액 전달
   const goodcurrency = 'WON';
-  const unitprice = totalAmount;
+  const unitprice = finalPaidAmount;
   const paymethod = domestic ? 'card' : '104';
 
   const { mutate: createPayment, isPending, error: serverError } = useCreatePayment();
+
+  const handleApplyDiscountCode = async () => {
+    if (!discountCodeInput.trim()) return;
+    setVerifyingCode(true);
+    setDiscountError(null);
+    try {
+      const code = await apiVerifyDiscountCode(discountCodeInput.trim());
+      setAppliedCodeEntity(code);
+      setDiscountError(null);
+    } catch (err: any) {
+      console.error(err);
+      const msg = err?.response?.data?.message || 'Invalid discount code.';
+      setDiscountError(msg);
+      setAppliedCodeEntity(null);
+    } finally {
+      setVerifyingCode(false);
+    }
+  };
 
   useEffect(() => {
     (window as any).getPGIOresult = () => {
@@ -78,6 +177,7 @@ export const Step3Payment = ({
             waitlistedOptionIds: waitlistedOptionIds.length > 0 ? waitlistedOptionIds : undefined,
             iabseId: iabseId || undefined,
             birthDate: birthDate || undefined,
+            appliedDiscountCode: appliedCodeEntity?.code || undefined,
           },
           {
             onSuccess: (result) => onComplete(result),
@@ -97,6 +197,36 @@ export const Step3Payment = ({
     };
   }, [createPayment, selectedOptionIds, quantities, accompanyingPersons, exhibitorBadges, waitlistedOptionIds, iabseId, birthDate, onComplete]);
 
+  const handleFreeRegistration = () => {
+    if (isSubmitting || isPending) return;
+    if (!policyAgreed) {
+      setPgError('Please agree to the Cancellation and Refund Policy before proceeding.');
+      return;
+    }
+    setPgError(null);
+    setIsSubmitting(true);
+
+    createPayment(
+      {
+        selectedOptionIds,
+        quantities: Object.keys(quantities).length > 0 ? quantities : undefined,
+        paymentMethod: 'CARD',
+        tid: undefined,
+        replycode: '0000',
+        accompanyingPersons: accompanyingPersons.length > 0 ? accompanyingPersons : undefined,
+        exhibitorBadges: exhibitorBadges.length > 0 ? exhibitorBadges : undefined,
+        waitlistedOptionIds: waitlistedOptionIds.length > 0 ? waitlistedOptionIds : undefined,
+        iabseId: iabseId || undefined,
+        birthDate: birthDate || undefined,
+        appliedDiscountCode: appliedCodeEntity?.code || undefined,
+      },
+      {
+        onSuccess: (result) => onComplete(result),
+        onError: () => setIsSubmitting(false),
+      }
+    );
+  };
+
   const handlePay = () => {
     if (isSubmitting || isPending) return;
     if (!policyAgreed) {
@@ -104,6 +234,11 @@ export const Step3Payment = ({
       return;
     }
     setPgError(null);
+
+    if (finalPaidAmount === 0) {
+      handleFreeRegistration();
+      return;
+    }
 
     if (typeof (window as any).doTransaction === 'function') {
       setIsSubmitting(true);
@@ -269,6 +404,68 @@ export const Step3Payment = ({
             </div>
           )}
 
+          {/* Discount Code Input Box */}
+          <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4 space-y-3">
+            <p className="label-section text-sm mb-1">Discount Code</p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={discountCodeInput}
+                onChange={(e) => setDiscountCodeInput(e.target.value.toUpperCase())}
+                placeholder="Enter discount code..."
+                disabled={appliedCodeEntity !== null || verifyingCode}
+                className="input-base flex-1 uppercase font-mono text-slate-800"
+              />
+              {appliedCodeEntity ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAppliedCodeEntity(null);
+                    setDiscountCodeInput('');
+                  }}
+                  className="px-4 py-2 border border-red-200 text-red-650 hover:bg-red-50 text-xs font-semibold rounded-lg transition"
+                >
+                  Remove
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleApplyDiscountCode}
+                  disabled={verifyingCode || !discountCodeInput.trim()}
+                  className="px-4 py-2 bg-teal-500 hover:bg-teal-600 disabled:bg-slate-200 disabled:text-slate-400 text-white text-xs font-semibold rounded-lg transition"
+                >
+                  {verifyingCode ? 'Applying...' : 'Apply'}
+                </button>
+              )}
+            </div>
+            {discountError && (
+              <p className="text-xs text-red-650 font-medium mt-1">{discountError}</p>
+            )}
+            {appliedCodeEntity && (
+              <div className="p-3 bg-teal-50/50 border border-teal-100 rounded-lg space-y-1.5 text-xs text-teal-800 animate-fadeIn">
+                <p className="font-bold">✓ Discount Code '{appliedCodeEntity.code}' applied successfully.</p>
+                <div className="space-y-0.5 text-slate-650 font-medium">
+                  {discountBreakdown.regDiscount > 0 && (
+                    <p>- Registration Discount: <span className="text-teal-700 font-bold">-{formatKRW(discountBreakdown.regDiscount)}</span></p>
+                  )}
+                  {discountBreakdown.galaDiscount > 0 && (
+                    <p>- Gala Dinner Discount: <span className="text-teal-700 font-bold">-{formatKRW(discountBreakdown.galaDiscount)}</span></p>
+                  )}
+                  {discountBreakdown.accompDiscount > 0 && (
+                    <p>- Accompanying Person Discount: <span className="text-teal-700 font-bold">-{formatKRW(discountBreakdown.accompDiscount)}</span></p>
+                  )}
+                  {discountBreakdown.tourDiscount > 0 && (
+                    <p>- Technical Tour Discount: <span className="text-teal-700 font-bold">-{formatKRW(discountBreakdown.tourDiscount)}</span></p>
+                  )}
+                  <p className="border-t border-teal-100 pt-1 font-bold text-teal-800 flex justify-between">
+                    <span>Total Discount:</span>
+                    <span>-{formatKRW(discountBreakdown.totalDiscount)}</span>
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Cancellation & Refund Policy */}
           <div className="mb-5 rounded-lg border border-slate-200 bg-white p-4">
             <p className="label-section text-sm mb-2">Cancellation &amp; Refund Policy</p>
@@ -389,9 +586,19 @@ export const Step3Payment = ({
           )}
 
           <div className="mb-5 border border-gold-soft rounded-lg bg-white p-4">
-            <div className="flex justify-between items-baseline">
+            <div className="flex justify-between items-baseline text-xs text-slate-500 font-medium">
+              <span>Subtotal</span>
+              <span className="font-mono">{formatKRW(totalAmount)}</span>
+            </div>
+            {discountBreakdown.totalDiscount > 0 && (
+              <div className="flex justify-between items-baseline text-xs text-teal-600 font-semibold mt-1">
+                <span>Discount</span>
+                <span className="font-mono">-{formatKRW(discountBreakdown.totalDiscount)}</span>
+              </div>
+            )}
+            <div className="border-t border-slate-100 mt-2 pt-2 flex justify-between items-baseline">
               <span className="label-section text-sm">Total</span>
-              <span className="amount-total">{formatKRW(totalAmount)}</span>
+              <span className="amount-total">{formatKRW(finalPaidAmount)}</span>
             </div>
             {!domestic && (
               <p className="mt-1 text-right text-sm text-ink-faint">
@@ -427,7 +634,7 @@ export const Step3Payment = ({
                 className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg bg-gold py-2.5 text-sm font-semibold text-white transition hover:bg-gold-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-gold-soft disabled:text-gold"
               >
                 {(isPending || isSubmitting) && <LoadingSpinner size="sm" />}
-                {isPending ? 'Processing…' : isSubmitting ? 'Opening payment window…' : 'Confirm & Pay'}
+                {isPending ? 'Processing…' : isSubmitting ? 'Opening payment window…' : (finalPaidAmount === 0 ? 'Complete Registration' : 'Confirm & Pay')}
               </button>
             </>
           )}

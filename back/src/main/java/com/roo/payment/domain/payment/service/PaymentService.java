@@ -7,6 +7,7 @@ import com.roo.payment.domain.option.entity.ConferenceOption;
 import com.roo.payment.domain.option.repository.ConferenceOptionRepository;
 import com.roo.payment.domain.payment.dto.PaymentRequest;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
+import com.roo.payment.domain.payment.entity.DiscountCode;
 import com.roo.payment.domain.payment.entity.Payment;
 import com.roo.payment.domain.payment.entity.PaymentStatus;
 import com.roo.payment.domain.payment.entity.OptionWaitlist;
@@ -45,19 +46,22 @@ public class PaymentService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final AppProperties appProperties;
+    private final DiscountCodeService discountCodeService;
 
     public PaymentService(PaymentRepository paymentRepository,
             ConferenceOptionRepository optionRepository,
             OptionWaitlistRepository optionWaitlistRepository,
             UserRepository userRepository,
             EmailService emailService,
-            AppProperties appProperties) {
+            AppProperties appProperties,
+            DiscountCodeService discountCodeService) {
         this.paymentRepository = paymentRepository;
         this.optionRepository = optionRepository;
         this.optionWaitlistRepository = optionWaitlistRepository;
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.appProperties = appProperties;
+        this.discountCodeService = discountCodeService;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -76,14 +80,6 @@ public class PaymentService {
         if (paymentRepository.existsByUserAndStatus(user, PaymentStatus.COMPLETED)) {
             log.warn("[PAYMENT] Duplicate payment blocked — email={}", maskEmail(email));
             throw new BusinessException(ErrorCode.PAYMENT_ALREADY_EXISTS);
-        }
-
-        // PayGate 거래 검증 (tid가 있는 경우)
-        if (request.tid() != null && !request.tid().isBlank()) {
-            verifyPaygateTransaction(request.tid(), request.replycode(), email);
-        } else {
-            log.warn("[PAYMENT] No PG tid in request — email={} replycode={}",
-                    maskEmail(email), request.replycode());
         }
 
         // 옵션 조회 및 검증
@@ -137,6 +133,90 @@ public class PaymentService {
                 .sum();
         long tax = 0;
 
+        // 할인 적용 계산
+        String appliedCode = null;
+        long discountReg = 0;
+        long discountGala = 0;
+        long discountAccomp = 0;
+        long discountTour = 0;
+        long discountTotal = 0;
+        DiscountCode appliedDiscount = null;
+
+        if (request.appliedDiscountCode() != null && !request.appliedDiscountCode().isBlank()) {
+            appliedDiscount = discountCodeService.verifyDiscountCode(request.appliedDiscountCode(), email);
+            appliedCode = appliedDiscount.getCode();
+
+            // 1. 등록비 할인 계산
+            ConferenceOption regOpt = activeOptions.stream()
+                    .filter(o -> o.getCategory() == com.roo.payment.domain.option.entity.OptionCategory.REGISTRATION)
+                    .findFirst()
+                    .orElse(null);
+
+            if (regOpt != null) {
+                int rate = 0;
+                boolean isMemberOption = regOpt.getId().contains("-MEMBER") && !regOpt.getId().contains("-NONMEMBER") && !regOpt.getId().contains("-NMP");
+                if (isMemberOption) {
+                    rate = appliedDiscount.getIabseMemberDiscountRate();
+                } else {
+                    rate = appliedDiscount.getNonIabseMemberDiscountRate();
+                }
+
+                if (rate > 0) {
+                    discountReg = (regOpt.getPrice() * rate) / 100;
+                }
+            }
+
+            // 2. 갈라 디너 할인 계산
+            if (appliedDiscount.isGalaDinnerFree()) {
+                ConferenceOption galaOpt = activeOptions.stream()
+                        .filter(o -> o.getId().equals("OPT-GALA-DINNER"))
+                        .findFirst()
+                        .orElse(null);
+                if (galaOpt != null) {
+                    discountGala = galaOpt.getPrice() * quantities.getOrDefault(galaOpt.getId(), 1);
+                }
+            }
+
+            // 3. 동반인 할인 계산 (1명 무료)
+            if (appliedDiscount.isAccompanyingPersonFree()) {
+                ConferenceOption accompOpt = activeOptions.stream()
+                        .filter(o -> o.getId().startsWith("OPT-ACCOMP-"))
+                        .findFirst()
+                        .orElse(null);
+                if (accompOpt != null) {
+                    discountAccomp = accompOpt.getPrice();
+                }
+            }
+
+            // 4. 기술투어 할인 계산 (무료)
+            if (appliedDiscount.isTechnicalTourFree()) {
+                ConferenceOption tourOpt = activeOptions.stream()
+                        .filter(o -> o.getId().startsWith("OPT-TECH-TOUR-"))
+                        .findFirst()
+                        .orElse(null);
+                if (tourOpt != null) {
+                    discountTour = tourOpt.getPrice() * quantities.getOrDefault(tourOpt.getId(), 1);
+                }
+            }
+
+            discountTotal = discountReg + discountGala + discountAccomp + discountTour;
+            discountTotal = Math.min(discountTotal, subtotal + tax);
+        }
+
+        long finalAmount = subtotal + tax - discountTotal;
+
+        // PayGate 거래 검증: 실결제 금액(finalAmount)이 0원보다 크고 tid가 입력된 경우에만 검증 수행
+        if (finalAmount > 0) {
+            if (request.tid() != null && !request.tid().isBlank()) {
+                verifyPaygateTransaction(request.tid(), request.replycode(), email);
+            } else {
+                log.warn("[PAYMENT] No PG tid in request — email={} replycode={}",
+                        maskEmail(email), request.replycode());
+            }
+        } else {
+            log.info("[PAYMENT] 100% discount applied. Bypassing PG verification — email={}", maskEmail(email));
+        }
+
         // Update user's memberType and profile details (iabseId, birthDate) based on registration selection
         for (String optId : uniqueIds) {
             if (optId.contains("-MEMBER")) {
@@ -163,6 +243,11 @@ public class PaymentService {
         Payment payment = new Payment(
                 regNumber, user, user.getMemberType(),
                 request.paymentMethod(), subtotal, tax, options);
+
+        if (appliedCode != null) {
+            payment.applyDiscount(appliedCode, discountTotal, discountReg, discountGala, discountAccomp, discountTour);
+            appliedDiscount.markAsUsed();
+        }
 
         activeOptions.forEach(o -> {
             int qty = quantities.getOrDefault(o.getId(), 1);

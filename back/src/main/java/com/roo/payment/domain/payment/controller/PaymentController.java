@@ -5,6 +5,9 @@ import com.roo.payment.domain.payment.dto.PaymentFailureRequest;
 import com.roo.payment.domain.payment.dto.PaymentRequest;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
 import com.roo.payment.domain.payment.service.PaymentService;
+import com.roo.payment.domain.payment.dto.DiscountCodeResponse;
+import com.roo.payment.domain.payment.entity.DiscountCode;
+import com.roo.payment.domain.payment.service.DiscountCodeService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +24,24 @@ public class PaymentController {
     private static final Logger log = LoggerFactory.getLogger(PaymentController.class);
 
     private final PaymentService paymentService;
+    private final DiscountCodeService discountCodeService;
 
-    public PaymentController(PaymentService paymentService) {
+    public PaymentController(PaymentService paymentService, DiscountCodeService discountCodeService) {
         this.paymentService = paymentService;
+        this.discountCodeService = discountCodeService;
+    }
+
+    /**
+     * Verify discount code for logged-in user
+     * GET /api/payments/discount-code/verify
+     */
+    @GetMapping("/discount-code/verify")
+    public ResponseEntity<ApiResponse<DiscountCodeResponse>> verifyDiscountCode(
+            @AuthenticationPrincipal String email,
+            @RequestParam String code) {
+        log.info("[PAYMENT_CTRL] Verifying discount code — email={} code={}", email, code);
+        DiscountCode dc = discountCodeService.verifyDiscountCode(code, email);
+        return ResponseEntity.ok(ApiResponse.ok("Discount code is valid.", DiscountCodeResponse.from(dc)));
     }
 
     /**
