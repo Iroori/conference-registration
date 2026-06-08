@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AdminDashboardPage } from '../components/AdminDashboardPage';
-import { useConferenceOptions, usePaymentHistory } from '../hooks/useRegistration';
+import { useConferenceOptions } from '../hooks/useRegistration';
 import { StepRegistrationType } from '../components/StepRegistrationType';
 import { StepAdditionalOptions } from '../components/StepAdditionalOptions';
 import { StepTechnicalTour } from '../components/StepTechnicalTour';
@@ -71,10 +71,6 @@ export const RegistrationPage = () => {
 
   const memberType = user?.memberType ?? 'NON_MEMBER';
   const { data: options } = useConferenceOptions(memberType);
-  const { data: paymentsHistory } = usePaymentHistory();
-  const hasCompletedPayment = useMemo(() => {
-    return paymentsHistory?.some((p) => p.status === 'COMPLETED') ?? false;
-  }, [paymentsHistory]);
 
   /** Compute the final list of unique option IDs and quantities map for the payment API */
   const paymentPayload = useMemo(() => {
