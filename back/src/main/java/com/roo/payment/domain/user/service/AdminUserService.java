@@ -9,6 +9,7 @@ import com.roo.payment.domain.payment.entity.Payment;
 import com.roo.payment.domain.payment.entity.PaymentStatus;
 import com.roo.payment.domain.payment.repository.PaymentRepository;
 import com.roo.payment.domain.user.dto.AdminUserResponse;
+import com.roo.payment.domain.user.dto.PaginatedUserResponse;
 import com.roo.payment.domain.user.entity.MemberType;
 import com.roo.payment.domain.user.entity.User;
 import com.roo.payment.domain.user.repository.EmailVerificationRepository;
@@ -50,14 +51,30 @@ public class AdminUserService {
     }
 
     /**
-     * 전체 가입 유저 리스트 조회
+     * 가입 유저 리스트 페이징 및 검색 조회
      */
-    public List<AdminUserResponse> getAllUsers() {
-        log.info("[ADMIN] Request to fetch all registered users");
-        return userRepository.findAll()
-                .stream()
+    public PaginatedUserResponse getPaginatedUsers(int page, int size, String search) {
+        log.info("[ADMIN] Request to fetch paginated users — page={}, size={}, search={}", page, size, search);
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        org.springframework.data.domain.Page<User> userPage;
+
+        if (search == null || search.trim().isEmpty()) {
+            userPage = userRepository.findByActiveTrue(pageable);
+        } else {
+            userPage = userRepository.searchActiveUsers(search.trim(), pageable);
+        }
+
+        List<AdminUserResponse> userList = userPage.getContent().stream()
                 .map(AdminUserResponse::from)
                 .toList();
+
+        return new PaginatedUserResponse(
+                userList,
+                userPage.getTotalElements(),
+                userPage.getTotalPages(),
+                userPage.getNumber(),
+                userPage.getSize()
+        );
     }
 
     /**

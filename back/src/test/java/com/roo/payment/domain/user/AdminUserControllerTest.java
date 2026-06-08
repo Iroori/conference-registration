@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -104,5 +105,20 @@ class AdminUserControllerTest {
         // Verify database state
         User updated = userRepository.findById(normalUser.getId()).orElseThrow();
         assertEquals(MemberType.MEMBER, updated.getMemberType());
+    }
+
+    @Test
+    @DisplayName("어드민 사용자가 페이징 및 검색을 포함하여 가입자 조회 성공 검증")
+    void testGetPaginatedUsersWithSearch() throws Exception {
+        // Search by normalUser's firstName "Gildong"
+        mockMvc.perform(get("/api/admin/users")
+                        .header("Authorization", adminToken)
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("search", "Gildong"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.users.length()").value(1))
+                .andExpect(jsonPath("$.data.users[0].email").value("user-test@test.com"))
+                .andExpect(jsonPath("$.data.totalElements").value(1));
     }
 }

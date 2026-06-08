@@ -25,6 +25,7 @@
 - **도메인 엔티티 설계**:
   - `DiscountCode`: 8자리 영문 대문자/숫자 조합 고유 코드, 할당된 사용자 이메일, 카테고리별 할인 설정(등록비 비율 0/50/100, 옵션비 무료 플래그), 사용 여부(used) 및 활성화 상태(active) 컬럼 정의.
   - `Payment`: 감사 추적 및 오디팅을 위해 `appliedDiscountCode`, `discountTotalAmount`, `discountRegAmount`, `discountGalaAmount`, `discountAccompAmount`, `discountTourAmount` 컬럼 추가.
+  - **기존 테이블과의 하위 호환성 확보**: 기존 결제 건들(할인 데이터가 없어서 discount 컬럼값이 NULL인 데이터)을 조회할 때 Primitive Type 언박싱 에러(NPE/500 Internal Server Error)가 발생하는 문제를 방지하기 위해, `Payment` 엔티티 내 할인 관련 필드를 Primitive `long`에서 Wrapper `Long` 타입으로 수정하고 getter 메서드에서 `null` 값에 대응하도록 디폴트 처리를 추가.
 - **서비스 및 컨트롤러 비즈니스 로직**:
   - `DiscountCodeService`: 중복 없는 8자리 난수 생성 및 사용자 매칭 검증, CRUD 로직 구현.
   - `PaymentService`: 결제 생성 시 전달된 할인코드를 검증하고, 각 옵션 분류별(등록비, 갈라디너, 동반인 수량별 요율, 기술투어) 할인액을 계산하여 차감. 최종 금액이 0 KRW인 경우 PayGate 검증 처리를 생략.

@@ -9,10 +9,10 @@ import type {
   PaymentRequest,
   PaymentResponse,
   RegistrationPeriods,
-  AdminUser,
   IasbseMember,
   UpdateProfileRequest,
   DiscountCode,
+  PaginatedUsersResponse,
 } from '../types';
 
 // ─── Password hashing ────────────────────────────────────────────────────────
@@ -119,8 +119,14 @@ export const apiReportPaymentFailure = async (payload: {
 };
 
 // ─── Admin ───────────────────────────────────────────────────────────────────
-export const apiGetAdminUsers = async (): Promise<AdminUser[]> => {
-  const res = await apiClient.get<{ data: AdminUser[] }>('/admin/users');
+export const apiGetAdminUsers = async (page: number, size: number, search?: string): Promise<PaginatedUsersResponse> => {
+  const params = new URLSearchParams();
+  params.append('page', String(page));
+  params.append('size', String(size));
+  if (search) {
+    params.append('search', search);
+  }
+  const res = await apiClient.get<{ data: PaginatedUsersResponse }>(`/admin/users?${params.toString()}`);
   return res.data.data;
 };
 

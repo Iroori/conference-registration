@@ -397,3 +397,11 @@ export interface DiscountCode {
   used: boolean;
   active: boolean;
 }
+
+export interface PaginatedUsersResponse {
+  users: AdminUser[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+  size: number;
+}

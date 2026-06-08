@@ -100,16 +100,46 @@ export const AdminDashboardPage = () => {
 
   const queryClient = useQueryClient();
 
+  const [userPage, setUserPage] = useState(0);
+  const [userTabSearchInput, setUserTabSearchInput] = useState('');
+  const [userTabSearchTerm, setUserTabSearchTerm] = useState('');
+
   // Queries
   const {
-    data: users,
+    data: usersResponse,
     isLoading: loadingUsers,
     isError: errorUsers,
   } = useQuery({
-    queryKey: ['adminUsers'],
-    queryFn: apiGetAdminUsers,
+    queryKey: ['adminUsers', userPage, userTabSearchTerm, activeTab === 'DISCOUNT_CODES' ? userSearchTerm : ''],
+    queryFn: () => {
+      const search = activeTab === 'DISCOUNT_CODES' ? userSearchTerm : userTabSearchTerm;
+      const size = activeTab === 'DISCOUNT_CODES' ? 50 : 20;
+      const page = activeTab === 'DISCOUNT_CODES' ? 0 : userPage;
+      return apiGetAdminUsers(page, size, search);
+    },
     enabled: activeTab === 'USERS' || activeTab === 'DISCOUNT_CODES',
   });
+
+  const users = usersResponse?.users;
+
+  const getPageNumbers = () => {
+    const total = usersResponse?.totalPages ?? 0;
+    const current = usersResponse?.currentPage ?? 0;
+    
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i);
+    }
+    
+    if (current < 4) {
+      return [0, 1, 2, 3, 4, '...', total - 1];
+    }
+    
+    if (current > total - 5) {
+      return [0, '...', total - 5, total - 4, total - 3, total - 2, total - 1];
+    }
+    
+    return [0, '...', current - 1, current, current + 1, '...', total - 1];
+  };
 
   const {
     data: iasbseMembers,
@@ -498,8 +528,73 @@ export const AdminDashboardPage = () => {
             <div className="flex items-center justify-between">
               <h3 className="text-base font-semibold text-slate-800">Registered Conference Attendees</h3>
               <span className="text-xs text-slate-500 font-medium bg-slate-200/60 px-2.5 py-1 rounded-full">
-                Total count: {users?.length ?? 0}
+                {userTabSearchTerm ? 'Filtered count: ' : 'Total count: '}
+                {usersResponse?.totalElements ?? 0}
               </span>
+            </div>
+
+            {/* Search and Filter Panel for USERS */}
+            <div className="flex flex-col sm:flex-row gap-2 rounded-xl bg-white p-3 border border-slate-200 shadow-sm transition-all duration-300">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={userTabSearchInput}
+                  onChange={(e) => setUserTabSearchInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setUserPage(0);
+                      setUserTabSearchTerm(userTabSearchInput);
+                    }
+                  }}
+                  placeholder="Search registered attendees by name, email, or affiliation..."
+                  className="w-full pl-9 pr-8 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100 placeholder-slate-400 bg-slate-50/50 hover:bg-slate-50 focus:bg-white transition-all duration-200"
+                />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                {userTabSearchInput && (
+                  <button
+                    onClick={() => {
+                      setUserTabSearchInput('');
+                      setUserTabSearchTerm('');
+                      setUserPage(0);
+                    }}
+                    className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-650 transition"
+                  >
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setUserPage(0);
+                    setUserTabSearchTerm(userTabSearchInput);
+                  }}
+                  className="flex-1 sm:flex-none px-4 py-2 bg-teal-500 hover:bg-teal-600 active:bg-teal-700 text-white font-semibold rounded-lg text-xs shadow-sm hover:shadow active:scale-95 transition-all duration-200 flex items-center justify-center gap-1.5"
+                >
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Search
+                </button>
+                {userTabSearchTerm && (
+                  <button
+                    onClick={() => {
+                      setUserTabSearchInput('');
+                      setUserTabSearchTerm('');
+                      setUserPage(0);
+                    }}
+                    className="px-3 py-2 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-600 font-semibold rounded-lg text-xs transition active:scale-95 flex items-center gap-1"
+                  >
+                    Clear Filter
+                  </button>
+                )}
+              </div>
             </div>
 
             {loadingUsers && (
@@ -621,6 +716,78 @@ export const AdminDashboardPage = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {users && users.length > 0 && usersResponse && usersResponse.totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200 text-xs">
+                <span className="text-slate-500 font-medium">
+                  Showing{' '}
+                  <span className="font-semibold text-slate-800">
+                    {usersResponse.currentPage * usersResponse.size + 1}
+                  </span>{' '}
+                  to{' '}
+                  <span className="font-semibold text-slate-800">
+                    {Math.min(
+                      (usersResponse.currentPage + 1) * usersResponse.size,
+                      usersResponse.totalElements
+                    )}
+                  </span>{' '}
+                  of{' '}
+                  <span className="font-semibold text-slate-800">
+                    {usersResponse.totalElements}
+                  </span>{' '}
+                  attendees
+                </span>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setUserPage((prev) => Math.max(prev - 1, 0))}
+                    disabled={usersResponse.currentPage === 0}
+                    className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 active:bg-slate-200 disabled:opacity-40 disabled:hover:bg-transparent text-slate-650 transition flex items-center justify-center"
+                    title="Previous Page"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+
+                  {getPageNumbers().map((pageNum, idx) => {
+                    if (pageNum === '...') {
+                      return (
+                        <span key={`ellipsis-${idx}`} className="px-2.5 py-1 text-slate-400 font-semibold select-none">
+                          ...
+                        </span>
+                      );
+                    }
+
+                    const isCurrent = pageNum === usersResponse.currentPage;
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setUserPage(pageNum as number)}
+                        className={`px-3 py-1.5 border rounded-lg text-xs font-semibold transition ${
+                          isCurrent
+                            ? 'bg-teal-500 border-teal-500 text-white shadow-sm'
+                            : 'border-slate-200 text-slate-600 hover:bg-slate-100 active:bg-slate-200'
+                        }`}
+                      >
+                        {(pageNum as number) + 1}
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    onClick={() => setUserPage((prev) => Math.min(prev + 1, usersResponse.totalPages - 1))}
+                    disabled={usersResponse.currentPage === usersResponse.totalPages - 1}
+                    className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 active:bg-slate-200 disabled:opacity-40 disabled:hover:bg-transparent text-slate-650 transition flex items-center justify-center"
+                    title="Next Page"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             )}
           </div>

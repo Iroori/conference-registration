@@ -62,20 +62,20 @@ public class Payment extends BaseEntity {
     @Column(name = "applied_discount_code", length = 30)
     private String appliedDiscountCode;
 
-    @Column(nullable = false)
-    private long discountTotalAmount = 0;
+    @Column(name = "discount_total_amount")
+    private Long discountTotalAmount = 0L;
 
-    @Column(nullable = false)
-    private long discountRegAmount = 0;
+    @Column(name = "discount_reg_amount")
+    private Long discountRegAmount = 0L;
 
-    @Column(nullable = false)
-    private long discountGalaAmount = 0;
+    @Column(name = "discount_gala_amount")
+    private Long discountGalaAmount = 0L;
 
-    @Column(nullable = false)
-    private long discountAccompAmount = 0;
+    @Column(name = "discount_accomp_amount")
+    private Long discountAccompAmount = 0L;
 
-    @Column(nullable = false)
-    private long discountTourAmount = 0;
+    @Column(name = "discount_tour_amount")
+    private Long discountTourAmount = 0L;
 
     @ManyToMany
     @JoinTable(name = "payment_options", joinColumns = @JoinColumn(name = "payment_id"), inverseJoinColumns = @JoinColumn(name = "option_id"))
@@ -207,9 +207,9 @@ public class Payment extends BaseEntity {
     }
 
     public String getAppliedDiscountCode() { return appliedDiscountCode; }
-    public long getDiscountTotalAmount() { return discountTotalAmount; }
-    public long getDiscountRegAmount() { return discountRegAmount; }
-    public long getDiscountGalaAmount() { return discountGalaAmount; }
-    public long getDiscountAccompAmount() { return discountAccompAmount; }
-    public long getDiscountTourAmount() { return discountTourAmount; }
+    public long getDiscountTotalAmount() { return discountTotalAmount != null ? discountTotalAmount : 0L; }
+    public long getDiscountRegAmount() { return discountRegAmount != null ? discountRegAmount : 0L; }
+    public long getDiscountGalaAmount() { return discountGalaAmount != null ? discountGalaAmount : 0L; }
+    public long getDiscountAccompAmount() { return discountAccompAmount != null ? discountAccompAmount : 0L; }
+    public long getDiscountTourAmount() { return discountTourAmount != null ? discountTourAmount : 0L; }
 }

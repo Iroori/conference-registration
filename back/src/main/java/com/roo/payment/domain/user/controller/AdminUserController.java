@@ -4,6 +4,7 @@ import com.roo.payment.common.response.ApiResponse;
 import com.roo.payment.domain.iasbse.dto.AddIasbseMemberRequest;
 import com.roo.payment.domain.iasbse.entity.IasbseMember;
 import com.roo.payment.domain.user.dto.AdminUserResponse;
+import com.roo.payment.domain.user.dto.PaginatedUserResponse;
 import com.roo.payment.domain.user.dto.ChangeMemberTypeRequest;
 import com.roo.payment.domain.user.service.AdminUserService;
 import jakarta.validation.Valid;
@@ -23,12 +24,15 @@ public class AdminUserController {
     }
 
     /**
-     * 전체 가입 유저 리스트 조회
+     * 가입 유저 리스트 페이징 및 검색 조회
      * GET /api/admin/users
      */
     @GetMapping("/users")
-    public ResponseEntity<ApiResponse<List<AdminUserResponse>>> getAllUsers() {
-        List<AdminUserResponse> users = adminUserService.getAllUsers();
+    public ResponseEntity<ApiResponse<PaginatedUserResponse>> getPaginatedUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String search) {
+        PaginatedUserResponse users = adminUserService.getPaginatedUsers(page, size, search);
         return ResponseEntity.ok(ApiResponse.ok(users));
     }
 
