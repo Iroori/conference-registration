@@ -420,6 +420,7 @@ docs/
 | 2026-06-08 | timezone-multiple-payment-and-compile-fix.md | JVM 기본 타임존 한국시 설정, 중복 결제 제한 제거 및 프론트 컴파일 미사용 변수 에러 제거 |
 | 2026-06-08 | profile-paper-status-editing.md | 마이 프로필 탭 내 Paper Author and Presenter Status 조회 및 수정 기능 추가 |
 | 2026-06-08 | payment-completion-discount-ui.md | 결제 완료 화면 내 적용된 할인코드 정보 및 할인상세 내역 표시 추가 |
+| 2026-06-09 | fix-registration-pricing-race-condition.md | 등록비 레이스 컨디션 해결 및 정상 얼리버드 바인딩 보장 |
 
 ---
 

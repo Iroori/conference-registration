@@ -65,10 +65,11 @@ export const StepRegistrationType = ({
   onNext,
 }: StepRegistrationTypeProps) => {
   const { user } = useAuth();
-  const { data: options, isLoading, error, refetch } = useConferenceOptions(memberType);
-  const { data: periods } = useRegistrationPeriods();
+  const { data: options, isLoading: isOptionsLoading, error, refetch } = useConferenceOptions(memberType);
+  const { data: periods, isLoading: isPeriodsLoading } = useRegistrationPeriods();
   const currentTier = getCurrentTier(periods);
   const tierCfg = REG_TIER_CONFIG[currentTier];
+  const isLoading = isOptionsLoading || isPeriodsLoading || !periods;
 
   const [isValidating, setIsValidating] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
