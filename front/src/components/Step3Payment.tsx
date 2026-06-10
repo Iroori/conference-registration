@@ -134,7 +134,7 @@ export const Step3Payment = ({
   // 통화 및 금액: 해외 MID의 통화·환율 변환은 PayGate가 자체 처리 — 항상 KRW(WON) 원화 금액 전달
   const goodcurrency = 'WON';
   const unitprice = finalPaidAmount;
-  const paymethod = domestic ? 'card' : '104';
+  const paymethod = domestic ? 'card' : '101';
 
   const { mutate: createPayment, isPending, error: serverError } = useCreatePayment();
 
