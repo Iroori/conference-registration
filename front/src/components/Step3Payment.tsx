@@ -213,6 +213,21 @@ export const Step3Payment = ({
       return;
     }
     setPgError(null);
+
+    // 비자 옵션 선택 시 여권 정보 필수 검증 (사전 차단)
+    const hasVisaOption = selectedOptionIds.includes('OPT-VISA');
+    if (hasVisaOption) {
+      if (
+        !passportFirstName?.trim() ||
+        !passportLastName?.trim() ||
+        !passportNumber?.trim() ||
+        !birthDate
+      ) {
+        setPgError('Passport details (First Name, Last Name, Number, Birth Date) are required to complete registration.');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     createPayment(
@@ -246,6 +261,20 @@ export const Step3Payment = ({
       return;
     }
     setPgError(null);
+
+    // 비자 옵션 선택 시 여권 정보 필수 검증 (결제창 띄우기 전 사전 차단)
+    const hasVisaOption = selectedOptionIds.includes('OPT-VISA');
+    if (hasVisaOption) {
+      if (
+        !passportFirstName?.trim() ||
+        !passportLastName?.trim() ||
+        !passportNumber?.trim() ||
+        !birthDate
+      ) {
+        setPgError('Passport details (First Name, Last Name, Number, Birth Date) are required to proceed with payment.');
+        return;
+      }
+    }
 
     if (finalPaidAmount === 0) {
       handleFreeRegistration();
