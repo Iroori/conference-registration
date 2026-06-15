@@ -18,6 +18,9 @@ interface Step3PaymentProps {
   totalAmount: number;
   onComplete: (result: PaymentResponse) => void;
   onBack: () => void;
+  passportFirstName?: string;
+  passportLastName?: string;
+  passportNumber?: string;
 }
 
 // 한국 국가명 목록 (SignupPage: 'South Korea', Step1Verify: '대한민국')
@@ -39,6 +42,9 @@ export const Step3Payment = ({
   totalAmount,
   onComplete,
   onBack,
+  passportFirstName,
+  passportLastName,
+  passportNumber,
 }: Step3PaymentProps) => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -178,6 +184,9 @@ export const Step3Payment = ({
             iabseId: iabseId || undefined,
             birthDate: birthDate || undefined,
             appliedDiscountCode: appliedCodeEntity?.code || undefined,
+            passportFirstName: passportFirstName || undefined,
+            passportLastName: passportLastName || undefined,
+            passportNumber: passportNumber || undefined,
           },
           {
             onSuccess: (result) => onComplete(result),
@@ -195,7 +204,7 @@ export const Step3Payment = ({
         });
       }
     };
-  }, [createPayment, selectedOptionIds, quantities, accompanyingPersons, exhibitorBadges, waitlistedOptionIds, iabseId, birthDate, appliedCodeEntity, onComplete]);
+  }, [createPayment, selectedOptionIds, quantities, accompanyingPersons, exhibitorBadges, waitlistedOptionIds, iabseId, birthDate, appliedCodeEntity, onComplete, passportFirstName, passportLastName, passportNumber]);
 
   const handleFreeRegistration = () => {
     if (isSubmitting || isPending) return;
@@ -219,6 +228,9 @@ export const Step3Payment = ({
         iabseId: iabseId || undefined,
         birthDate: birthDate || undefined,
         appliedDiscountCode: appliedCodeEntity?.code || undefined,
+        passportFirstName: passportFirstName || undefined,
+        passportLastName: passportLastName || undefined,
+        passportNumber: passportNumber || undefined,
       },
       {
         onSuccess: (result) => onComplete(result),

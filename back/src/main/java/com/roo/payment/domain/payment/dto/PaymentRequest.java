@@ -25,12 +25,12 @@ public record PaymentRequest(
                 @Valid List<AccompanyingPersonInfo> accompanyingPersons,
                 @Valid List<ExhibitorBadgeInfo> exhibitorBadges,
                 List<String> waitlistedOptionIds,
-                String iabseId,
+                @Size(max = 100) String iabseId,
                 java.time.LocalDate birthDate,
-                String appliedDiscountCode,
-                String passportFirstName,
-                String passportLastName,
-                String passportNumber) {
+                @Size(max = 30) String appliedDiscountCode,
+                @Size(max = 100) String passportFirstName,
+                @Size(max = 100) String passportLastName,
+                @Size(max = 100) String passportNumber) {
 
         public record AccompanyingPersonInfo(
                         @NotBlank @Size(max = 100) String lastName,

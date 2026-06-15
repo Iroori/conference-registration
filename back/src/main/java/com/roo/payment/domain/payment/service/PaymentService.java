@@ -108,6 +108,23 @@ public class PaymentService {
             }
         }
 
+        // 입력 문자열 크기 검증 (DB Truncation 오류 사전 방지)
+        if (request.iabseId() != null && request.iabseId().length() > 100) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "IABSE ID cannot exceed 100 characters.");
+        }
+        if (request.appliedDiscountCode() != null && request.appliedDiscountCode().length() > 30) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "Discount code cannot exceed 30 characters.");
+        }
+        if (request.passportFirstName() != null && request.passportFirstName().length() > 100) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "Passport First Name cannot exceed 100 characters.");
+        }
+        if (request.passportLastName() != null && request.passportLastName().length() > 100) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "Passport Last Name cannot exceed 100 characters.");
+        }
+        if (request.passportNumber() != null && request.passportNumber().length() > 100) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT, "Passport Number cannot exceed 100 characters.");
+        }
+
         List<String> waitlistedIds = request.waitlistedOptionIds() != null ? request.waitlistedOptionIds() : List.of();
 
         List<ConferenceOption> activeOptions = options.stream()
@@ -371,10 +388,10 @@ public class PaymentService {
     // ─────────────────────────────────────────────────────────────────────────
 
     private String generateRegistrationNumber() {
-        int seq = ThreadLocalRandom.current().nextInt(10_000, 99_999);
+        int seq = ThreadLocalRandom.current().nextInt(10_000_000, 99_999_999);
         String candidate = REG_NUMBER_PREFIX + seq;
         while (paymentRepository.findByRegistrationNumber(candidate).isPresent()) {
-            seq = ThreadLocalRandom.current().nextInt(10_000, 99_999);
+            seq = ThreadLocalRandom.current().nextInt(10_000_000, 99_999_999);
             candidate = REG_NUMBER_PREFIX + seq;
         }
         return candidate;

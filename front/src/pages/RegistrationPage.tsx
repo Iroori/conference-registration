@@ -347,6 +347,9 @@ export const RegistrationPage = () => {
                 iabseId={iabseId}
                 birthDate={birthDate}
                 totalAmount={totalAmount}
+                passportFirstName={passportFirstName}
+                passportLastName={passportLastName}
+                passportNumber={passportNumber}
                 onComplete={(result) => {
                   setPaymentResult(result);
                   setCurrentStep('COMPLETE');

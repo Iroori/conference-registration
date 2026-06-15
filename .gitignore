@@ -72,3 +72,4 @@ temp/
 !back/src/main/resources/*.xlsx
 docs/payment/*.xls
 docs/payment/*.xlsx
+GEMINI.md
