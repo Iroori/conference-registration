@@ -1311,7 +1311,7 @@ export const AdminDashboardPage = () => {
                                         )}
 
                                         {/* Passport Details Info (if visa invitation or passport is provided) */}
-                                        {(p.selectedOptions?.some((opt: any) => opt.id === 'OPT_VISA') ||
+                                        {(p.selectedOptions?.some((opt: any) => opt.id === 'OPT-VISA') ||
                                           p.passportFirstName || p.passportLastName || p.passportNumber) && (
                                           <div className="rounded-lg bg-teal-50 border border-teal-100/50 px-3 py-2 text-xs text-teal-850 space-y-1">
                                             <div className="flex items-center gap-2">

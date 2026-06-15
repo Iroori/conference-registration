@@ -138,7 +138,7 @@ export const PaymentHistoryTab = () => {
                     </div>
                   )}
                   {/* Passport Details Info (if visa invitation or passport is provided) */}
-                  {(record.selectedOptions?.some((opt: any) => opt.id === 'OPT_VISA') ||
+                  {(record.selectedOptions?.some((opt: any) => opt.id === 'OPT-VISA') ||
                     record.passportFirstName || record.passportLastName || record.passportNumber) && (
                     <div className="rounded-lg bg-gold-tint/50 border border-gold/10 px-3 py-2 text-xs text-slate-800 space-y-1">
                       <div className="flex items-center gap-2">
