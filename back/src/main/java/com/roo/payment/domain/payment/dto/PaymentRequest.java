@@ -27,7 +27,10 @@ public record PaymentRequest(
                 List<String> waitlistedOptionIds,
                 String iabseId,
                 java.time.LocalDate birthDate,
-                String appliedDiscountCode) {
+                String appliedDiscountCode,
+                String passportFirstName,
+                String passportLastName,
+                String passportNumber) {
 
         public record AccompanyingPersonInfo(
                         @NotBlank @Size(max = 100) String lastName,

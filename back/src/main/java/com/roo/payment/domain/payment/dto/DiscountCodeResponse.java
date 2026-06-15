@@ -5,7 +5,6 @@ import com.roo.payment.domain.payment.entity.DiscountCode;
 public record DiscountCodeResponse(
         Long id,
         String code,
-        String userEmail,
         int iabseMemberDiscountRate,
         int nonIabseMemberDiscountRate,
         boolean galaDinnerFree,
@@ -18,7 +17,6 @@ public record DiscountCodeResponse(
         return new DiscountCodeResponse(
                 dc.getId(),
                 dc.getCode(),
-                dc.getUser().getEmail(),
                 dc.getIabseMemberDiscountRate(),
                 dc.getNonIabseMemberDiscountRate(),
                 dc.isGalaDinnerFree(),

@@ -62,6 +62,10 @@ export interface AuthUser {
   billingPostcode?: string | null;
   billingCity?: string | null;
   billingCountry?: string | null;
+  passportFirstName?: string | null;
+  passportLastName?: string | null;
+  passportNumber?: string | null;
+  birthDate?: string | null;
 }
 
 export interface IasbseCheckResponse {
@@ -294,6 +298,9 @@ export interface PaymentRequest {
   iabseId?: string;
   birthDate?: string;
   appliedDiscountCode?: string;
+  passportFirstName?: string;
+  passportLastName?: string;
+  passportNumber?: string;
 }
 
 export interface PaymentResponse {
@@ -356,6 +363,21 @@ export interface AdminUser {
   admin: boolean;
   createdAt: string; // ISO datetime
   paperInfo?: string;
+  dietaryRequirement: DietaryRequirement;
+  dietaryNote?: string | null;
+  iabseId?: string | null;
+  billingUniversity?: string | null;
+  billingVat?: string | null;
+  billingPoNumber?: string | null;
+  billingStreet?: string | null;
+  billingAdditionalInfo?: string | null;
+  billingPoBox?: string | null;
+  billingPostcode?: string | null;
+  billingCity?: string | null;
+  billingCountry?: string | null;
+  passportFirstName?: string | null;
+  passportLastName?: string | null;
+  passportNumber?: string | null;
 }
 
 export interface IasbseMember {
@@ -386,12 +408,15 @@ export interface UpdateProfileRequest {
   isPresenter: boolean;
   isAuthor: boolean;
   paperInfo?: string;
+  passportFirstName?: string;
+  passportLastName?: string;
+  passportNumber?: string;
+  birthDate?: string | null;
 }
 
 export interface DiscountCode {
   id: number;
   code: string;
-  userEmail: string;
   iabseMemberDiscountRate: number;
   nonIabseMemberDiscountRate: number;
   galaDinnerFree: boolean;

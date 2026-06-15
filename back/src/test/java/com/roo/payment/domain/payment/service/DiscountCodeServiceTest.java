@@ -67,12 +67,11 @@ class DiscountCodeServiceTest {
     @DisplayName("할인코드 생성 및 유효성 검증 성공 테스트")
     void testCreateAndVerifyDiscountCodeSuccess() {
         DiscountCode code = discountCodeService.createDiscountCode(
-                testUser.getEmail(), 50, 0, true, false, true
+                50, 0, true, false, true
         );
 
         assertNotNull(code);
         assertEquals(8, code.getCode().length());
-        assertEquals(testUser.getEmail(), code.getUser().getEmail());
         assertEquals(50, code.getIabseMemberDiscountRate());
         assertEquals(0, code.getNonIabseMemberDiscountRate());
         assertTrue(code.isGalaDinnerFree());
@@ -82,43 +81,29 @@ class DiscountCodeServiceTest {
         assertTrue(code.isActive());
 
         // Verify lookup and validation
-        DiscountCode verified = discountCodeService.verifyDiscountCode(code.getCode(), testUser.getEmail());
+        DiscountCode verified = discountCodeService.verifyDiscountCode(code.getCode());
         assertEquals(code.getId(), verified.getId());
     }
 
     @Test
-    @DisplayName("존재하지 않는 사용자 이메일로 할인코드 생성 시 에러 발생")
-    void testCreateDiscountCodeUserNotFound() {
-        assertThrows(BusinessException.class, () -> 
-            discountCodeService.createDiscountCode("nonexistent@test.com", 50, 50, false, false, false)
-        );
-    }
-
-    @Test
-    @DisplayName("타인의 할인코드를 검증하려 하거나 잘못된 코드를 검증 시 에러 발생")
+    @DisplayName("존재하지 않는 코드를 검증 시 에러 발생")
     void testVerifyDiscountCodeErrors() {
         DiscountCode code = discountCodeService.createDiscountCode(
-                testUser.getEmail(), 50, 50, false, false, false
+                50, 50, false, false, false
         );
 
-        // 1. 존재하지 않는 코드 검증
+        // 존재하지 않는 코드 검증
         BusinessException ex1 = assertThrows(BusinessException.class, () ->
-                discountCodeService.verifyDiscountCode("INVALID8", testUser.getEmail())
+                discountCodeService.verifyDiscountCode("INVALID8")
         );
         assertEquals(ErrorCode.DISCOUNT_CODE_NOT_FOUND, ex1.getErrorCode());
-
-        // 2. 다른 유저의 코드로 검증 시도
-        BusinessException ex2 = assertThrows(BusinessException.class, () ->
-                discountCodeService.verifyDiscountCode(code.getCode(), otherUser.getEmail())
-        );
-        assertEquals(ErrorCode.DISCOUNT_CODE_INVALID_USER, ex2.getErrorCode());
     }
 
     @Test
     @DisplayName("할인코드 삭제 테스트")
     void testDeleteDiscountCode() {
         DiscountCode code = discountCodeService.createDiscountCode(
-                testUser.getEmail(), 50, 50, false, false, false
+                50, 50, false, false, false
         );
 
         discountCodeService.deleteDiscountCode(code.getId());
@@ -130,7 +115,7 @@ class DiscountCodeServiceTest {
     void testCreatePaymentWithDiscountCode() {
         // IABSE Member 50% 할인, Gala Dinner 무료, Accompanying Person 1명 무료 할인코드 생성
         DiscountCode discountCode = discountCodeService.createDiscountCode(
-                testUser.getEmail(), 50, 0, true, true, false
+                50, 0, true, true, false
         );
 
         // Select options: 얼리버드 IABSE Member 등록비(1,300,000 KRW), Gala Dinner (250,000 KRW), Accompanying (400,000 KRW) 2개 신청
@@ -156,7 +141,10 @@ class DiscountCodeServiceTest {
                 null,
                 null,
                 LocalDate.of(1990, 5, 15),
-                discountCode.getCode()
+                discountCode.getCode(),
+                null,
+                null,
+                null
         );
 
         PaymentResponse response = paymentService.createPayment(testUser.getEmail(), request);
@@ -183,7 +171,7 @@ class DiscountCodeServiceTest {
     void testZeroAmountBypassPayment() {
         // 등록비 100% 할인 및 갈라디너 무료 할인코드 생성
         DiscountCode discountCode = discountCodeService.createDiscountCode(
-                testUser.getEmail(), 100, 100, true, false, false
+                100, 100, true, false, false
         );
 
         // IABSE Member 등록비(1,300,000 KRW), Gala Dinner (250,000 KRW)
@@ -205,7 +193,10 @@ class DiscountCodeServiceTest {
                 null,
                 null,
                 LocalDate.of(1990, 5, 15),
-                discountCode.getCode()
+                discountCode.getCode(),
+                null,
+                null,
+                null
         );
 
         PaymentResponse response = paymentService.createPayment(testUser.getEmail(), request);

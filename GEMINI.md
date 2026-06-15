@@ -421,8 +421,10 @@ docs/
 | 2026-06-08 | profile-paper-status-editing.md | 마이 프로필 탭 내 Paper Author and Presenter Status 조회 및 수정 기능 추가 |
 | 2026-06-08 | payment-completion-discount-ui.md | 결제 완료 화면 내 적용된 할인코드 정보 및 할인상세 내역 표시 추가 |
 | 2026-06-09 | fix-registration-pricing-race-condition.md | 등록비 레이스 컨디션 해결 및 정상 얼리버드 바인딩 보장 |
-| 2026-06-10 | international-paymethod-101.md | 해외 카드 결제 실패 대응을 위한 PayGate paymethod 101 변경 |
-
+| 2026-06-15 | admin-registered-users-details-and-inventory-bug.md | 가입자 상세 개인정보 아코디언 구현 및 티켓 인벤토리 수량 초기화 오류 해결 |
+| 2026-06-15 | visa-invitation-passport-info.md | 비자 초청장(Visa Invitation) 필요 시 여권 정보 및 생년월일 수집 폼 추가 및 마이페이지/어드민 조회 연동 |
+| 2026-06-15 | standalone-discount-codes.md | 할인 코드 생성 시 특정 사용자 이메일 바인딩을 제거하고 독자적(standalone)이고 단일 사용 가능한 할인 코드로 변경 |
+| 2026-06-15 | registration-pricing-simplification.md | 등록비 기간별 요금 정책을 폐지하고 사전등록(Early Bird) 요금 단일가로 고정 및 기간 판정 로직 제거 |
 
 ---
 

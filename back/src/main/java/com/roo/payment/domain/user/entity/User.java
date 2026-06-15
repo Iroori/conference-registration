@@ -78,6 +78,15 @@ public class User extends BaseEntity {
     @Column(name = "iabse_id", length = 100)
     private String iabseId;
 
+    @Column(name = "passport_first_name", length = 100, columnDefinition = "nvarchar(100)")
+    private String passportFirstName;
+
+    @Column(name = "passport_last_name", length = 100, columnDefinition = "nvarchar(100)")
+    private String passportLastName;
+
+    @Column(name = "passport_number", length = 100)
+    private String passportNumber;
+
     @Column(name = "billing_university", length = 200, columnDefinition = "nvarchar(200)")
     private String billingUniversity;
 
@@ -190,6 +199,21 @@ public class User extends BaseEntity {
 
     public String getIabseId() { return iabseId; }
     public void setIabseId(String iabseId) { this.iabseId = iabseId; }
+
+    public String getPassportFirstName() { return passportFirstName; }
+    public void setPassportFirstName(String passportFirstName) { this.passportFirstName = passportFirstName; }
+
+    public String getPassportLastName() { return passportLastName; }
+    public void setPassportLastName(String passportLastName) { this.passportLastName = passportLastName; }
+
+    public String getPassportNumber() { return passportNumber; }
+    public void setPassportNumber(String passportNumber) { this.passportNumber = passportNumber; }
+
+    public void assignPassportInfo(String passportFirstName, String passportLastName, String passportNumber) {
+        this.passportFirstName = passportFirstName;
+        this.passportLastName = passportLastName;
+        this.passportNumber = passportNumber;
+    }
 
     public String getBillingUniversity() { return billingUniversity; }
     public String getBillingVat() { return billingVat; }

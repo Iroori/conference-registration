@@ -114,7 +114,7 @@ public class DataInitializer implements ApplicationRunner {
      */
     private List<ConferenceOption> desiredOptions() {
         return List.of(
-                // ── 등록비: 얼리버드 (~6/30) ──────────────────────────────────────
+                // ── 등록비: 사전등록 고정요율 (Early Bird 요율) ────────────────────
                 reg("OPT-REG-PRE-MEMBER",
                         "얼리버드 (IABSE 회원)", "Early Bird — IABSE Member", 1_300_000L),
                 reg("OPT-REG-PRE-NM",
@@ -127,34 +127,6 @@ public class DataInitializer implements ApplicationRunner {
                 reg("OPT-REG-PRE-EXH",
                         "얼리버드 (전시자 추가 배지)",
                         "Early Bird — Additional Badge for Exhibitors", 500_000L),
-
-                // ── 등록비: 일반등록 (7/1~8/31) ──────────────────────────────────
-                reg("OPT-REG-EARLY-MEMBER",
-                        "일반등록 (IABSE 회원)", "General Registration — IABSE Member", 1_450_000L),
-                reg("OPT-REG-EARLY-NM",
-                        "일반등록 (비IABSE 회원)", "General Registration — Non-IABSE Member", 1_550_000L),
-                reg("OPT-REG-EARLY-NMP",
-                        "일반등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
-                        "General Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_650_000L),
-                reg("OPT-REG-EARLY-YE",
-                        "일반등록 (Young Engineer)", "General Registration — Young Engineer", 900_000L),
-                reg("OPT-REG-EARLY-EXH",
-                        "일반등록 (전시자 추가 배지)",
-                        "General Registration — Additional Badge for Exhibitors", 500_000L),
-
-                // ── 등록비: 현장등록 (9/14~) ─────────────────────────────────────
-                reg("OPT-REG-MEMBER",
-                        "현장등록 (IABSE 회원)", "On-site Registration — IABSE Member", 1_600_000L),
-                reg("OPT-REG-NONMEMBER",
-                        "현장등록 (비IABSE 회원)", "On-site Registration — Non-IABSE Member", 1_700_000L),
-                reg("OPT-REG-NONMEMBER-PLUS",
-                        "현장등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
-                        "On-site Registration — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_800_000L),
-                reg("OPT-REG-YE",
-                        "현장등록 (Young Engineer)", "On-site Registration — Young Engineer", 1_000_000L),
-                reg("OPT-REG-EXH",
-                        "현장등록 (전시자 추가 배지)",
-                        "On-site Registration — Additional Badge for Exhibitors", 600_000L),
 
                 new ConferenceOption(
                         "OPT-WELCOME", OptionCategory.PROGRAM,
@@ -192,22 +164,12 @@ public class DataInitializer implements ApplicationRunner {
                         "I would like to attend the Underground Complex Site at Yeongdong-daero tour",
                         90_000L, false, false, false, null, 40),
 
-                // ── 옵션비: 동반자 등록 (기간별 금액 상이) ───────────────────────
+                // ── 옵션비: 동반자 등록 (사전등록요율 고정) ───────────────────────
                 new ConferenceOption(
                         "OPT-ACCOMP-PRE", OptionCategory.PROGRAM,
                         "동반자 등록 (사전등록)", "Accompanying Person",
                         "I would like to register an accompanying person",
                         400_000L, false, false, false, null, null),
-                new ConferenceOption(
-                        "OPT-ACCOMP-EARLY", OptionCategory.PROGRAM,
-                        "동반자 등록 (얼리버드)", "Accompanying Person",
-                        "I would like to register an accompanying person",
-                        400_000L, false, false, false, null, null),
-                new ConferenceOption(
-                        "OPT-ACCOMP-REGULAR", OptionCategory.PROGRAM,
-                        "동반자 등록 (일반등록)", "Accompanying Person",
-                        "I would like to register an accompanying person",
-                        450_000L, false, false, false, null, null),
 
                 // ── 행정 서비스 ──────────────────────────────────────────────────
                 new ConferenceOption(

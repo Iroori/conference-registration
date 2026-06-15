@@ -7,7 +7,6 @@ import type {
   MemberType,
   RegistrationTierKey,
   RegistrationCategory,
-  RegistrationPeriods,
 } from '../types';
 import { REG_TIER_CONFIG, REGISTRATION_CATEGORIES } from '../types';
 
@@ -30,18 +29,9 @@ interface StepRegistrationTypeProps {
   onNext: () => void;
 }
 
-function parseDate(s: string | null | undefined): Date | null {
-  return s ? new Date(s + 'T23:59:59') : null;
-}
-
 /** 서버에서 받은 기간 기반으로 현재 활성 티어 판정 */
-function getCurrentTier(periods?: RegistrationPeriods): RegistrationTierKey {
-  const today = new Date();
-  const preEnd = parseDate(periods?.preRegistration.endDate);
-  const earlyEnd = parseDate(periods?.earlyBird.endDate);
-  if (preEnd && today <= preEnd) return 'PRE_REGISTRATION';
-  if (earlyEnd && today <= earlyEnd) return 'EARLY_BIRD';
-  return 'REGULAR';
+function getCurrentTier(): RegistrationTierKey {
+  return 'PRE_REGISTRATION';
 }
 
 function deadlineLabel(p: { endDate: string | null }): string {
@@ -67,7 +57,7 @@ export const StepRegistrationType = ({
   const { user } = useAuth();
   const { data: options, isLoading: isOptionsLoading, error, refetch } = useConferenceOptions(memberType);
   const { data: periods, isLoading: isPeriodsLoading } = useRegistrationPeriods();
-  const currentTier = getCurrentTier(periods);
+  const currentTier = getCurrentTier();
   const tierCfg = REG_TIER_CONFIG[currentTier];
   const isLoading = isOptionsLoading || isPeriodsLoading || !periods;
 

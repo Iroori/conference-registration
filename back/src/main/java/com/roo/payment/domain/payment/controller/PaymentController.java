@@ -40,7 +40,7 @@ public class PaymentController {
             @AuthenticationPrincipal String email,
             @RequestParam String code) {
         log.info("[PAYMENT_CTRL] Verifying discount code — email={} code={}", email, code);
-        DiscountCode dc = discountCodeService.verifyDiscountCode(code, email);
+        DiscountCode dc = discountCodeService.verifyDiscountCode(code);
         return ResponseEntity.ok(ApiResponse.ok("Discount code is valid.", DiscountCodeResponse.from(dc)));
     }
 

@@ -99,7 +99,7 @@ class AdminPaymentControllerTest {
     @DisplayName("어드민 권한으로 결제 삭제 시 - 티켓 수량 복원 및 할인 코드 초기화 검증")
     void testDeletePaymentSuccess() throws Exception {
         // Create test discount code
-        DiscountCode discountCode = new DiscountCode("PROMO777", normalUser, 50, 50, false, false, false);
+        DiscountCode discountCode = new DiscountCode("PROMO777", 50, 50, false, false, false);
         discountCode.markAsUsed();
         discountCodeRepository.save(discountCode);
 

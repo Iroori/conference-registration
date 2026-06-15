@@ -23,5 +23,10 @@ public record UpdateProfileRequest(
 
     boolean isPresenter,
     boolean isAuthor,
-    @Size(max = 300) String paperInfo
+    @Size(max = 300) String paperInfo,
+
+    @Size(max = 100) String passportFirstName,
+    @Size(max = 100) String passportLastName,
+    @Size(max = 100) String passportNumber,
+    java.time.LocalDate birthDate
 ) {}

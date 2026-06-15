@@ -49,7 +49,7 @@ public class UserController {
                 req.country(),
                 req.position(),
                 req.phone(),
-                user.getBirthDate()
+                req.birthDate()
         );
         user.assignBillingAddress(
                 req.billingUniversity(),
@@ -65,6 +65,7 @@ public class UserController {
         user.setPresenter(req.isPresenter());
         user.setAuthor(req.isAuthor());
         user.assignPaperInfo(req.paperInfo());
+        user.assignPassportInfo(req.passportFirstName(), req.passportLastName(), req.passportNumber());
 
         userRepository.save(user);
 

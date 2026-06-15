@@ -65,6 +65,9 @@ export const RegistrationPage = () => {
 
   // Step 3 — invitation letter
   const [needsInvitationLetter, setNeedsInvitationLetter] = useState<boolean | null>(null);
+  const [passportFirstName, setPassportFirstName] = useState<string>('');
+  const [passportLastName, setPassportLastName] = useState<string>('');
+  const [passportNumber, setPassportNumber] = useState<string>('');
 
   // Step 5 — payment result
   const [paymentResult, setPaymentResult] = useState<PaymentResponse | null>(null);
@@ -103,6 +106,9 @@ export const RegistrationPage = () => {
       waitlistedOptionIds,
       iabseId,
       birthDate,
+      passportFirstName,
+      passportLastName,
+      passportNumber,
     };
   }, [
     selectedRegOptionId,
@@ -115,6 +121,9 @@ export const RegistrationPage = () => {
     waitlistedOptionIds,
     iabseId,
     birthDate,
+    passportFirstName,
+    passportLastName,
+    passportNumber,
   ]);
 
   /** Total amount for display in the payment step */
@@ -147,6 +156,9 @@ export const RegistrationPage = () => {
     setAccompanyingPersons([]);
     setWaitlistedOptionIds([]);
     setNeedsInvitationLetter(null);
+    setPassportFirstName('');
+    setPassportLastName('');
+    setPassportNumber('');
     setPaymentResult(null);
   };
 
@@ -288,6 +300,14 @@ export const RegistrationPage = () => {
               <StepInvitationLetter
                 needsLetter={needsInvitationLetter}
                 onSelect={(needs) => setNeedsInvitationLetter(needs)}
+                passportFirstName={passportFirstName}
+                onPassportFirstNameChange={setPassportFirstName}
+                passportLastName={passportLastName}
+                onPassportLastNameChange={setPassportLastName}
+                passportNumber={passportNumber}
+                onPassportNumberChange={setPassportNumber}
+                birthDate={birthDate}
+                onBirthDateChange={setBirthDate}
                 onNext={() => setCurrentStep('SUMMARY')}
                 onBack={() => setCurrentStep('TECHNICAL_TOUR')}
               />
@@ -385,6 +405,11 @@ export const MyProfileTab = () => {
   const [position, setPosition] = useState(user?.position || 'Mr.');
   const [phone, setPhone] = useState(user?.phone || '');
 
+  const [passportFirstName, setPassportFirstName] = useState(user?.passportFirstName || '');
+  const [passportLastName, setPassportLastName] = useState(user?.passportLastName || '');
+  const [passportNumber, setPassportNumber] = useState(user?.passportNumber || '');
+  const [birthDate, setBirthDate] = useState(user?.birthDate || '');
+
   const [isPresenter, setIsPresenter] = useState(user?.isPresenter || false);
   const [isAuthor, setIsAuthor] = useState(user?.isAuthor || false);
   const [paperInfo, setPaperInfo] = useState(user?.paperInfo || '');
@@ -443,6 +468,10 @@ export const MyProfileTab = () => {
         isPresenter,
         isAuthor,
         paperInfo,
+        passportFirstName,
+        passportLastName,
+        passportNumber,
+        birthDate: birthDate || null,
       });
 
       login(refreshedUser);
@@ -577,6 +606,60 @@ export const MyProfileTab = () => {
             placeholder="+82 10-1234-5678"
             required
           />
+        </div>
+
+        {/* ── Passport & Date of Birth Section ── */}
+        <div className="border-t border-slate-200 pt-5">
+          <p className="text-lg font-bold text-slate-900 mb-2">
+            Passport & Date of Birth
+          </p>
+          <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-4 mb-4">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-700">Passport Details (Required for Visa Invitation Letter)</p>
+            
+            <div>
+              <label className="block label-section mb-1.5">Date of Birth</label>
+              <input
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                className="input-base text-slate-850"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block label-section mb-1.5">Passport First Name</label>
+                <input
+                  type="text"
+                  value={passportFirstName}
+                  onChange={(e) => setPassportFirstName(e.target.value)}
+                  className="input-base"
+                  placeholder="First name as on passport"
+                />
+              </div>
+              <div>
+                <label className="block label-section mb-1.5">Passport Last Name</label>
+                <input
+                  type="text"
+                  value={passportLastName}
+                  onChange={(e) => setPassportLastName(e.target.value)}
+                  className="input-base"
+                  placeholder="Last name as on passport"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block label-section mb-1.5">Passport Number</label>
+              <input
+                type="text"
+                value={passportNumber}
+                onChange={(e) => setPassportNumber(e.target.value)}
+                className="input-base"
+                placeholder="Passport number"
+              />
+            </div>
+          </div>
         </div>
 
         {/* ── Billing Address Section ── */}

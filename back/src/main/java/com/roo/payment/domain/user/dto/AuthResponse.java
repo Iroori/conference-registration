@@ -31,7 +31,12 @@ public record AuthResponse(
         String billingPoBox,
         String billingPostcode,
         String billingCity,
-        String billingCountry
+        String billingCountry,
+
+        String passportFirstName,
+        String passportLastName,
+        String passportNumber,
+        java.time.LocalDate birthDate
 ) {
     public static AuthResponse of(String accessToken, String refreshToken, User user) {
         return new AuthResponse(
@@ -61,7 +66,12 @@ public record AuthResponse(
                 user.getBillingPoBox(),
                 user.getBillingPostcode(),
                 user.getBillingCity(),
-                user.getBillingCountry()
+                user.getBillingCountry(),
+
+                user.getPassportFirstName(),
+                user.getPassportLastName(),
+                user.getPassportNumber(),
+                user.getBirthDate()
         );
     }
 }

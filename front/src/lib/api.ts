@@ -182,7 +182,6 @@ export const apiGetAdminDiscountCodes = async (): Promise<DiscountCode[]> => {
 };
 
 export const apiCreateAdminDiscountCode = async (req: {
-  userEmail: string;
   iabseMemberDiscountRate: number;
   nonIabseMemberDiscountRate: number;
   galaDinnerFree: boolean;

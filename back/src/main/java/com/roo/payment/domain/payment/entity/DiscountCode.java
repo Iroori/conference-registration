@@ -1,7 +1,6 @@
 package com.roo.payment.domain.payment.entity;
 
 import com.roo.payment.common.entity.BaseEntity;
-import com.roo.payment.domain.user.entity.User;
 import jakarta.persistence.*;
 
 @Entity
@@ -17,9 +16,7 @@ public class DiscountCode extends BaseEntity {
     @Column(nullable = false, unique = true, length = 8)
     private String code;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+
 
     @Column(nullable = false)
     private int iabseMemberDiscountRate; // 0, 50, 100
@@ -44,10 +41,9 @@ public class DiscountCode extends BaseEntity {
 
     protected DiscountCode() {}
 
-    public DiscountCode(String code, User user, int iabseMemberDiscountRate, int nonIabseMemberDiscountRate,
+    public DiscountCode(String code, int iabseMemberDiscountRate, int nonIabseMemberDiscountRate,
                         boolean galaDinnerFree, boolean accompanyingPersonFree, boolean technicalTourFree) {
         this.code = code.toUpperCase().trim();
-        this.user = user;
         this.iabseMemberDiscountRate = iabseMemberDiscountRate;
         this.nonIabseMemberDiscountRate = nonIabseMemberDiscountRate;
         this.galaDinnerFree = galaDinnerFree;
@@ -69,7 +65,6 @@ public class DiscountCode extends BaseEntity {
 
     public Long getId() { return id; }
     public String getCode() { return code; }
-    public User getUser() { return user; }
     public int getIabseMemberDiscountRate() { return iabseMemberDiscountRate; }
     public int getNonIabseMemberDiscountRate() { return nonIabseMemberDiscountRate; }
     public boolean isGalaDinnerFree() { return galaDinnerFree; }

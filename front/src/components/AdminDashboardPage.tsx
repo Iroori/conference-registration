@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   apiGetAdminUsers,
@@ -87,8 +87,6 @@ export const AdminDashboardPage = () => {
   const [newLastName, setNewLastName] = useState('');
 
   // Discount code form states
-  const [selectedUserEmail, setSelectedUserEmail] = useState('');
-  const [userSearchTerm, setUserSearchTerm] = useState('');
   const [memberRate, setMemberRate] = useState<number>(0);
   const [nonMemberRate, setNonMemberRate] = useState<number>(0);
   const [galaFree, setGalaFree] = useState(false);
@@ -111,14 +109,9 @@ export const AdminDashboardPage = () => {
     isLoading: loadingUsers,
     isError: errorUsers,
   } = useQuery({
-    queryKey: ['adminUsers', userPage, userTabSearchTerm, activeTab === 'DISCOUNT_CODES' ? userSearchTerm : ''],
-    queryFn: () => {
-      const search = activeTab === 'DISCOUNT_CODES' ? userSearchTerm : userTabSearchTerm;
-      const size = activeTab === 'DISCOUNT_CODES' ? 50 : 20;
-      const page = activeTab === 'DISCOUNT_CODES' ? 0 : userPage;
-      return apiGetAdminUsers(page, size, search);
-    },
-    enabled: activeTab === 'USERS' || activeTab === 'DISCOUNT_CODES',
+    queryKey: ['adminUsers', userPage, userTabSearchTerm],
+    queryFn: () => apiGetAdminUsers(userPage, 20, userTabSearchTerm),
+    enabled: activeTab === 'USERS',
   });
 
   const users = usersResponse?.users;
@@ -304,7 +297,6 @@ export const AdminDashboardPage = () => {
 
   const createDiscountCodeMutation = useMutation({
     mutationFn: (req: {
-      userEmail: string;
       iabseMemberDiscountRate: number;
       nonIabseMemberDiscountRate: number;
       galaDinnerFree: boolean;
@@ -313,7 +305,7 @@ export const AdminDashboardPage = () => {
     }) => apiCreateAdminDiscountCode(req),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminDiscountCodes'] });
-      alert('Discount code generated and assigned successfully.');
+      alert('Discount code generated successfully.');
     },
     onError: (err: any) => {
       const msg = err?.response?.data?.message || 'Failed to create discount code.';
@@ -333,15 +325,7 @@ export const AdminDashboardPage = () => {
     },
   });
 
-  const filteredSuggestions = useMemo(() => {
-    if (!userSearchTerm.trim() || !users) return [];
-    return users
-      .filter((u) => 
-        u.email.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
-        `${u.firstName} ${u.lastName}`.toLowerCase().includes(userSearchTerm.toLowerCase())
-      )
-      .slice(0, 5);
-  }, [userSearchTerm, users]);
+
 
   const updateCapacityMutation = useMutation({
     mutationFn: ({ optionId, maxCapacity }: { optionId: string; maxCapacity: number }) =>
@@ -1345,7 +1329,7 @@ export const AdminDashboardPage = () => {
               <div>
                 <h3 className="text-base font-semibold text-slate-800">Discount Code Management</h3>
                 <p className="text-[11px] text-slate-500 mt-0.5">
-                  Generate unique 8-character codes and assign them to specific registered users.
+                  Generate unique 8-character single-use discount codes.
                 </p>
               </div>
               <span className="text-xs text-slate-500 font-medium bg-slate-200/60 px-2.5 py-1 rounded-full">
@@ -1357,87 +1341,42 @@ export const AdminDashboardPage = () => {
             <div className="bg-white rounded-xl border border-slate-205 p-5 shadow-sm space-y-4">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5 border-b border-slate-100 pb-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-teal-500"></span>
-                Generate & Assign New Discount Code
+                Generate Standalone Discount Code
               </h4>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* User Search & Selection */}
-                <div className="space-y-2 relative">
-                  <label className="block text-[10px] font-bold uppercase text-slate-500">
-                    Assignee User (Email or Name) <span className="text-red-500 font-bold">*</span>
+              {/* Optional Program checkboxes */}
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold uppercase text-slate-500">
+                  Optional Programs Discounts
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                  <label className="flex items-center gap-2 text-xs cursor-pointer select-none text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={galaFree}
+                      onChange={(e) => setGalaFree(e.target.checked)}
+                      className="rounded border-slate-305 text-teal-600 focus:ring-teal-500"
+                    />
+                    <span className="font-medium">Gala Dinner Free (갈라디너 무료)</span>
                   </label>
-                  <input
-                    type="text"
-                    value={userSearchTerm}
-                    onChange={(e) => {
-                      setUserSearchTerm(e.target.value);
-                      if (selectedUserEmail && e.target.value !== selectedUserEmail) {
-                        setSelectedUserEmail('');
-                      }
-                    }}
-                    placeholder="Search attendee by email or name..."
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100 bg-slate-50/50 focus:bg-white text-slate-800"
-                  />
-                  {selectedUserEmail && (
-                    <p className="text-[10px] text-green-600 font-semibold mt-1">
-                      ✓ Selected user: {selectedUserEmail}
-                    </p>
-                  )}
-                  {/* Suggestion list */}
-                  {!selectedUserEmail && filteredSuggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-25 divide-y divide-slate-100 max-h-40 overflow-y-auto">
-                      {filteredSuggestions.map((u) => (
-                        <button
-                          key={u.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedUserEmail(u.email);
-                            setUserSearchTerm(u.email);
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 transition flex justify-between items-center"
-                        >
-                          <span className="font-semibold text-slate-800">{u.email}</span>
-                          <span className="text-[10px] text-slate-400 font-medium">{u.firstName} {u.lastName}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Optional Program checkboxes */}
-                <div className="space-y-2">
-                  <label className="block text-[10px] font-bold uppercase text-slate-500">
-                    Optional Programs Discounts
+                  <label className="flex items-center gap-2 text-xs cursor-pointer select-none text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={accompFree}
+                      onChange={(e) => setAccompFree(e.target.checked)}
+                      className="rounded border-slate-305 text-teal-600 focus:ring-teal-500"
+                    />
+                    <span className="font-medium">Accompanying Person (동반자 1인 무료)</span>
                   </label>
-                  <div className="space-y-2 pt-1">
-                    <label className="flex items-center gap-2 text-xs cursor-pointer select-none text-slate-700">
-                      <input
-                        type="checkbox"
-                        checked={galaFree}
-                        onChange={(e) => setGalaFree(e.target.checked)}
-                        className="rounded border-slate-305 text-teal-600 focus:ring-teal-500"
-                      />
-                      <span className="font-medium">Gala Dinner Free (갈라디너 무료)</span>
-                    </label>
-                    <label className="flex items-center gap-2 text-xs cursor-pointer select-none text-slate-700">
-                      <input
-                        type="checkbox"
-                        checked={accompFree}
-                        onChange={(e) => setAccompFree(e.target.checked)}
-                        className="rounded border-slate-305 text-teal-600 focus:ring-teal-500"
-                      />
-                      <span className="font-medium">Accompanying Person (동반자 1인 무료)</span>
-                    </label>
-                    <label className="flex items-center gap-2 text-xs cursor-pointer select-none text-slate-700">
-                      <input
-                        type="checkbox"
-                        checked={tourFree}
-                        onChange={(e) => setTourFree(e.target.checked)}
-                        className="rounded border-slate-305 text-teal-600 focus:ring-teal-500"
-                      />
-                      <span className="font-medium">Technical Tours Free (기술투어 무료)</span>
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-xs cursor-pointer select-none text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={tourFree}
+                      onChange={(e) => setTourFree(e.target.checked)}
+                      className="rounded border-slate-305 text-teal-600 focus:ring-teal-500"
+                    />
+                    <span className="font-medium">Technical Tours Free (기술투어 무료)</span>
+                  </label>
                 </div>
               </div>
 
@@ -1477,8 +1416,6 @@ export const AdminDashboardPage = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    setSelectedUserEmail('');
-                    setUserSearchTerm('');
                     setMemberRate(0);
                     setNonMemberRate(0);
                     setGalaFree(false);
@@ -1491,10 +1428,9 @@ export const AdminDashboardPage = () => {
                 </button>
                 <button
                   type="button"
-                  disabled={!selectedUserEmail || createDiscountCodeMutation.isPending}
+                  disabled={createDiscountCodeMutation.isPending}
                   onClick={() => {
                     createDiscountCodeMutation.mutate({
-                      userEmail: selectedUserEmail,
                       iabseMemberDiscountRate: memberRate,
                       nonIabseMemberDiscountRate: nonMemberRate,
                       galaDinnerFree: galaFree,
@@ -1502,8 +1438,6 @@ export const AdminDashboardPage = () => {
                       technicalTourFree: tourFree,
                     }, {
                       onSuccess: () => {
-                        setSelectedUserEmail('');
-                        setUserSearchTerm('');
                         setMemberRate(0);
                         setNonMemberRate(0);
                         setGalaFree(false);
@@ -1514,7 +1448,7 @@ export const AdminDashboardPage = () => {
                   }}
                   className="px-4 py-2 text-xs bg-teal-500 hover:bg-teal-600 active:bg-teal-700 text-white font-semibold rounded-lg shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {createDiscountCodeMutation.isPending ? 'Generating...' : 'Generate & Assign Code'}
+                  {createDiscountCodeMutation.isPending ? 'Generating...' : 'Generate Discount Code'}
                 </button>
               </div>
             </div>
@@ -1545,7 +1479,6 @@ export const AdminDashboardPage = () => {
                   <thead>
                     <tr className="bg-slate-100 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                       <th className="px-4 py-3.5">Discount Code</th>
-                      <th className="px-4 py-3.5">Assignee User</th>
                       <th className="px-4 py-3.5">Registration Discount</th>
                       <th className="px-4 py-3.5">Option Freebies</th>
                       <th className="px-4 py-3.5 text-center">Status</th>
@@ -1560,7 +1493,6 @@ export const AdminDashboardPage = () => {
                             {dc.code}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5 font-medium text-slate-750">{dc.userEmail}</td>
                         <td className="px-4 py-3.5">
                           <div className="space-y-1">
                             <p className="text-slate-600 font-semibold">

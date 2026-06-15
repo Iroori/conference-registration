@@ -90,7 +90,11 @@ class UserControllerTest {
                 "South Korea",
                 true, // isPresenter
                 true, // isAuthor
-                "Paper #101: A Study on Antigravity" // paperInfo
+                "Paper #101: A Study on Antigravity", // paperInfo
+                null,
+                null,
+                null,
+                null
         );
 
         mockMvc.perform(put("/api/user/profile")

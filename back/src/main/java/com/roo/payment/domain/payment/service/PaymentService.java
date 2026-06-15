@@ -97,6 +97,17 @@ public class PaymentService {
             throw new BusinessException(ErrorCode.INVALID_INPUT, "Exhibitor badge names are required.");
         }
 
+        // 초청장(비자) 옵션이 선택된 경우 여권 정보 필수 검증
+        boolean needsVisa = uniqueIds.contains("OPT-VISA");
+        if (needsVisa) {
+            if (request.passportFirstName() == null || request.passportFirstName().isBlank() ||
+                request.passportLastName() == null || request.passportLastName().isBlank() ||
+                request.passportNumber() == null || request.passportNumber().isBlank() ||
+                request.birthDate() == null) {
+                throw new BusinessException(ErrorCode.INVALID_INPUT, "Passport details are required for visa invitation letter.");
+            }
+        }
+
         List<String> waitlistedIds = request.waitlistedOptionIds() != null ? request.waitlistedOptionIds() : List.of();
 
         List<ConferenceOption> activeOptions = options.stream()
@@ -137,7 +148,7 @@ public class PaymentService {
         DiscountCode appliedDiscount = null;
 
         if (request.appliedDiscountCode() != null && !request.appliedDiscountCode().isBlank()) {
-            appliedDiscount = discountCodeService.verifyDiscountCode(request.appliedDiscountCode(), email);
+            appliedDiscount = discountCodeService.verifyDiscountCode(request.appliedDiscountCode());
             appliedCode = appliedDiscount.getCode();
 
             // 1. 등록비 할인 계산
@@ -229,6 +240,15 @@ public class PaymentService {
         if (request.birthDate() != null) {
             user.updateProfile(user.getFirstName(), user.getLastName(), user.getAffiliation(),
                                user.getCountry(), user.getPosition(), user.getPhone(), request.birthDate());
+        }
+        if (request.passportFirstName() != null && !request.passportFirstName().isBlank()) {
+            user.setPassportFirstName(request.passportFirstName().trim());
+        }
+        if (request.passportLastName() != null && !request.passportLastName().isBlank()) {
+            user.setPassportLastName(request.passportLastName().trim());
+        }
+        if (request.passportNumber() != null && !request.passportNumber().isBlank()) {
+            user.setPassportNumber(request.passportNumber().trim());
         }
         userRepository.save(user);
 

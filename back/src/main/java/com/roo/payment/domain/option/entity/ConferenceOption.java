@@ -95,7 +95,6 @@ public class ConferenceOption extends BaseEntity {
         this.required = source.required;
         this.requiresUpload = source.requiresUpload;
         this.allowedMemberType = source.allowedMemberType;
-        this.maxCapacity = source.maxCapacity;
         this.active = source.active;
     }
 

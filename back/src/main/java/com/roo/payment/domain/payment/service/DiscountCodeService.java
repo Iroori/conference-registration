@@ -4,8 +4,6 @@ import com.roo.payment.common.exception.BusinessException;
 import com.roo.payment.common.exception.ErrorCode;
 import com.roo.payment.domain.payment.entity.DiscountCode;
 import com.roo.payment.domain.payment.repository.DiscountCodeRepository;
-import com.roo.payment.domain.user.entity.User;
-import com.roo.payment.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,23 +15,18 @@ import java.util.List;
 public class DiscountCodeService {
 
     private final DiscountCodeRepository discountCodeRepository;
-    private final UserRepository userRepository;
     private final SecureRandom random = new SecureRandom();
 
-    public DiscountCodeService(DiscountCodeRepository discountCodeRepository, UserRepository userRepository) {
+    public DiscountCodeService(DiscountCodeRepository discountCodeRepository) {
         this.discountCodeRepository = discountCodeRepository;
-        this.userRepository = userRepository;
     }
 
     /**
-     * 할인코드 생성 및 유저에게 할당
+     * 할인코드 생성
      */
     @Transactional
-    public DiscountCode createDiscountCode(String userEmail, int iabseMemberDiscountRate, int nonIabseMemberDiscountRate,
+    public DiscountCode createDiscountCode(int iabseMemberDiscountRate, int nonIabseMemberDiscountRate,
                                            boolean galaDinnerFree, boolean accompanyingPersonFree, boolean technicalTourFree) {
-        User user = userRepository.findByEmailAndActiveTrue(userEmail)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
         // 고유한 8자리 문자열(영문 대문자 + 숫자) 생성
         String code;
         do {
@@ -41,7 +34,7 @@ public class DiscountCodeService {
         } while (discountCodeRepository.existsByCode(code));
 
         DiscountCode discountCode = new DiscountCode(
-                code, user, iabseMemberDiscountRate, nonIabseMemberDiscountRate,
+                code, iabseMemberDiscountRate, nonIabseMemberDiscountRate,
                 galaDinnerFree, accompanyingPersonFree, technicalTourFree
         );
 
@@ -56,18 +49,14 @@ public class DiscountCodeService {
     }
 
     /**
-     * 할인코드 검증 (로그인한 유저 기준)
+     * 할인코드 검증
      */
-    public DiscountCode verifyDiscountCode(String code, String userEmail) {
+    public DiscountCode verifyDiscountCode(String code) {
         DiscountCode discountCode = discountCodeRepository.findByCodeAndActiveTrue(code.toUpperCase().trim())
                 .orElseThrow(() -> new BusinessException(ErrorCode.DISCOUNT_CODE_NOT_FOUND));
 
         if (discountCode.isUsed()) {
             throw new BusinessException(ErrorCode.DISCOUNT_CODE_ALREADY_USED);
-        }
-
-        if (!discountCode.getUser().getEmail().equalsIgnoreCase(userEmail.trim())) {
-            throw new BusinessException(ErrorCode.DISCOUNT_CODE_INVALID_USER);
         }
 
         return discountCode;

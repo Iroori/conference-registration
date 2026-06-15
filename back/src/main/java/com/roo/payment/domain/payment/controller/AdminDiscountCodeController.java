@@ -35,7 +35,6 @@ public class AdminDiscountCodeController {
     public ResponseEntity<ApiResponse<DiscountCodeResponse>> create(
             @Valid @RequestBody CreateDiscountCodeRequest req) {
         DiscountCode created = discountCodeService.createDiscountCode(
-                req.userEmail(),
                 req.iabseMemberDiscountRate(),
                 req.nonIabseMemberDiscountRate(),
                 req.galaDinnerFree(),
