@@ -52,8 +52,8 @@ public class PaymentController {
     public ResponseEntity<ApiResponse<PaymentResponse>> createPayment(
             @AuthenticationPrincipal String email,
             @Valid @RequestBody PaymentRequest request) {
-        log.info("[PAYMENT_CTRL] Payment request received — email={} options={}",
-                email, request.selectedOptionIds());
+        log.info("[PAYMENT_CTRL] Payment request received — email={} options={} passportFirstName='{}' passportLastName='{}' passportNumber='{}'",
+                email, request.selectedOptionIds(), request.passportFirstName(), request.passportLastName(), request.passportNumber());
         PaymentResponse response = paymentService.createPayment(email, request);
         log.info("[PAYMENT_CTRL] Payment completed — email={} regNo={}",
                 email, response.registrationNumber());
