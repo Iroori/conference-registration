@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   apiGetAdminUsers,
@@ -81,10 +81,15 @@ export const AdminDashboardPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedPaymentId, setExpandedPaymentId] = useState<number | null>(null);
+  const [expandedUserId, setExpandedUserId] = useState<number | null>(null);
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [newIabseId, setNewIabseId] = useState('');
   const [newFirstName, setNewFirstName] = useState('');
   const [newLastName, setNewLastName] = useState('');
+
+  const toggleExpandUser = (id: number) => {
+    setExpandedUserId((prev) => (prev === id ? null : id));
+  };
 
   // Discount code form states
   const [memberRate, setMemberRate] = useState<number>(0);
@@ -627,6 +632,7 @@ export const AdminDashboardPage = () => {
                 <table className="w-full border-collapse text-left text-xs">
                   <thead>
                     <tr className="bg-slate-100 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                      <th className="px-4 py-3.5 w-[30px]"></th>
                       <th className="px-4 py-3.5">Attendee Name</th>
                       <th className="px-4 py-3.5">Email</th>
                       <th className="px-4 py-3.5">Affiliation & Position</th>
@@ -641,85 +647,225 @@ export const AdminDashboardPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {users.map((u) => (
-                      <tr key={u.id} className="hover:bg-slate-50/50 transition">
-                        <td className="px-4 py-3.5">
-                          <span className="font-semibold text-slate-900">{`${u.firstName} ${u.lastName}`}</span>
-                          {u.admin && (
-                            <span className="ml-1.5 inline-block bg-indigo-150 border border-indigo-200 text-indigo-700 text-[9px] font-bold px-1.5 py-0.5 rounded">
-                              ADMIN
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3.5 text-slate-600 font-medium">{u.email}</td>
-                        <td className="px-4 py-3.5">
-                          <div className="font-medium text-slate-900">{u.affiliation}</div>
-                          <div className="text-[10px] text-slate-500">{u.position || '-'}, {u.country}</div>
-                        </td>
-                        <td className="px-4 py-3.5 text-center">
-                          {u.author ? (
-                            <span className="inline-block bg-teal-100 border border-teal-200 text-teal-700 text-[9px] font-bold px-1.5 py-0.5 rounded">
-                              YES
-                            </span>
-                          ) : (
-                            <span className="text-slate-400">No</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3.5 text-center">
-                          {u.presenter ? (
-                            <span className="inline-block bg-teal-100 border border-teal-200 text-teal-700 text-[9px] font-bold px-1.5 py-0.5 rounded">
-                              YES
-                            </span>
-                          ) : (
-                            <span className="text-slate-400">No</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3.5 font-medium text-slate-500 truncate max-w-[120px]" title={u.paperInfo || '-'}>
-                          {u.paperInfo || '-'}
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <span className={`inline-block rounded px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
-                            u.memberType === 'MEMBER'
-                              ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                              : u.memberType === 'YOUNG_ENGINEER'
-                              ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                              : u.memberType === 'NON_MEMBER'
-                              ? 'bg-slate-150 text-slate-700 border border-slate-200'
-                              : 'bg-indigo-100 text-indigo-800 border border-indigo-200'
-                          }`}>
-                            {u.memberType.replace('_', ' ')}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          <select
-                            value={u.memberType}
-                            onChange={(e) => handleGradeChange(u.id, e.target.value as MemberType)}
-                            disabled={u.admin || updateGradeMutation.isPending}
-                            className="rounded-lg border border-slate-250 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-100 disabled:bg-slate-100 disabled:text-slate-400 transition"
+                    {users.map((u) => {
+                      const isExpanded = expandedUserId === u.id;
+                      return (
+                        <Fragment key={u.id}>
+                          <tr 
+                            onClick={() => toggleExpandUser(u.id)}
+                            className="hover:bg-slate-50/50 cursor-pointer transition select-none"
                           >
-                            <option value="MEMBER">MEMBER (IABSE)</option>
-                            <option value="NON_MEMBER">NON-MEMBER</option>
-                            <option value="NON_MEMBER_PLUS">NON-MEMBER PLUS</option>
-                            <option value="YOUNG_ENGINEER">YOUNG ENGINEER</option>
-                          </select>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          {renderUserRegistrationAndOptions(u.email)}
-                        </td>
-                        <td className="px-4 py-3.5 text-slate-500 font-medium">
-                          {formatDate(u.createdAt)}
-                        </td>
-                        <td className="px-4 py-3.5 text-center">
-                          <button
-                            onClick={() => handleDeleteUser(u.id, `${u.firstName} ${u.lastName}`)}
-                            disabled={u.admin || deleteUserMutation.isPending}
-                            className="px-2.5 py-1 bg-red-500 hover:bg-red-600 active:bg-red-700 disabled:bg-slate-150 disabled:text-slate-400 text-white font-semibold rounded-lg text-[10px] shadow-sm hover:shadow active:scale-95 transition-all duration-200"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                            <td className="px-4 py-3.5 text-center text-slate-400 w-[30px]">
+                              <svg 
+                                className={`h-3 w-3 transform transition-transform duration-200 ${isExpanded ? 'rotate-90 text-teal-500' : ''}`} 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                              </svg>
+                            </td>
+                            <td className="px-4 py-3.5">
+                              <span className="font-semibold text-slate-900">{`${u.firstName} ${u.lastName}`}</span>
+                              {u.admin && (
+                                <span className="ml-1.5 inline-block bg-indigo-150 border border-indigo-200 text-indigo-700 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                                  ADMIN
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3.5 text-slate-600 font-medium">{u.email}</td>
+                            <td className="px-4 py-3.5">
+                              <div className="font-medium text-slate-900">{u.affiliation}</div>
+                              <div className="text-[10px] text-slate-500">{u.position || '-'}, {u.country}</div>
+                            </td>
+                            <td className="px-4 py-3.5 text-center">
+                              {u.author ? (
+                                <span className="inline-block bg-teal-100 border border-teal-200 text-teal-700 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                                  YES
+                                </span>
+                              ) : (
+                                <span className="text-slate-400">No</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3.5 text-center">
+                              {u.presenter ? (
+                                <span className="inline-block bg-teal-100 border border-teal-200 text-teal-700 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                                  YES
+                                </span>
+                              ) : (
+                                <span className="text-slate-400">No</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3.5 font-medium text-slate-500 truncate max-w-[120px]" title={u.paperInfo || '-'}>
+                              {u.paperInfo || '-'}
+                            </td>
+                            <td className="px-4 py-3.5">
+                              <span className={`inline-block rounded px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                                u.memberType === 'MEMBER'
+                                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                  : u.memberType === 'YOUNG_ENGINEER'
+                                  ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                  : u.memberType === 'NON_MEMBER'
+                                  ? 'bg-slate-150 text-slate-700 border border-slate-200'
+                                  : 'bg-indigo-100 text-indigo-800 border border-indigo-200'
+                              }`}>
+                                {u.memberType.replace('_', ' ')}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
+                              <select
+                                value={u.memberType}
+                                onChange={(e) => handleGradeChange(u.id, e.target.value as MemberType)}
+                                disabled={u.admin || updateGradeMutation.isPending}
+                                className="rounded-lg border border-slate-250 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-100 disabled:bg-slate-100 disabled:text-slate-400 transition"
+                              >
+                                <option value="MEMBER">MEMBER (IABSE)</option>
+                                <option value="NON_MEMBER">NON-MEMBER</option>
+                                <option value="NON_MEMBER_PLUS">NON-MEMBER PLUS</option>
+                                <option value="YOUNG_ENGINEER">YOUNG ENGINEER</option>
+                              </select>
+                            </td>
+                            <td className="px-4 py-3.5">
+                              {renderUserRegistrationAndOptions(u.email)}
+                            </td>
+                            <td className="px-4 py-3.5 text-slate-500 font-medium">
+                              {formatDate(u.createdAt)}
+                            </td>
+                            <td className="px-4 py-3.5 text-center" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                onClick={() => handleDeleteUser(u.id, `${u.firstName} ${u.lastName}`)}
+                                disabled={u.admin || deleteUserMutation.isPending}
+                                className="px-2.5 py-1 bg-red-500 hover:bg-red-650 active:bg-red-700 disabled:bg-slate-150 disabled:text-slate-400 text-white font-semibold rounded-lg text-[10px] shadow-sm hover:shadow active:scale-95 transition-all duration-200"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                          {isExpanded && (
+                            <tr className="bg-slate-50/50 border-t border-slate-100">
+                              <td colSpan={12} className="px-6 py-4">
+                                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {/* 1. Personal & Contact Info */}
+                                    <div className="space-y-2.5">
+                                      <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Personal & Contact Info</h5>
+                                      <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 space-y-2 text-xs">
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">Full Name</span>
+                                          <span className="font-medium text-slate-800">{u.firstName} {u.lastName}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">Email Address</span>
+                                          <span className="font-medium text-slate-800">{u.email}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">Phone Number</span>
+                                          <span className="font-medium text-slate-800">{u.phone || '-'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">Date of Birth</span>
+                                          <span className="font-medium text-slate-800">{u.birthDate || '-'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">Passport Name</span>
+                                          <span className="font-medium text-slate-800">
+                                            {u.passportFirstName || u.passportLastName 
+                                              ? `${u.passportFirstName || ''} ${u.passportLastName || ''}`.trim() 
+                                              : '-'}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">Passport Number</span>
+                                          <span className="font-medium text-slate-800">{u.passportNumber || '-'}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* 2. Affiliation & Dietary Requirements */}
+                                    <div className="space-y-2.5">
+                                      <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Affiliation & Dietary</h5>
+                                      <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 space-y-2 text-xs">
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">Affiliation / Organization</span>
+                                          <span className="font-medium text-slate-800">{u.affiliation || '-'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">Position</span>
+                                          <span className="font-medium text-slate-800">{u.position || '-'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">IABSE Member ID</span>
+                                          <span className="font-medium text-slate-800">{u.iabseId || '-'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">Dietary Requirement</span>
+                                          <span className="font-medium text-slate-800 uppercase">{u.dietaryRequirement || 'NONE'}</span>
+                                        </div>
+                                        {u.dietaryRequirement === 'OTHER' && (
+                                          <div>
+                                            <span className="font-semibold text-slate-500 block text-[9px] uppercase">Dietary Note</span>
+                                            <span className="font-medium text-slate-800">{u.dietaryNote || '-'}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* 3. Billing Address Details */}
+                                    <div className="space-y-2.5">
+                                      <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Billing Address Details</h5>
+                                      <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 space-y-2 text-xs">
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">Billing Organization</span>
+                                          <span className="font-medium text-slate-800">{u.billingUniversity || '-'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">VAT Number</span>
+                                          <span className="font-medium text-slate-800">{u.billingVat || '-'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">PO Number</span>
+                                          <span className="font-medium text-slate-800">{u.billingPoNumber || '-'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="font-semibold text-slate-500 block text-[9px] uppercase">Street Address</span>
+                                          <span className="font-medium text-slate-800">{u.billingStreet || '-'}</span>
+                                        </div>
+                                        {u.billingAdditionalInfo && (
+                                          <div>
+                                            <span className="font-semibold text-slate-500 block text-[9px] uppercase">Additional Info</span>
+                                            <span className="font-medium text-slate-800">{u.billingAdditionalInfo || '-'}</span>
+                                          </div>
+                                        )}
+                                        <div className="grid grid-cols-2 gap-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-500 block text-[9px] uppercase">PO Box</span>
+                                            <span className="font-medium text-slate-800">{u.billingPoBox || '-'}</span>
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-500 block text-[9px] uppercase">Postcode</span>
+                                            <span className="font-medium text-slate-800">{u.billingPostcode || '-'}</span>
+                                          </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                          <div>
+                                            <span className="font-semibold text-slate-500 block text-[9px] uppercase">City</span>
+                                            <span className="font-medium text-slate-800">{u.billingCity || '-'}</span>
+                                          </div>
+                                          <div>
+                                            <span className="font-semibold text-slate-500 block text-[9px] uppercase">Country</span>
+                                            <span className="font-medium text-slate-800">{u.billingCountry || '-'}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
