@@ -313,6 +313,10 @@ export const StepSummary = ({
                     <span className="text-ink-faint block text-[10px] uppercase">Passport Number</span>
                     <span className="font-medium">{passportNumber || '—'}</span>
                   </div>
+                  <div className="col-span-2">
+                    <span className="text-ink-faint block text-[10px] uppercase">Date of Birth</span>
+                    <span className="font-medium">{birthDate ? birthDate.replace(/-/g, ' ') : '—'}</span>
+                  </div>
                 </div>
               </div>
             </div>

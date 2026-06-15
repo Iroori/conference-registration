@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useRef } from 'react';
 import { SectionLabel } from './Shared';
 
 interface StepInvitationLetterProps {
@@ -30,49 +30,7 @@ export const StepInvitationLetter = ({
   onNext,
   onBack,
 }: StepInvitationLetterProps) => {
-  const [localYear, setLocalYear] = useState('');
-  const [localMonth, setLocalMonth] = useState('');
-  const [localDay, setLocalDay] = useState('');
-
-  useEffect(() => {
-    if (birthDate) {
-      const parts = birthDate.split('-');
-      setLocalYear(parts[0] || '');
-      setLocalMonth(parts[1] || '');
-      setLocalDay(parts[2] || '');
-    } else {
-      setLocalYear('');
-      setLocalMonth('');
-      setLocalDay('');
-    }
-  }, [birthDate]);
-
-  const handleYearChange = (val: string) => {
-    setLocalYear(val);
-    if (val && localMonth && localDay) {
-      onBirthDateChange(`${val}-${localMonth.padStart(2, '0')}-${localDay.padStart(2, '0')}`);
-    } else {
-      onBirthDateChange('');
-    }
-  };
-
-  const handleMonthChange = (val: string) => {
-    setLocalMonth(val);
-    if (localYear && val && localDay) {
-      onBirthDateChange(`${localYear}-${val.padStart(2, '0')}-${localDay.padStart(2, '0')}`);
-    } else {
-      onBirthDateChange('');
-    }
-  };
-
-  const handleDayChange = (val: string) => {
-    setLocalDay(val);
-    if (localYear && localMonth && val) {
-      onBirthDateChange(`${localYear}-${localMonth.padStart(2, '0')}-${val.padStart(2, '0')}`);
-    } else {
-      onBirthDateChange('');
-    }
-  };
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   // Check if all fields are filled when needsLetter is true
   const isValid =
@@ -233,63 +191,32 @@ export const StepInvitationLetter = ({
               <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
                 Date of Birth <span className="text-red-500 font-bold">*</span>
               </label>
-              <div className="flex gap-2">
-                {/* Year Select */}
-                <select
-                  value={localYear}
-                  onChange={(e) => handleYearChange(e.target.value)}
-                  className="input-base py-1.5 text-xs text-slate-800 w-28 flex-1 min-w-[80px]"
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="YYYY MM DD"
+                  value={birthDate ? birthDate.replace(/-/g, ' ') : ''}
+                  onClick={() => dateInputRef.current?.showPicker()}
+                  readOnly
+                  className="input-base text-slate-850 pr-10 cursor-pointer bg-white"
                   required
+                />
+                <button
+                  type="button"
+                  onClick={() => dateInputRef.current?.showPicker()}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650"
                 >
-                  <option value="">Year</option>
-                  {Array.from({ length: 2026 - 1920 + 1 }, (_, i) => 2026 - i).map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-
-                {/* Month Select */}
-                <select
-                  value={localMonth}
-                  onChange={(e) => handleMonthChange(e.target.value)}
-                  className="input-base py-1.5 text-xs text-slate-800 w-36 flex-[1.5] min-w-[110px]"
-                  required
-                >
-                  <option value="">Month</option>
-                  {[
-                    '01 - January',
-                    '02 - February',
-                    '03 - March',
-                    '04 - April',
-                    '05 - May',
-                    '06 - June',
-                    '07 - July',
-                    '08 - August',
-                    '09 - September',
-                    '10 - October',
-                    '11 - November',
-                    '12 - December'
-                  ].map((mStr) => {
-                    const val = mStr.substring(0, 2);
-                    return (
-                      <option key={val} value={val}>
-                        {mStr}
-                      </option>
-                    );
-                  })}
-                </select>
-
-                {/* Day Select */}
-                <select
-                  value={localDay}
-                  onChange={(e) => handleDayChange(e.target.value)}
-                  className="input-base py-1.5 text-xs text-slate-800 w-24 flex-1 min-w-[70px]"
-                  required
-                >
-                  <option value="">Day</option>
-                  {Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0')).map((d) => (
-                    <option key={d} value={d}>{parseInt(d)}</option>
-                  ))}
-                </select>
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+                  </svg>
+                </button>
+                <input
+                  type="date"
+                  ref={dateInputRef}
+                  value={birthDate}
+                  onChange={(e) => onBirthDateChange(e.target.value)}
+                  className="absolute opacity-0 w-0 h-0 pointer-events-none"
+                />
               </div>
             </div>
           </div>

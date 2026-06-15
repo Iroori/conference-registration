@@ -425,6 +425,8 @@ docs/
 | 2026-06-15 | visa-invitation-passport-info.md | 비자 초청장(Visa Invitation) 필요 시 여권 정보 및 생년월일 수집 폼 추가 및 마이페이지/어드민 조회 연동 |
 | 2026-06-15 | standalone-discount-codes.md | 할인 코드 생성 시 특정 사용자 이메일 바인딩을 제거하고 독자적(standalone)이고 단일 사용 가능한 할인 코드로 변경 |
 | 2026-06-15 | registration-pricing-simplification.md | 등록비 기간별 요금 정책을 폐지하고 사전등록(Early Bird) 요금 단일가로 고정 및 기간 판정 로직 제거 |
+| 2026-06-15 | passport-details-in-summary-and-history.md | 결제 직전 요약 화면, 마이페이지 결제 상세 및 어드민 결제 목록 아코디언 상세에 여권 정보 조회 연동 및 빈 값 예외 처리 |
+| 2026-06-15 | passport-datepicker-and-summary-dob.md | 최종 요약 여권 정보 카드에 생년월일 추가 노출 및 한글 '연,월,일'이 노출되지 않는 YYYY MM DD 포맷의 커스텀 캘린더 입력 기능 교체 |
 
 ---
 
