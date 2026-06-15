@@ -137,6 +137,35 @@ export const PaymentHistoryTab = () => {
                       </div>
                     </div>
                   )}
+                  {/* Passport Details Info (if visa invitation or passport is provided) */}
+                  {(record.passportFirstName || record.passportLastName || record.passportNumber) && (
+                    <div className="rounded-lg bg-gold-tint/50 border border-gold/10 px-3 py-2 text-xs text-slate-800 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <svg className="h-4 w-4 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v14.25c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 19.125V4.875zM10.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v14.25c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125V4.875zM17.25 4.875c0-.621.504-1.125 1.125-1.125h1.125c.621 0 1.125.504 1.125 1.125v14.25c0 .621-.504 1.125-1.125 1.125h-1.125a1.125 1.125 0 01-1.125-1.125V4.875z" />
+                        </svg>
+                        <span className="font-semibold text-slate-800">Passport &amp; Visa Info:</span>
+                      </div>
+                      <div className="pl-6 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div>
+                          <span className="text-slate-400 block text-[9px] uppercase font-bold">Passport Name</span>
+                          <span className="font-medium text-slate-700">
+                            {(record.passportFirstName || record.passportLastName) 
+                              ? `${record.passportFirstName || ''} ${record.passportLastName || ''}`.trim() 
+                              : '—'}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block text-[9px] uppercase font-bold">Passport Number</span>
+                          <span className="font-medium text-slate-700">{record.passportNumber || '—'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block text-[9px] uppercase font-bold">Date of Birth</span>
+                          <span className="font-medium text-slate-700">{record.birthDate || '—'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Itemized Options */}

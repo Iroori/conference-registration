@@ -22,6 +22,9 @@ interface StepSummaryProps {
   iabseId: string;
   birthDate: string;
   needsInvitationLetter: boolean;
+  passportFirstName: string;
+  passportLastName: string;
+  passportNumber: string;
   onEditPackage: () => void;
   onEditAddons: () => void;
   onEditTours: () => void;
@@ -41,6 +44,9 @@ export const StepSummary = ({
   iabseId,
   birthDate,
   needsInvitationLetter,
+  passportFirstName,
+  passportLastName,
+  passportNumber,
   onEditPackage,
   onEditAddons,
   onEditTours,
@@ -285,10 +291,29 @@ export const StepSummary = ({
             </button>
           </div>
           {needsInvitationLetter ? (
-            <div className="flex items-center justify-between text-sm">
-              <div>
-                <p className="font-medium text-ink">Official Invitation Letter (Visa)</p>
-                <p className="text-ink-faint mt-0.5">Issued within 5 business days of payment</p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <div>
+                  <p className="font-medium text-ink">Official Invitation Letter (Visa)</p>
+                  <p className="text-ink-faint mt-0.5">Issued within 5 business days of payment</p>
+                </div>
+              </div>
+              <div className="bg-slate-50 rounded-lg p-3 space-y-1.5 border border-slate-100 text-xs">
+                <p className="font-semibold text-ink-muted">Passport Details:</p>
+                <div className="grid grid-cols-2 gap-2 text-ink">
+                  <div>
+                    <span className="text-ink-faint block text-[10px] uppercase">Passport Name</span>
+                    <span className="font-medium">
+                      {(passportFirstName || passportLastName) 
+                        ? `${passportFirstName || ''} ${passportLastName || ''}`.trim() 
+                        : '—'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-ink-faint block text-[10px] uppercase">Passport Number</span>
+                    <span className="font-medium">{passportNumber || '—'}</span>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (

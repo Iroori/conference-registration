@@ -32,7 +32,11 @@ public record PaymentResponse(
         long discountRegAmount,
         long discountGalaAmount,
         long discountAccompAmount,
-        long discountTourAmount
+        long discountTourAmount,
+        String passportFirstName,
+        String passportLastName,
+        String passportNumber,
+        String birthDate
 ) {
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -80,7 +84,11 @@ public record PaymentResponse(
                 payment.getDiscountRegAmount(),
                 payment.getDiscountGalaAmount(),
                 payment.getDiscountAccompAmount(),
-                payment.getDiscountTourAmount()
+                payment.getDiscountTourAmount(),
+                payment.getUser().getPassportFirstName(),
+                payment.getUser().getPassportLastName(),
+                payment.getUser().getPassportNumber(),
+                payment.getUser().getBirthDate() != null ? payment.getUser().getBirthDate().toString() : null
         );
     }
 }

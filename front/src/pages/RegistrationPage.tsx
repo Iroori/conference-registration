@@ -325,6 +325,9 @@ export const RegistrationPage = () => {
                 iabseId={iabseId}
                 birthDate={birthDate}
                 needsInvitationLetter={needsInvitationLetter ?? false}
+                passportFirstName={passportFirstName}
+                passportLastName={passportLastName}
+                passportNumber={passportNumber}
                 onEditPackage={() => setCurrentStep('REG_TYPE')}
                 onEditAddons={() => setCurrentStep('ADD_OPTIONS')}
                 onEditTours={() => setCurrentStep('TECHNICAL_TOUR')}

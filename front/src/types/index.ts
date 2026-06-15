@@ -326,6 +326,10 @@ export interface PaymentResponse {
   discountGalaAmount?: number;
   discountAccompAmount?: number;
   discountTourAmount?: number;
+  passportFirstName?: string | null;
+  passportLastName?: string | null;
+  passportNumber?: string | null;
+  birthDate?: string | null;
 }
 
 // ─── Pricing (프론트엔드 계산용) ─────────────────────────────────────────────
