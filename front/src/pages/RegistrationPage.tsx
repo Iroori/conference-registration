@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AdminDashboardPage } from '../components/AdminDashboardPage';
 import { useConferenceOptions } from '../hooks/useRegistration';
@@ -409,6 +409,49 @@ export const MyProfileTab = () => {
   const [passportLastName, setPassportLastName] = useState(user?.passportLastName || '');
   const [passportNumber, setPassportNumber] = useState(user?.passportNumber || '');
   const [birthDate, setBirthDate] = useState(user?.birthDate || '');
+  const [localYear, setLocalYear] = useState('');
+  const [localMonth, setLocalMonth] = useState('');
+  const [localDay, setLocalDay] = useState('');
+
+  useEffect(() => {
+    if (birthDate) {
+      const parts = birthDate.split('-');
+      setLocalYear(parts[0] || '');
+      setLocalMonth(parts[1] || '');
+      setLocalDay(parts[2] || '');
+    } else {
+      setLocalYear('');
+      setLocalMonth('');
+      setLocalDay('');
+    }
+  }, [birthDate]);
+
+  const handleYearChange = (val: string) => {
+    setLocalYear(val);
+    if (val && localMonth && localDay) {
+      setBirthDate(`${val}-${localMonth.padStart(2, '0')}-${localDay.padStart(2, '0')}`);
+    } else {
+      setBirthDate('');
+    }
+  };
+
+  const handleMonthChange = (val: string) => {
+    setLocalMonth(val);
+    if (localYear && val && localDay) {
+      setBirthDate(`${localYear}-${val.padStart(2, '0')}-${localDay.padStart(2, '0')}`);
+    } else {
+      setBirthDate('');
+    }
+  };
+
+  const handleDayChange = (val: string) => {
+    setLocalDay(val);
+    if (localYear && localMonth && val) {
+      setBirthDate(`${localYear}-${localMonth.padStart(2, '0')}-${val.padStart(2, '0')}`);
+    } else {
+      setBirthDate('');
+    }
+  };
 
   const [isPresenter, setIsPresenter] = useState(user?.isPresenter || false);
   const [isAuthor, setIsAuthor] = useState(user?.isAuthor || false);
@@ -618,12 +661,61 @@ export const MyProfileTab = () => {
             
             <div>
               <label className="block label-section mb-1.5">Date of Birth</label>
-              <input
-                type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                className="input-base text-slate-850"
-              />
+              <div className="flex gap-2">
+                {/* Year Select */}
+                <select
+                  value={localYear}
+                  onChange={(e) => handleYearChange(e.target.value)}
+                  className="input-base py-1.5 text-xs text-slate-800 w-28 flex-1 min-w-[80px]"
+                >
+                  <option value="">Year</option>
+                  {Array.from({ length: 2026 - 1920 + 1 }, (_, i) => 2026 - i).map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+
+                {/* Month Select */}
+                <select
+                  value={localMonth}
+                  onChange={(e) => handleMonthChange(e.target.value)}
+                  className="input-base py-1.5 text-xs text-slate-800 w-36 flex-[1.5] min-w-[110px]"
+                >
+                  <option value="">Month</option>
+                  {[
+                    '01 - January',
+                    '02 - February',
+                    '03 - March',
+                    '04 - April',
+                    '05 - May',
+                    '06 - June',
+                    '07 - July',
+                    '08 - August',
+                    '09 - September',
+                    '10 - October',
+                    '11 - November',
+                    '12 - December'
+                  ].map((mStr) => {
+                    const val = mStr.substring(0, 2);
+                    return (
+                      <option key={val} value={val}>
+                        {mStr}
+                      </option>
+                    );
+                  })}
+                </select>
+
+                {/* Day Select */}
+                <select
+                  value={localDay}
+                  onChange={(e) => handleDayChange(e.target.value)}
+                  className="input-base py-1.5 text-xs text-slate-800 w-24 flex-1 min-w-[70px]"
+                >
+                  <option value="">Day</option>
+                  {Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0')).map((d) => (
+                    <option key={d} value={d}>{parseInt(d)}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
