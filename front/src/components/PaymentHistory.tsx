@@ -179,11 +179,13 @@ export const PaymentHistoryTab = () => {
                               <span className={`inline-block rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide ${
                                 opt.category === 'REGISTRATION' 
                                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' 
+                                  : opt.id.startsWith('OPT-PRE-')
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-100'
                                   : opt.category === 'PROGRAM'
                                   ? 'bg-purple-50 text-purple-700 border border-purple-100'
                                   : 'bg-slate-100 text-slate-700 border border-slate-200'
                               }`}>
-                                {opt.category === 'REGISTRATION' ? 'Registration' : opt.category === 'PROGRAM' ? 'Program' : 'Admin'}
+                                {opt.category === 'REGISTRATION' ? 'Registration' : opt.id.startsWith('OPT-PRE-') ? 'Pre-workshop' : opt.category === 'PROGRAM' ? 'Program' : 'Admin'}
                               </span>
                               <div>
                                 <div className="font-semibold text-slate-800">{opt.nameEn}</div>

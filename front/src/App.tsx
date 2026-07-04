@@ -1,9 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { RegistrationPage } from './pages/RegistrationPage';
+import { PreWorkshopPage } from './pages/PreWorkshopPage';
 import type { ReactNode } from 'react';
 
 const queryClient = new QueryClient({
@@ -13,9 +14,14 @@ const queryClient = new QueryClient({
   },
 });
 
-const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+const ProtectedRoute = ({ children, isPreWorkshop }: { children: ReactNode; isPreWorkshop?: boolean }) => {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+  const location = useLocation();
+  if (isAuthenticated) {
+    return <>{children}</>;
+  }
+  const redirectPath = isPreWorkshop ? '/pre-workshop/login' : '/login';
+  return <Navigate to={redirectPath} replace state={{ from: location }} />;
 };
 
 const AdminRoute = ({ children }: { children: ReactNode }) => {
@@ -30,11 +36,21 @@ const App = () => (
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/pre-workshop/login" element={<LoginPage />} />
+          <Route path="/pre-workshop/signup" element={<SignupPage />} />
           <Route
             path="/"
             element={
               <ProtectedRoute>
                 <RegistrationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pre-workshop"
+            element={
+              <ProtectedRoute isPreWorkshop>
+                <PreWorkshopPage />
               </ProtectedRoute>
             }
           />

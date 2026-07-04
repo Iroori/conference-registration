@@ -108,6 +108,10 @@ export const AdminDashboardPage = () => {
   const [userTabSearchInput, setUserTabSearchInput] = useState('');
   const [userTabSearchTerm, setUserTabSearchTerm] = useState('');
 
+  const [paymentPage, setPaymentPage] = useState(0);
+  const [paymentTabSearchInput, setPaymentTabSearchInput] = useState('');
+  const [paymentTabSearchTerm, setPaymentTabSearchTerm] = useState('');
+
   // Queries
   const {
     data: usersResponse,
@@ -124,6 +128,25 @@ export const AdminDashboardPage = () => {
   const getPageNumbers = () => {
     const total = usersResponse?.totalPages ?? 0;
     const current = usersResponse?.currentPage ?? 0;
+    
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i);
+    }
+    
+    if (current < 4) {
+      return [0, 1, 2, 3, 4, '...', total - 1];
+    }
+    
+    if (current > total - 5) {
+      return [0, '...', total - 5, total - 4, total - 3, total - 2, total - 1];
+    }
+    
+    return [0, '...', current - 1, current, current + 1, '...', total - 1];
+  };
+
+  const getPaymentPageNumbers = () => {
+    const total = paginatedPaymentsResponse?.totalPages ?? 0;
+    const current = paginatedPaymentsResponse?.currentPage ?? 0;
     
     if (total <= 7) {
       return Array.from({ length: total }, (_, i) => i);
@@ -161,12 +184,20 @@ export const AdminDashboardPage = () => {
 
   const {
     data: payments,
-    isLoading: loadingPayments,
-    isError: errorPayments,
   } = useQuery({
     queryKey: ['adminPayments'],
-    queryFn: apiGetAdminPayments,
+    queryFn: () => apiGetAdminPayments(),
     enabled: activeTab === 'PAYMENTS' || activeTab === 'USERS',
+  });
+
+  const {
+    data: paginatedPaymentsResponse,
+    isLoading: loadingPaginatedPayments,
+    isError: errorPaginatedPayments,
+  } = useQuery({
+    queryKey: ['adminPaginatedPayments', paymentPage, paymentTabSearchTerm],
+    queryFn: () => apiGetAdminPayments(paymentPage, 20, paymentTabSearchTerm),
+    enabled: activeTab === 'PAYMENTS',
   });
 
   // Grade update mutation
@@ -403,8 +434,8 @@ export const AdminDashboardPage = () => {
 
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => 
-        row.map(val => {
+      ...rows.map((row: any[]) => 
+        row.map((val: any) => {
           const stringVal = String(val).replace(/"/g, '""');
           return `"${stringVal}"`;
         }).join(',')
@@ -425,19 +456,22 @@ export const AdminDashboardPage = () => {
 
   const renderUserRegistrationAndOptions = (userEmail: string) => {
     const userPayment = payments?.find(
-      (p) => p.email === userEmail && p.status === 'COMPLETED'
+      (p: any) => p.email === userEmail && p.status === 'COMPLETED'
     );
 
     if (!userPayment) {
       return <span className="text-slate-400 font-medium italic">Unpaid / No Registration</span>;
     }
 
-    const regOpt = userPayment.selectedOptions.find((o) => o.category === 'REGISTRATION');
+    const regOpt = userPayment.selectedOptions.find((o: any) => o.category === 'REGISTRATION');
     const programOpts = userPayment.selectedOptions.filter(
-      (o) => o.category === 'PROGRAM' && !o.id.startsWith('OPT-TECH-TOUR-') && !o.id.startsWith('OPT-ACCOMP-')
+      (o: any) => o.category === 'PROGRAM' && !o.id.startsWith('OPT-TECH-TOUR-') && !o.id.startsWith('OPT-ACCOMP-') && !o.id.startsWith('OPT-PRE-')
     );
-    const tourOpt = userPayment.selectedOptions.find((o) => o.id.startsWith('OPT-TECH-TOUR-'));
-    const accompOpt = userPayment.selectedOptions.find((o) => o.id.startsWith('OPT-ACCOMP-'));
+    const tourOpt = userPayment.selectedOptions.find((o: any) => o.id.startsWith('OPT-TECH-TOUR-'));
+    const accompOpt = userPayment.selectedOptions.find((o: any) => o.id.startsWith('OPT-ACCOMP-'));
+    const preWorkshopOpts = userPayment.selectedOptions.filter(
+      (o: any) => o.id.startsWith('OPT-PRE-')
+    );
 
     return (
       <div className="space-y-1.5 text-[11px] leading-relaxed max-w-[240px]">
@@ -450,12 +484,26 @@ export const AdminDashboardPage = () => {
           </div>
         )}
 
+        {/* Pre-workshop Options */}
+        {preWorkshopOpts.length > 0 && (
+          <div className="text-slate-650 bg-amber-50/50 rounded-lg p-1.5 border border-amber-100/70">
+            <span className="font-bold text-amber-700 uppercase text-[8px] tracking-wider block mb-0.5">Pre-workshop:</span>
+            <ul className="list-disc list-inside pl-0.5 space-y-0.5">
+              {preWorkshopOpts.map((o: any) => (
+                <li key={o.id} className="truncate font-semibold text-slate-800" title={o.nameEn}>
+                  {o.nameEn}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Program Options */}
         {programOpts.length > 0 && (
           <div className="text-slate-650 bg-slate-50/50 rounded-lg p-1.5 border border-slate-100">
             <span className="font-bold text-slate-500 uppercase text-[8px] tracking-wider block mb-0.5">Social Programme:</span>
             <ul className="list-disc list-inside pl-0.5 space-y-0.5">
-              {programOpts.map((o) => (
+              {programOpts.map((o: any) => (
                 <li key={o.id} className="truncate" title={o.nameEn}>
                   {o.nameEn}
                 </li>
@@ -480,8 +528,8 @@ export const AdminDashboardPage = () => {
             <span className="font-bold text-slate-500 uppercase text-[8px] tracking-wider block mb-0.5">
               Accompanying ({userPayment.accompanyingPersons.length}):
             </span>
-            <span className="pl-0.5 truncate block" title={userPayment.accompanyingPersons.map(p => `${p.firstName} ${p.lastName}`).join(', ')}>
-              {userPayment.accompanyingPersons.map(p => `${p.firstName} ${p.lastName}`).join(', ')}
+            <span className="pl-0.5 truncate block" title={userPayment.accompanyingPersons.map((p: any) => `${p.firstName} ${p.lastName}`).join(', ')}>
+              {userPayment.accompanyingPersons.map((p: any) => `${p.firstName} ${p.lastName}`).join(', ')}
             </span>
           </div>
         )}
@@ -628,8 +676,8 @@ export const AdminDashboardPage = () => {
             )}
 
             {users && users.length > 0 && (
-              <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-                <table className="w-full border-collapse text-left text-xs">
+              <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm scrollbar-thin">
+                <table className="w-full border-collapse text-left text-xs min-w-[1300px]">
                   <thead>
                     <tr className="bg-slate-100 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                       <th className="px-4 py-3.5 w-[30px]"></th>
@@ -696,7 +744,7 @@ export const AdminDashboardPage = () => {
                                 <span className="text-slate-400">No</span>
                               )}
                             </td>
-                            <td className="px-4 py-3.5 font-medium text-slate-500 truncate max-w-[120px]" title={u.paperInfo || '-'}>
+                            <td className="px-4 py-3.5 font-medium text-slate-500 break-words whitespace-normal max-w-[180px]" title={u.paperInfo || '-'}>
                               {u.paperInfo || '-'}
                             </td>
                             <td className="px-4 py-3.5">
@@ -805,6 +853,12 @@ export const AdminDashboardPage = () => {
                                           <div>
                                             <span className="font-semibold text-slate-500 block text-[9px] uppercase">Dietary Note</span>
                                             <span className="font-medium text-slate-800">{u.dietaryNote || '-'}</span>
+                                          </div>
+                                        )}
+                                        {u.paperInfo && (
+                                          <div>
+                                            <span className="font-semibold text-slate-500 block text-[9px] uppercase">Paper Info</span>
+                                            <span className="font-medium text-indigo-700 break-words whitespace-normal font-mono block text-xs">{u.paperInfo}</span>
                                           </div>
                                         )}
                                       </div>
@@ -1167,33 +1221,97 @@ export const AdminDashboardPage = () => {
                   Export to Excel
                 </button>
                 <span className="text-xs text-slate-500 font-medium bg-slate-200/60 px-2.5 py-1 rounded-full">
-                  Total transactions: {payments?.length ?? 0}
+                  Total transactions: {paginatedPaymentsResponse?.totalElements ?? 0}
                 </span>
               </div>
             </div>
 
-            {loadingPayments && (
+            {/* Search and Filter Panel for PAYMENTS */}
+            <div className="flex flex-col sm:flex-row gap-2 rounded-xl bg-white p-3 border border-slate-200 shadow-sm transition-all duration-300">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={paymentTabSearchInput}
+                  onChange={(e) => setPaymentTabSearchInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setPaymentPage(0);
+                      setPaymentTabSearchTerm(paymentTabSearchInput);
+                    }
+                  }}
+                  placeholder="Search payments by attendee name, email, or registration number..."
+                  className="w-full pl-9 pr-8 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-100 placeholder-slate-400 bg-slate-50/50 hover:bg-slate-50 focus:bg-white transition-all duration-200"
+                />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                {paymentTabSearchInput && (
+                  <button
+                    onClick={() => {
+                      setPaymentTabSearchInput('');
+                      setPaymentTabSearchTerm('');
+                      setPaymentPage(0);
+                    }}
+                    className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-655 transition"
+                  >
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setPaymentPage(0);
+                    setPaymentTabSearchTerm(paymentTabSearchInput);
+                  }}
+                  className="flex-1 sm:flex-none px-4 py-2 bg-teal-500 hover:bg-teal-600 active:bg-teal-700 text-white font-semibold rounded-lg text-xs shadow-sm hover:shadow active:scale-95 transition-all duration-200 flex items-center justify-center gap-1.5"
+                >
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Search
+                </button>
+                {paymentTabSearchTerm && (
+                  <button
+                    onClick={() => {
+                      setPaymentTabSearchInput('');
+                      setPaymentTabSearchTerm('');
+                      setPaymentPage(0);
+                    }}
+                    className="px-3 py-2 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-650 font-semibold rounded-lg text-xs transition active:scale-95 flex items-center gap-1"
+                  >
+                    Clear Filter
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {loadingPaginatedPayments && (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-teal-500"></div>
                 <p className="text-xs font-medium text-slate-500">Compiling financial records...</p>
               </div>
             )}
 
-            {errorPayments && (
-              <div className="rounded-xl border border-red-100 bg-red-50 p-5 text-center text-red-600 text-xs font-medium">
+            {errorPaginatedPayments && (
+              <div className="rounded-xl border border-red-100 bg-red-50 p-5 text-center text-red-650 text-xs font-medium">
                 Failed to load payments database. Please check authorization.
               </div>
             )}
 
-            {payments && payments.length === 0 && (
+            {paginatedPaymentsResponse && paginatedPaymentsResponse.payments.length === 0 && (
               <div className="rounded-xl border border-dashed border-slate-200 bg-white py-16 text-center text-slate-400 text-xs font-medium">
                 No transactions recorded in the system yet.
               </div>
             )}
 
-            {payments && payments.length > 0 && (
-              <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-                <table className="w-full border-collapse text-left text-xs">
+            {paginatedPaymentsResponse && paginatedPaymentsResponse.payments.length > 0 && (
+              <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm scrollbar-thin">
+                <table className="w-full border-collapse text-left text-xs min-w-[1200px]">
                   <thead>
                     <tr className="bg-slate-100 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-600">
                       <th className="px-4 py-3.5 w-[30px]"></th>
@@ -1207,17 +1325,14 @@ export const AdminDashboardPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-150 text-slate-700">
-                    {payments.map((p) => {
+                    {paginatedPaymentsResponse.payments.map((p: any) => {
                       const isExpanded = expandedPaymentId === p.id;
                       return (
-                        <tr key={p.id} className="divide-y divide-slate-100 bg-white">
-                          <td colSpan={8} className="p-0">
-                            <table className="w-full border-collapse text-left text-xs">
-                              <tbody>
-                                <tr 
-                                  onClick={() => toggleExpandPayment(p.id)}
-                                  className="hover:bg-slate-50/75 cursor-pointer transition select-none"
-                                >
+                        <Fragment key={p.id}>
+                          <tr 
+                            onClick={() => toggleExpandPayment(p.id)}
+                            className="hover:bg-slate-50/75 cursor-pointer transition select-none bg-white"
+                          >
                                   <td className="px-4 py-3.5 w-[30px] text-center text-slate-400">
                                     <svg 
                                       className={`h-3 w-3 transform transition-transform duration-200 ${isExpanded ? 'rotate-90 text-teal-500' : ''}`} 
@@ -1246,7 +1361,7 @@ export const AdminDashboardPage = () => {
                                   <td className="px-4 py-3.5 text-right font-bold text-teal-600">
                                     {formatPrice(p.totalAmount)}
                                   </td>
-                                  <td className="px-4 py-3.5 font-bold text-slate-600 text-[10px] uppercase">
+                                  <td className="px-4 py-3.5 font-bold text-slate-650 text-[10px] uppercase">
                                     {p.paymentMethod.replace('_', ' ')}
                                   </td>
                                   <td className="px-4 py-3.5 text-center">
@@ -1295,7 +1410,7 @@ export const AdminDashboardPage = () => {
 
                                         {/* Exhibitor Badges Info */}
                                         {p.exhibitorBadges && p.exhibitorBadges.length > 0 && (
-                                          <div className="rounded-lg bg-teal-50 border border-teal-100/50 px-3 py-2 text-xs text-teal-800 space-y-1">
+                                          <div className="rounded-lg bg-teal-50 border border-teal-100/50 px-3 py-2 text-xs text-teal-850 space-y-1">
                                             <div className="flex items-center gap-2">
                                               <svg className="h-4 w-4 text-teal-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 014 0m-6 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.333 0 4 .667 4 2v1H5v-1c0-1.333 2.667-2 4-2z" />
@@ -1310,7 +1425,7 @@ export const AdminDashboardPage = () => {
                                           </div>
                                         )}
 
-                                        {/* Passport Details Info (if visa invitation or passport is provided) */}
+                                        {/* Passport & Visa Details Info */}
                                         {(p.selectedOptions?.some((opt: any) => opt.id === 'OPT-VISA') ||
                                           p.passportFirstName || p.passportLastName || p.passportNumber) && (
                                           <div className="rounded-lg bg-teal-50 border border-teal-100/50 px-3 py-2 text-xs text-teal-850 space-y-1">
@@ -1340,23 +1455,24 @@ export const AdminDashboardPage = () => {
                                             </div>
                                           </div>
                                         )}
-
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                           {/* Options List */}
                                           <div className="space-y-3">
                                             <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Selected Option Items</h5>
                                             <div className="divide-y divide-slate-100 border border-slate-150 rounded-lg overflow-hidden bg-white">
-                                              {p.selectedOptions && p.selectedOptions.map((opt) => (
+                                              {p.selectedOptions && p.selectedOptions.map((opt: any) => (
                                                 <div key={opt.id} className="flex justify-between items-center p-3 text-xs hover:bg-slate-50/50 transition">
                                                   <div className="flex items-center gap-2">
                                                     <span className={`inline-block rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide ${
                                                       opt.category === 'REGISTRATION' 
                                                         ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                                                        : opt.id.startsWith('OPT-PRE-')
+                                                        ? 'bg-amber-100 text-amber-850 border border-amber-200'
                                                         : opt.category === 'PROGRAM'
                                                         ? 'bg-purple-100 text-purple-800 border border-purple-200'
                                                         : 'bg-slate-100 text-slate-700 border border-slate-200'
                                                     }`}>
-                                                      {opt.category === 'REGISTRATION' ? 'Registration' : opt.category === 'PROGRAM' ? 'Program' : 'Admin'}
+                                                      {opt.category === 'REGISTRATION' ? 'Registration' : opt.id.startsWith('OPT-PRE-') ? 'Pre-workshop' : opt.category === 'PROGRAM' ? 'Program' : 'Admin'}
                                                     </span>
                                                     <div>
                                                       <div className="font-semibold text-slate-850">{opt.nameEn}</div>
@@ -1374,7 +1490,7 @@ export const AdminDashboardPage = () => {
                                             <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2.5">
                                               {p.appliedDiscountCode && (
                                                 <>
-                                                  <div className="flex justify-between text-xs text-slate-600">
+                                                  <div className="flex justify-between text-xs text-slate-650">
                                                     <span>Subtotal:</span>
                                                     <span className="font-mono">{formatPrice(p.subtotal)}</span>
                                                   </div>
@@ -1417,7 +1533,7 @@ export const AdminDashboardPage = () => {
                                                 <button
                                                   onClick={() => handleDeletePayment(p.id, p.registrationNumber)}
                                                   disabled={deletePaymentMutation.isPending}
-                                                  className="px-3 py-1.5 bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold rounded-lg text-xs shadow-sm transition"
+                                                  className="px-3 py-1.5 bg-red-600 hover:bg-red-750 active:bg-red-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold rounded-lg text-xs shadow-sm transition"
                                                 >
                                                   {deletePaymentMutation.isPending ? 'Deleting...' : 'Delete Payment Record'}
                                                 </button>
@@ -1429,14 +1545,83 @@ export const AdminDashboardPage = () => {
                                     </td>
                                   </tr>
                                 )}
-                              </tbody>
-                            </table>
-                          </td>
-                        </tr>
+                        </Fragment>
                       );
                     })}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {paginatedPaymentsResponse && paginatedPaymentsResponse.totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200 text-xs">
+                <span className="text-slate-500 font-medium">
+                  Showing{' '}
+                  <span className="font-semibold text-slate-800">
+                    {paginatedPaymentsResponse.currentPage * paginatedPaymentsResponse.size + 1}
+                  </span>{' '}
+                  to{' '}
+                  <span className="font-semibold text-slate-800">
+                    {Math.min(
+                      (paginatedPaymentsResponse.currentPage + 1) * paginatedPaymentsResponse.size,
+                      paginatedPaymentsResponse.totalElements
+                    )}
+                  </span>{' '}
+                  of{' '}
+                  <span className="font-semibold text-slate-800">
+                    {paginatedPaymentsResponse.totalElements}
+                  </span>{' '}
+                  transactions
+                </span>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setPaymentPage((prev) => Math.max(prev - 1, 0))}
+                    disabled={paginatedPaymentsResponse.currentPage === 0}
+                    className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 active:bg-slate-200 disabled:opacity-40 disabled:hover:bg-transparent text-slate-650 transition flex items-center justify-center"
+                    title="Previous Page"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+
+                  {getPaymentPageNumbers().map((pageNum, idx) => {
+                    if (pageNum === '...') {
+                      return (
+                        <span key={`ellipsis-pay-${idx}`} className="px-2.5 py-1 text-slate-400 font-semibold select-none">
+                          ...
+                        </span>
+                      );
+                    }
+
+                    const isCurrent = pageNum === paginatedPaymentsResponse.currentPage;
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setPaymentPage(pageNum as number)}
+                        className={`px-3 py-1.5 border rounded-lg text-xs font-semibold transition ${
+                          isCurrent
+                            ? 'bg-teal-500 border-teal-500 text-white shadow-sm'
+                            : 'border-slate-200 text-slate-600 hover:bg-slate-100 active:bg-slate-200'
+                        }`}
+                      >
+                        {(pageNum as number) + 1}
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    onClick={() => setPaymentPage((prev) => Math.min(prev + 1, paginatedPaymentsResponse.totalPages - 1))}
+                    disabled={paginatedPaymentsResponse.currentPage === paginatedPaymentsResponse.totalPages - 1}
+                    className="p-1.5 border border-slate-200 rounded-lg hover:bg-slate-100 active:bg-slate-200 disabled:opacity-40 disabled:hover:bg-transparent text-slate-650 transition flex items-center justify-center"
+                    title="Next Page"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             )}
           </div>

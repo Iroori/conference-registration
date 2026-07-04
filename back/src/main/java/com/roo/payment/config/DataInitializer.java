@@ -175,7 +175,25 @@ public class DataInitializer implements ApplicationRunner {
                 new ConferenceOption(
                         "OPT-VISA", OptionCategory.ADMIN,
                         "초청장 (비자용)", "Official Invitation Letter (Visa)",
-                        null, 0L, true, false, false, null, null)
+                        null, 0L, true, false, false, null, null),
+
+                // ── 프리워크숍 ──────────────────────────────────────────────────
+                new ConferenceOption(
+                        "OPT-PRE-FORENSIC-STD", OptionCategory.PROGRAM,
+                        "Forensic Engineering Practice (일반)", "Forensic Engineering Practice (Standard)",
+                        "Pre-workshop Option 1 - Standard Fee", 400_000L, false, false, false, null, null),
+                new ConferenceOption(
+                        "OPT-PRE-FORENSIC-STU", OptionCategory.PROGRAM,
+                        "Forensic Engineering Practice (학생)", "Forensic Engineering Practice (Student)",
+                        "Pre-workshop Option 1 - Student Fee", 300_000L, false, false, false, null, null),
+                new ConferenceOption(
+                        "OPT-PRE-SHM-STD", OptionCategory.PROGRAM,
+                        "Structural Health Monitoring (일반)", "Structural Health Monitoring (Standard)",
+                        "Pre-workshop Option 2 - Standard Fee", 400_000L, false, false, false, null, null),
+                new ConferenceOption(
+                        "OPT-PRE-SHM-STU", OptionCategory.PROGRAM,
+                        "Structural Health Monitoring (학생)", "Structural Health Monitoring (Student)",
+                        "Pre-workshop Option 2 - Student Fee", 300_000L, false, false, false, null, null)
         );
     }
 

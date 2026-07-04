@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { apiSignup } from '../lib/api';
 import type { DietaryRequirement, SignupRequest } from '../types';
@@ -51,6 +51,8 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const SignupPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isPreWorkshop = location.pathname.includes('/pre-workshop');
 
   const [form, setForm] = useState({
     email: '',
@@ -86,7 +88,7 @@ export const SignupPage = () => {
 
   const signupMutation = useMutation<void, unknown, SignupRequest>({
     mutationFn: apiSignup,
-    onSuccess: () => navigate('/login?verified=1'),
+    onSuccess: () => navigate(isPreWorkshop ? '/pre-workshop/login?verified=1' : '/login?verified=1'),
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })
         ?.response?.data?.message;
@@ -175,7 +177,9 @@ export const SignupPage = () => {
     <div className="min-h-screen bg-cream py-12 px-4">
       <div className="mx-auto max-w-2xl">
         <div className="text-center mb-8">
-          <p className="label-section text-gold mb-1">IABSE Congress Incheon 2026</p>
+          <p className="label-section text-gold mb-1">
+            {isPreWorkshop ? 'IABSE Congress Incheon 2026: Pre-workshop' : 'IABSE Congress Incheon 2026'}
+          </p>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Create Account</h1>
         </div>
 
@@ -629,7 +633,7 @@ export const SignupPage = () => {
         <div className="mt-4 text-center">
           <p className="text-xs text-slate-500">
             Already have an account?{' '}
-            <Link to="/login" className="font-bold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition">
+            <Link to={isPreWorkshop ? '/pre-workshop/login' : '/login'} className="font-bold uppercase tracking-[0.1em] text-gold hover:text-gold-hover transition">
               Sign In
             </Link>
           </p>

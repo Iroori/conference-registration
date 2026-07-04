@@ -44,18 +44,46 @@ public class AdminPaymentController {
      * Header: X-Admin-Key: {ADMIN_SECRET}
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<PaymentResponse>>> getAllPayments(
-            @RequestHeader(value = "X-Admin-Key", required = false) String adminKey) {
+    public ResponseEntity<ApiResponse<?>> getAllPayments(
+            @RequestHeader(value = "X-Admin-Key", required = false) String adminKey,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String search) {
 
         validateAdminKey(adminKey);
 
-        List<PaymentResponse> payments = paymentRepository.findAllWithOptions()
-                .stream()
-                .map(PaymentResponse::from)
-                .toList();
+        if (page != null && size != null) {
+            org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(
+                    page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
+            org.springframework.data.domain.Page<Payment> paymentPage;
+            if (search == null || search.trim().isEmpty()) {
+                paymentPage = paymentRepository.findAll(pageable);
+            } else {
+                paymentPage = paymentRepository.searchPayments(search.trim(), pageable);
+            }
+            List<PaymentResponse> paymentList = paymentPage.getContent().stream()
+                    .map(PaymentResponse::from)
+                    .toList();
 
-        log.info("[ADMIN] 전체 결제 목록 조회 — count={}", payments.size());
-        return ResponseEntity.ok(ApiResponse.ok(payments));
+            com.roo.payment.domain.payment.dto.PaginatedPaymentResponse response = new com.roo.payment.domain.payment.dto.PaginatedPaymentResponse(
+                    paymentList,
+                    paymentPage.getTotalElements(),
+                    paymentPage.getTotalPages(),
+                    paymentPage.getNumber(),
+                    paymentPage.getSize()
+            );
+
+            log.info("[ADMIN] 결제 목록 페이징 조회 — page={}, size={}, search={}, totalElements={}", page, size, search, paymentPage.getTotalElements());
+            return ResponseEntity.ok(ApiResponse.ok(response));
+        } else {
+            List<PaymentResponse> payments = paymentRepository.findAllWithOptions()
+                    .stream()
+                    .map(PaymentResponse::from)
+                    .toList();
+
+            log.info("[ADMIN] 전체 결제 목록 조회 — count={}", payments.size());
+            return ResponseEntity.ok(ApiResponse.ok(payments));
+        }
     }
 
     /**

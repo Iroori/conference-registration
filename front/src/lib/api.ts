@@ -153,8 +153,17 @@ export const apiDeleteAdminIasbseMember = async (id: number): Promise<void> => {
   await apiClient.delete(`/admin/iasbse-members/${id}`);
 };
 
-export const apiGetAdminPayments = async (): Promise<PaymentResponse[]> => {
-  const res = await apiClient.get<{ data: PaymentResponse[] }>('/admin/payments');
+export const apiGetAdminPayments = async (
+  page?: number,
+  size?: number,
+  search?: string
+): Promise<any> => {
+  const params = new URLSearchParams();
+  if (page !== undefined) params.append('page', page.toString());
+  if (size !== undefined) params.append('size', size.toString());
+  if (search) params.append('search', search);
+
+  const res = await apiClient.get<{ data: any }>('/admin/payments', { params });
   return res.data.data;
 };
 

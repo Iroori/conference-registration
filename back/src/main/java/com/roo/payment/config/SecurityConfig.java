@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/iasbse/companies").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/options").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/config/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/pre-workshop/download/**").permitAll()
                         // 관리자 JWT 전용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // 관리자 엔드포인트 — X-Admin-Key 헤더는 컨트롤러 레이어에서 검증

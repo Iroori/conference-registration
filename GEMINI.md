@@ -91,7 +91,9 @@ com.roo.payment/
 | Controller | HTTP 매핑, `@Valid` 검증, `ApiResponse` 래핑 | 비즈니스 로직 직접 작성 금지 |
 | Service | 트랜잭션, 비즈니스 로직 | HTTP 관련 객체(`HttpServletRequest` 등) 사용 금지 |
 | Repository | JPA 쿼리 | 비즈니스 로직 금지 |
-| Entity | 상태 변경 메서드 포함 | DTO 의존 금지 |
+| Entity | 상태 변경 메서드 포함 (Setter 금지) | DTO 의존, 무분별한 Setter 생성 금지 |
+
+- **Entity 내 `@Setter` 사용 금지**: 상태 변경은 setter가 아닌 비즈니스 의도가 명확한 전용 도메인 메서드(예: `cancelPayment()`, `updateBillingInfo()`)를 통해서만 수행되도록 강제합니다.
 
 ### 3-3. Service 트랜잭션 패턴
 
@@ -111,7 +113,7 @@ public class SomeService {
 - 요청 DTO: **Java Record** 사용 (`public record SomeRequest(...)`)
 - 응답 DTO: Record 또는 `static of()` 팩토리 메서드 포함
 - **절대 Entity를 Controller에서 직접 반환하지 않습니다**
-- 모든 요청 DTO에 `@Valid` 및 Bean Validation 애노테이션 적용
+- 모든 요청 DTO에 `@Valid` 및 Bean Validation 애노테이션 적용 (필수 값 누락으로 인한 NPE 방지 위해 `@NotNull`, `@NotBlank`, `@Size` 필수 지정)
 
 ```java
 // 올바른 패턴
@@ -193,6 +195,9 @@ throw new BusinessException(ErrorCode.USER_NOT_FOUND);
 - **DB 조회 금지** — JWT 클레임에서 직접 인증 객체 생성 (현재 구현 유지)
 - `UserDetailsService`는 `AuthenticationManager`(로그인 시)에서만 사용
 
+### 4-6. 자원 소유권 검증 (Resource Authorization)
+- **IDOR(Insecure Direct Object Reference) 방지**: 단순히 로그인 유무만 검증하는 것을 넘어, 수정/조회하려는 데이터(예: 프로필, 결제 내역 등)가 **현재 로그인한 사용자 본인의 자원인지**를 서비스 레이어 또는 `@PreAuthorize` 어노테이션 레벨에서 반드시 검증해야 합니다.
+
 ---
 
 ## 5. 회원 유형 로직
@@ -242,20 +247,22 @@ src/
 └── types/        # TypeScript 타입 정의 (index.ts)
 ```
 
-### 6-3. API 호출 규칙
+### 6-3. API 호출 및 상태 관리 규칙
 - 모든 API 함수는 `front/src/lib/api.ts`에 정의 (`apiLogin`, `apiCreatePayment` 형식)
 - Axios 인스턴스는 `apiClient`만 사용 (직접 `axios.get()` 호출 금지)
 - 401 응답 시 `apiClient` 인터셉터가 자동으로 토큰 갱신 처리 (직접 구현 금지)
+- **React Query 서버 상태 분리**: 서버로부터 받아오는 모든 데이터(Server State)는 `useQuery` 또는 `useMutation` 등의 TanStack Query 커스텀 훅을 통해 컴포넌트 라이프사이클에 바인딩하며, 컴포넌트 내부에서 직접 API를 호출해 `useState` 상태에 수동으로 복사·이관하는 패턴을 금지합니다.
 
 ### 6-4. 인증 상태 관리
 - `useAuth()` 훅을 통해서만 인증 상태 접근
 - `localStorage` 직접 접근 금지 — `AuthContext`의 `login()` / `logout()` 사용
 - 보호된 라우트는 `ProtectedRoute` 컴포넌트 사용
 
-### 6-5. TypeScript 규칙
+### 6-5. TypeScript 및 에러 처리 규칙
 - `any` 타입 사용 금지 — 불명확한 경우 `unknown` 사용 후 타입 가드 적용
 - API 응답 타입은 `front/src/types/index.ts`에 정의
 - 컴포넌트 props는 `interface Props {}` 또는 인라인 타입으로 명시
+- **공통 에러 핸들링**: API 에러 발생 시 컴포넌트별로 임의의 얼럿 창을 띄우지 않고, `apiClient` 인터셉터 또는 React Query의 전역 `onError` 핸들러를 사용하여 공통화된 토스트 메시지나 오류 전용 UI로 에러 피드백을 일관되게 제공합니다.
 
 ---
 
@@ -265,6 +272,8 @@ src/
 - 모든 엔티티는 `BaseEntity`를 상속 (`createdAt`, `updatedAt` 자동 관리)
 - `@Table` 명 snake_case 소문자: `@Table(name = "refresh_tokens")`
 - 인덱스는 `@Index` 애노테이션으로 엔티티에 정의
+- **지연 로딩(LAZY) 원칙**: 성능 저하 방지를 위해 모든 `@OneToOne`, `@ManyToOne` 연관 관계는 반드시 `fetch = FetchType.LAZY`로 명시합니다.
+- **Soft Delete 원칙**: 회원 탈퇴나 결제 취소 등 데이터 삭제 시 물리적 `delete` 쿼리 대신 `@SQLRestriction("deleted_at IS NULL")` 또는 비즈니스 플래그(`active = false` 등)를 이용해 데이터 이력을 보존합니다.
 
 ### 7-2. 환경별 DDL 전략
 
@@ -278,51 +287,9 @@ src/
 ### 7-3. 쿼리 규칙
 - 단순 조회: Spring Data JPA 메서드 쿼리 사용
 - 복잡한 쿼리: `@Query(JPQL)` 사용 (native query 최소화)
-- N+1 방지: 필요 시 `@EntityGraph` 또는 fetch join 사용
+- **N+1 방지 지침**: 연관 데이터 조회가 잦은 경우 Spring Data JPA의 `@EntityGraph` 또는 `@Query("select x from X x join fetch x.y")`를 사용하여 단일 조인 쿼리로 조회하도록 강제합니다.
 
 ---
-
-## 8. 개발 환경 설정
-
-### 8-1. 로컬 실행
-
-```bash
-# 백엔드 (H2 인메모리 DB 자동 사용)
-cd back && ./mvnw spring-boot:run        # macOS/Linux
-cd back && mvnw.cmd spring-boot:run      # Windows
-
-# 프론트엔드
-cd front && npm run dev
-```
-
-### 8-2. 사전 시드 계정 (dev 프로파일 자동 생성)
-
-| 이메일 | 비밀번호 | 회원 유형 |
-|--------|----------|----------|
-| member@test.com | Test1234! | MEMBER |
-| young@test.com | Test1234! | NON_MEMBER (YE) |
-| senior@test.com | Test1234! | NON_MEMBER |
-
-### 8-3. 이메일 인증 (로컬 SMTP 없음)
-
-```bash
-# 방법 1: 콘솔 로그에서 6자리 코드 확인
-# 방법 2: API 직접 호출
-GET  /api/dev/code?email={email}    # 코드 조회
-POST /api/dev/verify?email={email}  # 강제 인증 완료
-```
-
-> ⚠️ `/api/dev/**` 엔드포인트는 `app.dev-mode=false` 시 자동 비활성화됩니다.
-
-### 8-4. 환경변수 (prod 프로파일 필수)
-
-```bash
-JWT_SECRET=<최소 256bit 이상 랜덤 문자열>
-DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, DB_PASSWORD
-MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
-ADMIN_SECRET=<관리자 키>
-CORS_ORIGINS=https://kssc2026.org
-```
 
 ---
 
@@ -374,83 +341,7 @@ docs: 문서 수정
 
 ## 11. 세션 작업 이력 (Progress Log)
 
-작업 이력은 세션 단위로 `docs/progress/` 폴더에 Markdown 파일로 기록합니다.
-
-```
-docs/
-└── progress/
-    └── YYYY-MM-DD_짧은-설명.md   # 예: 2026-03-31_registration-payment-redesign.md
-```
-
-### 파일 포함 내용
-- 작업 브랜치 / 커밋 해시 / PR 링크
-- 세션 요구사항 (작업 전 원문)
-- 구현 결과 (완료 / 미완료)
-- 변경 파일 목록 (신규 / 수정)
-- 아키텍처 결정 사항 (ADR)
-- 테스트 계정 정보 및 옵션 ID 참조
-
----
-
-## 12. 운영 서버 정보 (AWS 배포)
-
-> **보안 주의**: 비밀번호·키는 이 파일에 기록하지 않습니다. 실제 값은 서버 `/opt/kssc2026/.env` 및 GitHub Secrets에서 관리합니다.
-
-### 12-1. 인프라 현황
-
-| 항목 | 값 |
-|------|---|
-| 클라우드 | AWS Lightsail (ap-northeast-2, 서울) |
-| 인스턴스명 | `kssc2026-server` (Ubuntu 22.04 / 4GB RAM / 80GB) |
-| 고정 IP | `52.79.209.95` |
-| 도메인 | `iabse-inc2026-registration.com` (Route 53) |
-| HTTPS | Let's Encrypt (자동갱신) |
-| DB | SQL Server 2022 Express — `kssc2026` (prod) / `kssc2026_dev` (dev) |
-| 이메일 | AWS SES (DKIM 인증 완료) |
-
-### 12-2. 서버 디렉토리 구조
-
-```
-/opt/kssc2026/
-├── app.jar        # Spring Boot 실행 JAR
-└── .env           # 운영 환경변수 (chmod 600)
-
-/var/www/kssc2026/ # React 빌드 결과물 (Nginx 서빙)
-/etc/nginx/sites-available/kssc2026  # Nginx 설정
-/etc/systemd/system/kssc2026.service # systemd 서비스
-```
-
-### 12-3. 서버 관리 명령
-
-```bash
-# 서비스 상태 확인
-sudo systemctl status kssc2026
-
-# 서비스 재시작
-sudo systemctl restart kssc2026
-
-# 실시간 로그
-sudo journalctl -u kssc2026 -f
-
-# Nginx 재로드
-sudo systemctl reload nginx
-```
-
----
-
-## 13. 크로스 플랫폼 개발 참고사항
-
-개발자가 **macOS**와 **Windows**에서 동시에 작업합니다.
-
-| 항목 | macOS | Windows |
-|------|-------|---------|
-| Maven wrapper | `./mvnw` | `mvnw.cmd` |
-| 셸 | zsh / bash | PowerShell |
-| 줄바꿈 | LF | CRLF (`.gitattributes` 자동 변환) |
-| SSH 키 경로 | `~/.ssh/kssc2026-lightsail.pem` | `C:\Users\vivobook\.ssh\kssc2026-lightsail.pem` |
-
-- 스크립트 작성 시 **양쪽 OS에서 동작하는지** 확인 필요
-- `.gitattributes`의 `* text=auto` 설정으로 줄바꿈 자동 변환 처리
+작업 이력은 세션 단위로 `docs/progress/` 폴더에 `YYYY-MM-DD_짧은-설명.md` 형식의 마크다운 파일로 기록합니다.
 
 ---
 
@@ -469,3 +360,4 @@ sudo systemctl reload nginx
 | 운영 환경 설정값 하드코딩 | 환경변수 `${ENV_VAR}` 주입 |
 | 결제(PG) 및 외부 연동 파라미터 단일 하드코딩 | 환경변수(`.env`, `import.meta.env`)로 분리 |
 | main 브랜치 직접 push/merge (테스트 없이) | 테스트 후 PR을 통한 병합 |
+| 운영 서버 DB 직접 수정 및 쓰기/수정 성격의 운영 서버 작업 실행 | 무조건 작업 전에 사용자(개발자)에게 계획을 설명하고 동의(승인)를 얻은 후 진행 (로그 조회 등 읽기 전용 작업은 허용되나 DB Update/Insert/Delete 및 서버 쓰기 작업은 절대 금지) |

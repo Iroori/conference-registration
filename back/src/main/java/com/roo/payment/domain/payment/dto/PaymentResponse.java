@@ -36,7 +36,8 @@ public record PaymentResponse(
         String passportFirstName,
         String passportLastName,
         String passportNumber,
-        String birthDate
+        String birthDate,
+        String paperInfo
 ) {
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -88,7 +89,8 @@ public record PaymentResponse(
                 payment.getUser().getPassportFirstName(),
                 payment.getUser().getPassportLastName(),
                 payment.getUser().getPassportNumber(),
-                payment.getUser().getBirthDate() != null ? payment.getUser().getBirthDate().toString() : null
+                payment.getUser().getBirthDate() != null ? payment.getUser().getBirthDate().toString() : null,
+                payment.getUser().getPaperInfo()
         );
     }
 }

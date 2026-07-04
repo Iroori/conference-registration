@@ -5,3 +5,4 @@ public enum OptionCategory {
     PROGRAM,
     ADMIN
 }
+

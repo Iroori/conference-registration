@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AdminDashboardPage } from '../components/AdminDashboardPage';
-import { useConferenceOptions } from '../hooks/useRegistration';
+import { useConferenceOptions, usePaymentHistory } from '../hooks/useRegistration';
 import { StepRegistrationType } from '../components/StepRegistrationType';
 import { StepAdditionalOptions } from '../components/StepAdditionalOptions';
 import { StepTechnicalTour } from '../components/StepTechnicalTour';
@@ -74,6 +74,16 @@ export const RegistrationPage = () => {
 
   const memberType = user?.memberType ?? 'NON_MEMBER';
   const { data: options } = useConferenceOptions(memberType);
+  const { data: payments } = usePaymentHistory();
+
+  const alreadyPaidPreWorkshop = useMemo(() => {
+    if (!payments) return null;
+    return payments.find(
+      (p) =>
+        p.status === 'COMPLETED' &&
+        p.selectedOptions.some((o) => o.id.startsWith('OPT-PRE-'))
+    );
+  }, [payments]);
 
   /** Compute the final list of unique option IDs and quantities map for the payment API */
   const paymentPayload = useMemo(() => {
@@ -223,6 +233,27 @@ export const RegistrationPage = () => {
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-8">
+        {/* Pre-workshop banner */}
+        {navTab === 'REGISTER' && alreadyPaidPreWorkshop && (
+          <div className="mb-6 rounded-xl border border-gold/20 bg-gold-tint/50 p-4 text-xs text-slate-800 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="flex h-2 w-2 rounded-full bg-gold"></span>
+              <span>
+                You have registered for the Pre-workshop:{' '}
+                <strong>
+                  {alreadyPaidPreWorkshop.selectedOptions.find((o) => o.id.startsWith('OPT-PRE-'))?.nameEn}
+                </strong>
+              </span>
+            </div>
+            <button
+              onClick={() => setNavTab('HISTORY')}
+              className="font-semibold underline hover:text-navy transition uppercase tracking-wider text-[10px]"
+            >
+              View Receipt
+            </button>
+          </div>
+        )}
+
         {/* Registration Flow */}
         {navTab === 'REGISTER' && (
           <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">

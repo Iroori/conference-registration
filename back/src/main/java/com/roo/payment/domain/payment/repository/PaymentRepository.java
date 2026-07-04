@@ -24,6 +24,19 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     /** PENDING 상태 정리 스케줄러 — 특정 시각 이전에 생성된 PENDING 결제 조회 */
     List<Payment> findByStatusAndCreatedAtBefore(PaymentStatus status, LocalDateTime before);
 
+    /** 어드민 페이징 조회 및 N+1 방지 */
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user"})
+    org.springframework.data.domain.Page<Payment> findAll(org.springframework.data.domain.Pageable pageable);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"user"})
+    @Query("SELECT p FROM Payment p WHERE " +
+           "LOWER(p.registrationNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.user.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.user.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.user.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(p.user.affiliation) LIKE LOWER(CONCAT('%', :search, '%'))")
+    org.springframework.data.domain.Page<Payment> searchPayments(@Param("search") String search, org.springframework.data.domain.Pageable pageable);
+
     /** 관리자 전체 결제 조회 (selectedOptions fetch join) */
     @Query("SELECT p FROM Payment p JOIN FETCH p.selectedOptions ORDER BY p.createdAt DESC")
     List<Payment> findAllWithOptions();
