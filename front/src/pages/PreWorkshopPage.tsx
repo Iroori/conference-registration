@@ -28,10 +28,11 @@ const OPTIONS_CONFIG = {
   },
 };
 
-const KOREAN_COUNTRY_VALUES = ['South Korea', '대한민국', 'Korea', 'KR'];
 function isKoreanUser(country: string | undefined): boolean {
   if (!country) return false;
-  return KOREAN_COUNTRY_VALUES.includes(country);
+  const normalized = country.trim().toLowerCase();
+  const keywords = ['south korea', 'korea', '대한민국', 'kr'];
+  return keywords.some((kw) => normalized.includes(kw));
 }
 
 export const PreWorkshopPage = () => {
