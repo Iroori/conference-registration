@@ -137,6 +137,20 @@ export const PreWorkshopPage = () => {
     };
   }, [createPayment, selectedOptionId]);
 
+  // Prevent user from leaving or refreshing during active submission or verification
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isSubmitting || isPending) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isSubmitting, isPending]);
+
   const handlePay = () => {
     if (isSubmitting || isPending) return;
     if (!policyAgreed) {
@@ -206,6 +220,14 @@ export const PreWorkshopPage = () => {
 
   return (
     <div className="min-h-screen bg-cream">
+      {isPending && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] z-50 flex flex-col items-center justify-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-gold border-white/20 mb-4"></div>
+          <p className="font-semibold text-sm">Verifying payment with the bank...</p>
+          <p className="text-xs text-white/70 mt-1.5">Please do not close or refresh this page.</p>
+        </div>
+      )}
+
       {/* Top navy header bar */}
       <div className="bg-navy">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-5">

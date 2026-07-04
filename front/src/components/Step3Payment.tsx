@@ -206,6 +206,20 @@ export const Step3Payment = ({
     };
   }, [createPayment, selectedOptionIds, quantities, accompanyingPersons, exhibitorBadges, waitlistedOptionIds, iabseId, birthDate, appliedCodeEntity, onComplete, passportFirstName, passportLastName, passportNumber]);
 
+  // Prevent user from leaving or refreshing during active submission or verification
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isSubmitting || isPending) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isSubmitting, isPending]);
+
   const handleFreeRegistration = () => {
     if (isSubmitting || isPending) return;
     if (!policyAgreed) {
@@ -336,6 +350,14 @@ export const Step3Payment = ({
 
   return (
     <>
+      {isPending && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] z-50 flex flex-col items-center justify-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-gold border-white/20 mb-4"></div>
+          <p className="font-semibold text-sm">Verifying payment with the bank...</p>
+          <p className="text-xs text-white/70 mt-1.5">Please do not close or refresh this page.</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-0 lg:grid-cols-[1fr_300px]">
         <div className="border-b border-slate-100 p-6 lg:border-b-0 lg:border-r">
 
