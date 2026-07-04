@@ -8,21 +8,20 @@ import { SectionLabel, formatKRW } from '../components/Shared';
 import { apiReportPaymentFailure } from '../lib/api';
 import type { PaymentResponse } from '../types';
 
-type NavTab = 'PRE_WORKSHOP' | 'HISTORY' | 'PROFILE';
+type NavTab = 'REGISTER' | 'PRE_WORKSHOP' | 'HISTORY' | 'PROFILE';
 type Step = 'PROGRAM_SELECT' | 'PRICE_SELECT' | 'CONFIRM_PAY' | 'COMPLETE';
 
-// Option configurations
 const OPTIONS_CONFIG = {
   FORENSIC: {
     title: 'Forensic Engineering Practice',
-    brochureUrl: '/api/pre-workshop/download/ForensicEngineeringPractice.pdf',
+    brochureUrl: '/api/pre-workshop/download?fileName=ForensicEngineeringPractice.pdf',
     brochureName: 'ForensicEngineeringPractice.pdf',
     stdId: 'OPT-PRE-FORENSIC-STD',
     stuId: 'OPT-PRE-FORENSIC-STU',
   },
   SHM: {
     title: 'Structural Health Monitoring',
-    brochureUrl: '/api/pre-workshop/download/StructuralHealthMonitoring.png',
+    brochureUrl: '/api/pre-workshop/download?fileName=StructuralHealthMonitoring.png',
     brochureName: 'StructuralHealthMonitoring.png',
     stdId: 'OPT-PRE-SHM-STD',
     stuId: 'OPT-PRE-SHM-STU',
@@ -221,15 +220,23 @@ export const PreWorkshopPage = () => {
               <span className="text-xs text-white/70">{`${user.firstName} ${user.lastName}`}</span>
             </div>
             <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-0.5">
-              {(['PRE_WORKSHOP', 'HISTORY', 'PROFILE'] as NavTab[]).map((tab) => (
+              {(['REGISTER', 'PRE_WORKSHOP', 'HISTORY', 'PROFILE'] as NavTab[]).map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setNavTab(tab)}
+                  onClick={() => {
+                    if (tab === 'PRE_WORKSHOP') {
+                      setNavTab(tab);
+                    } else {
+                      navigate('/', { state: { tab } });
+                    }
+                  }}
                   className={`rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-[0.1em] transition ${
                     navTab === tab ? 'bg-gold text-navy' : 'text-white/70 hover:text-white'
                   }`}
                 >
-                  {tab === 'PRE_WORKSHOP'
+                  {tab === 'REGISTER'
+                    ? 'Registration'
+                    : tab === 'PRE_WORKSHOP'
                     ? 'Pre-workshop'
                     : tab === 'HISTORY'
                     ? 'My Payments'

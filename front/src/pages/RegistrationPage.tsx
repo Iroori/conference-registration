@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AdminDashboardPage } from '../components/AdminDashboardPage';
 import { useConferenceOptions, usePaymentHistory } from '../hooks/useRegistration';
@@ -25,7 +25,7 @@ import { INVITATION_OPTION_ID, DEFAULT_SELECTED_OPTION_IDS } from '../types';
 const initialQuantities = (): Record<string, number> =>
   Object.fromEntries(DEFAULT_SELECTED_OPTION_IDS.map((id) => [id, 1]));
 
-type NavTab = 'REGISTER' | 'HISTORY' | 'ADMIN' | 'PROFILE';
+type NavTab = 'REGISTER' | 'PRE_WORKSHOP' | 'HISTORY' | 'ADMIN' | 'PROFILE';
 
 const STEP_LABELS = ['Category', 'Options', 'Tours', 'Visa', 'Confirm', 'Pay'];
 
@@ -43,9 +43,22 @@ export const RegistrationPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [navTab, setNavTab] = useState<NavTab>(
-    location.pathname === '/admin' ? 'ADMIN' : 'REGISTER'
-  );
+  const [navTab, setNavTab] = useState<NavTab>(() => {
+    if (location.pathname === '/admin') return 'ADMIN';
+    if (location.state && (location.state as any).tab) {
+      return (location.state as any).tab;
+    }
+    return 'REGISTER';
+  });
+
+  useEffect(() => {
+    if (location.pathname === '/admin') {
+      setNavTab('ADMIN');
+    } else if (location.state && (location.state as any).tab) {
+      setNavTab((location.state as any).tab);
+    }
+  }, [location]);
+
   const [currentStep, setCurrentStep] = useState<RegistrationStep>('REG_TYPE');
 
   // Step 1 — registration tier + category + options
@@ -195,15 +208,17 @@ export const RegistrationPage = () => {
               <span className="text-xs text-white/70">{`${user.firstName} ${user.lastName}`}</span>
             </div>
             <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-0.5">
-              {(['REGISTER', 'HISTORY', 'PROFILE', ...(user.admin ? ['ADMIN'] : [])] as NavTab[]).map((tab) => (
+              {(['REGISTER', 'PRE_WORKSHOP', 'HISTORY', 'PROFILE', ...(user.admin ? ['ADMIN'] : [])] as NavTab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => {
-                    setNavTab(tab);
-                    if (tab === 'ADMIN') {
+                    if (tab === 'PRE_WORKSHOP') {
+                      navigate('/pre-workshop');
+                    } else if (tab === 'ADMIN') {
                       navigate('/admin');
                     } else {
-                      navigate('/');
+                      setNavTab(tab);
+                      navigate('/', { state: { tab } });
                     }
                   }}
                   className={`rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-[0.1em] transition ${
@@ -214,6 +229,8 @@ export const RegistrationPage = () => {
                 >
                   {tab === 'REGISTER'
                     ? 'Registration'
+                    : tab === 'PRE_WORKSHOP'
+                    ? 'Pre-workshop'
                     : tab === 'HISTORY'
                     ? 'My Payments'
                     : tab === 'PROFILE'
