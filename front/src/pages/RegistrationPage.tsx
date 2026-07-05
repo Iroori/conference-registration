@@ -208,7 +208,7 @@ export const RegistrationPage = () => {
               <span className="text-xs text-white/70">{`${user.firstName} ${user.lastName}`}</span>
             </div>
             <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-0.5">
-              {(['REGISTER', 'PRE_WORKSHOP', 'HISTORY', 'PROFILE', ...(user.admin ? ['ADMIN'] : [])] as NavTab[]).map((tab) => (
+              {(['REGISTER', /* 'PRE_WORKSHOP', */ 'HISTORY', 'PROFILE', ...(user.admin ? ['ADMIN'] : [])] as NavTab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => {
