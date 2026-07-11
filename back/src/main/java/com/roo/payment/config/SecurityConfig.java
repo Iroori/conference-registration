@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/health").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/email/**").permitAll()
+                        .requestMatchers("/api/payments/paygate/callback").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/iasbse/check").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/iasbse/companies").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/options").permitAll()

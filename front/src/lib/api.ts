@@ -7,6 +7,7 @@ import type {
   ConferenceOption,
   MemberType,
   PaymentRequest,
+  CompletePaymentRequest,
   PaymentResponse,
   RegistrationPeriods,
   IasbseMember,
@@ -95,8 +96,13 @@ export const apiFetchRegistrationPeriods = async (): Promise<RegistrationPeriods
 };
 
 // ─── Payment ─────────────────────────────────────────────────────────────────
-export const apiCreatePayment = async (req: PaymentRequest): Promise<PaymentResponse> => {
-  const res = await apiClient.post<{ data: PaymentResponse }>('/payments', req);
+export const apiInitiatePayment = async (req: PaymentRequest): Promise<PaymentResponse> => {
+  const res = await apiClient.post<{ data: PaymentResponse }>('/payments/initiate', req);
+  return res.data.data;
+};
+
+export const apiCompletePayment = async (req: CompletePaymentRequest): Promise<PaymentResponse> => {
+  const res = await apiClient.post<{ data: PaymentResponse }>('/payments/complete', req);
   return res.data.data;
 };
 

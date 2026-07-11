@@ -5,7 +5,8 @@ import com.roo.payment.common.exception.ErrorCode;
 import com.roo.payment.config.AppProperties;
 import com.roo.payment.domain.option.entity.ConferenceOption;
 import com.roo.payment.domain.option.repository.ConferenceOptionRepository;
-import com.roo.payment.domain.payment.dto.PaymentRequest;
+import com.roo.payment.domain.payment.dto.InitiatePaymentRequest;
+import com.roo.payment.domain.payment.dto.CompletePaymentRequest;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
 import com.roo.payment.domain.payment.entity.DiscountCode;
 import com.roo.payment.domain.payment.entity.Payment;
@@ -69,8 +70,8 @@ public class PaymentService {
     // ─────────────────────────────────────────────────────────────────────────
 
     @Transactional
-    public PaymentResponse createPayment(String email, PaymentRequest request) {
-        log.info("[PAYMENT] Attempting payment — email={} options={} method={}",
+    public PaymentResponse initiatePayment(String email, InitiatePaymentRequest request) {
+        log.info("[PAYMENT] Initiating payment — email={} options={} method={}",
                 maskEmail(email), request.selectedOptionIds(), request.paymentMethod());
 
         User user = userRepository.findByEmailAndActiveTrue(email)
@@ -225,20 +226,6 @@ public class PaymentService {
             discountTotal = Math.min(discountTotal, subtotal + tax);
         }
 
-        long finalAmount = subtotal + tax - discountTotal;
-
-        // PayGate 거래 검증: 실결제 금액(finalAmount)이 0원보다 크고 tid가 입력된 경우에만 검증 수행
-        if (finalAmount > 0) {
-            if (request.tid() != null && !request.tid().isBlank()) {
-                verifyPaygateTransaction(request.tid(), request.replycode(), email);
-            } else {
-                log.warn("[PAYMENT] No PG tid in request — email={} replycode={}",
-                        maskEmail(email), request.replycode());
-            }
-        } else {
-            log.info("[PAYMENT] 100% discount applied. Bypassing PG verification — email={}", maskEmail(email));
-        }
-
         // Update user's memberType and profile details (iabseId, birthDate) based on registration selection
         for (String optId : uniqueIds) {
             if (optId.contains("-MEMBER")) {
@@ -277,18 +264,6 @@ public class PaymentService {
 
         if (appliedCode != null) {
             payment.applyDiscount(appliedCode, discountTotal, discountReg, discountGala, discountAccomp, discountTour);
-            appliedDiscount.markAsUsed();
-        }
-
-        activeOptions.forEach(o -> {
-            int qty = quantities.getOrDefault(o.getId(), 1);
-            for (int i = 0; i < qty; i++)
-                o.increaseCount();
-        });
-
-        // PayGate TID 저장 — 거래 식별/조회용
-        if (request.tid() != null && !request.tid().isBlank()) {
-            payment.storeTid(request.tid());
         }
 
         // 동반자 정보 저장 (cascade로 결제와 함께 영속화)
@@ -313,23 +288,114 @@ public class PaymentService {
             }
         }
 
-        payment.complete();
         paymentRepository.save(payment);
 
-        log.info("[PAYMENT] Payment completed — email={} regNo={} amount={}",
+        log.info("[PAYMENT] Payment initiated — email={} regNo={} amount={}",
                 maskEmail(email), regNumber, payment.getTotalAmount());
 
+        return PaymentResponse.from(payment);
+    }
+
+    @Transactional
+    public PaymentResponse completePayment(String email, CompletePaymentRequest request) {
+        log.info("[PAYMENT] Completing payment — email={} regNo={} tid={}",
+                maskEmail(email), request.registrationNumber(), request.tid());
+
+        Payment payment = paymentRepository.findByRegistrationNumber(request.registrationNumber())
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT, "Payment not found."));
+
+        // 멱등성 처리
+        if (payment.getStatus() == PaymentStatus.COMPLETED) {
+            log.info("[PAYMENT] Payment already completed — regNo={}", request.registrationNumber());
+            return PaymentResponse.from(payment);
+        }
+
+        // 실결제 금액이 있을 때만 verify
+        if (payment.getTotalAmount() > 0) {
+            verifyPaygateTransaction(request.tid(), request.replycode(), email);
+        } else {
+            log.info("[PAYMENT] Bypassing PG verification — regNo={} totalAmount={}", request.registrationNumber(), payment.getTotalAmount());
+        }
+
+        payment.storeTid(request.tid());
+        payment.complete();
+
+        // 할인 코드 사용 완료 플래그 갱신
+        if (payment.getAppliedDiscountCode() != null && !payment.getAppliedDiscountCode().isBlank()) {
+            DiscountCode discount = discountCodeService.verifyDiscountCode(payment.getAppliedDiscountCode());
+            discount.markAsUsed();
+        }
+
+        // 활성 옵션 정원 카운터 증가
+        payment.getSelectedOptions().forEach(o -> {
+            o.increaseCount();
+        });
+
+        paymentRepository.save(payment);
+
+        // 컨펌 메일 발송
         try {
+            User user = payment.getUser();
             emailService.sendPaymentConfirmation(
-                    user.getEmail(), user.getFullName(), regNumber,
+                    user.getEmail(), user.getFullName(), payment.getRegistrationNumber(),
                     payment.getTotalAmount(),
                     payment.getPaidAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         } catch (Exception e) {
-            log.error("[PAYMENT] Confirmation email failed — email={} regNo={} error={}",
-                    maskEmail(email), regNumber, e.getMessage());
+            log.error("[PAYMENT] Confirmation email failed — regNo={} error={}",
+                    payment.getRegistrationNumber(), e.getMessage());
         }
 
         return PaymentResponse.from(payment);
+    }
+
+    @Transactional
+    public void handlePaygateCallback(String tid, String mbSerialNo, String replycode) {
+        log.info("[PAYMENT_CALLBACK] PayGate callback received — tid={} mbSerialNo={} replycode={}",
+                tid, mbSerialNo, replycode);
+
+        Payment payment = paymentRepository.findByRegistrationNumber(mbSerialNo)
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT, "Payment not found for callback."));
+
+        if (payment.getStatus() == PaymentStatus.COMPLETED) {
+            log.info("[PAYMENT_CALLBACK] Payment already completed — mbSerialNo={}", mbSerialNo);
+            return;
+        }
+
+        if ("0000".equals(replycode) || "NPS000".equals(replycode) || "NPS016".equals(replycode)) {
+            // 실결제 금액이 있을 때만 verify
+            if (payment.getTotalAmount() > 0) {
+                verifyPaygateTransaction(tid, replycode, payment.getUser().getEmail());
+            }
+
+            payment.storeTid(tid);
+            payment.complete();
+
+            if (payment.getAppliedDiscountCode() != null && !payment.getAppliedDiscountCode().isBlank()) {
+                DiscountCode discount = discountCodeService.verifyDiscountCode(payment.getAppliedDiscountCode());
+                discount.markAsUsed();
+            }
+
+            payment.getSelectedOptions().forEach(o -> {
+                o.increaseCount();
+            });
+
+            paymentRepository.save(payment);
+
+            try {
+                User user = payment.getUser();
+                emailService.sendPaymentConfirmation(
+                        user.getEmail(), user.getFullName(), payment.getRegistrationNumber(),
+                        payment.getTotalAmount(),
+                        payment.getPaidAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+            } catch (Exception e) {
+                log.error("[PAYMENT_CALLBACK] Confirmation email failed — regNo={} error={}",
+                        payment.getRegistrationNumber(), e.getMessage());
+            }
+        } else {
+            log.warn("[PAYMENT_CALLBACK] Callback replycode was failure — replycode={}", replycode);
+            payment.fail();
+            paymentRepository.save(payment);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

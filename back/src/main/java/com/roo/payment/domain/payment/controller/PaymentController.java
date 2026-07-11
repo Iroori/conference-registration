@@ -2,7 +2,8 @@ package com.roo.payment.domain.payment.controller;
 
 import com.roo.payment.common.response.ApiResponse;
 import com.roo.payment.domain.payment.dto.PaymentFailureRequest;
-import com.roo.payment.domain.payment.dto.PaymentRequest;
+import com.roo.payment.domain.payment.dto.InitiatePaymentRequest;
+import com.roo.payment.domain.payment.dto.CompletePaymentRequest;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
 import com.roo.payment.domain.payment.service.PaymentService;
 import com.roo.payment.domain.payment.dto.DiscountCodeResponse;
@@ -45,19 +46,49 @@ public class PaymentController {
     }
 
     /**
-     * Create and complete payment
-     * POST /api/payments
+     * Initiate payment (pre-PG registration)
+     * POST /api/payments/initiate
      */
-    @PostMapping
-    public ResponseEntity<ApiResponse<PaymentResponse>> createPayment(
+    @PostMapping("/initiate")
+    public ResponseEntity<ApiResponse<PaymentResponse>> initiatePayment(
             @AuthenticationPrincipal String email,
-            @Valid @RequestBody PaymentRequest request) {
-        log.info("[PAYMENT_CTRL] Payment request received — email={} options={} passportFirstName='{}' passportLastName='{}' passportNumber='{}'",
-                email, request.selectedOptionIds(), request.passportFirstName(), request.passportLastName(), request.passportNumber());
-        PaymentResponse response = paymentService.createPayment(email, request);
-        log.info("[PAYMENT_CTRL] Payment completed — email={} regNo={}",
-                email, response.registrationNumber());
+            @Valid @RequestBody InitiatePaymentRequest request) {
+        log.info("[PAYMENT_CTRL] Initiate request received — email={} options={}", email, request.selectedOptionIds());
+        PaymentResponse response = paymentService.initiatePayment(email, request);
+        return ResponseEntity.ok(ApiResponse.ok("Payment initiated. Please proceed to checkout.", response));
+    }
+
+    /**
+     * Complete payment (post-PG success validation)
+     * POST /api/payments/complete
+     */
+    @PostMapping("/complete")
+    public ResponseEntity<ApiResponse<PaymentResponse>> completePayment(
+            @AuthenticationPrincipal String email,
+            @Valid @RequestBody CompletePaymentRequest request) {
+        log.info("[PAYMENT_CTRL] Complete request received — email={} regNo={} tid={}", email, request.registrationNumber(), request.tid());
+        PaymentResponse response = paymentService.completePayment(email, request);
         return ResponseEntity.ok(ApiResponse.ok("Payment completed successfully.", response));
+    }
+
+    /**
+     * PayGate Server-to-Server Callback (Failsafe)
+     * POST /api/payments/paygate/callback
+     */
+    @PostMapping(value = "/paygate/callback", produces = "text/html;charset=UTF-8")
+    @ResponseBody
+    public String paygateCallback(
+            @RequestParam("tid") String tid,
+            @RequestParam("mb_serial_no") String mbSerialNo,
+            @RequestParam("replycode") String replycode) {
+        log.info("[PAYMENT_CTRL] Callback received from PayGate — tid={} mbSerialNo={} replycode={}", tid, mbSerialNo, replycode);
+        try {
+            paymentService.handlePaygateCallback(tid, mbSerialNo, replycode);
+            return String.format("<PGTL><VERIFYRECEIVED>RCVD</VERIFYRECEIVED><TID>%s</TID></PGTL>", tid);
+        } catch (Exception e) {
+            log.error("[PAYMENT_CTRL] Callback process error — tid={} mbSerialNo={} error={}", tid, mbSerialNo, e.getMessage());
+            return String.format("<PGTL><VERIFYRECEIVED>ERR</VERIFYRECEIVED><TID>%s</TID></PGTL>", tid);
+        }
     }
 
     /**

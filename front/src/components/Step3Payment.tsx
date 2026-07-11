@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useCreatePayment, useConferenceOptions } from '../hooks/useRegistration';
+import { useInitiatePayment, useCompletePayment, useConferenceOptions } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, SectionLabel, formatKRW } from './Shared';
 import { apiReportPaymentFailure, apiVerifyDiscountCode } from '../lib/api';
@@ -142,10 +142,12 @@ export const Step3Payment = ({
   const unitprice = finalPaidAmount;
   const paymethod = domestic ? 'card' : '101';
 
-  const { mutate: createPayment, isPending, error: serverError } = useCreatePayment();
+  const { mutate: initiatePayment, isPending: isInitiatePending } = useInitiatePayment();
+  const { mutate: completePayment, isPending: isCompletePending, error: serverError } = useCompletePayment();
+  const isPending = isInitiatePending || isCompletePending;
 
   const handleApplyDiscountCode = async () => {
-    if (!discountCodeInput.trim()) return;
+    if (!discountCodeInput.trim() || verifyingCode) return;
     setVerifyingCode(true);
     setDiscountError(null);
     try {
@@ -171,25 +173,26 @@ export const Step3Payment = ({
 
       // 0000: 상용 결제 성공, NPS016: 데모 거래 성공 알림코드
       if (replycode === "0000" || replycode === "NPS000" || replycode === "NPS016") {
-        createPayment(
+        completePayment(
           {
-            selectedOptionIds,
-            quantities: Object.keys(quantities).length > 0 ? quantities : undefined,
-            paymentMethod: 'CARD',
+            registrationNumber: (form.elements.namedItem('mb_serial_no') as HTMLInputElement)?.value,
             tid: (form.elements.namedItem('tid') as HTMLInputElement)?.value,
             replycode: replycode,
-            accompanyingPersons: accompanyingPersons.length > 0 ? accompanyingPersons : undefined,
-            exhibitorBadges: exhibitorBadges.length > 0 ? exhibitorBadges : undefined,
-            waitlistedOptionIds: waitlistedOptionIds.length > 0 ? waitlistedOptionIds : undefined,
-            iabseId: iabseId || undefined,
-            birthDate: birthDate || undefined,
-            appliedDiscountCode: appliedCodeEntity?.code || undefined,
-            passportFirstName: passportFirstName || undefined,
-            passportLastName: passportLastName || undefined,
-            passportNumber: passportNumber || undefined,
           },
           {
-            onSuccess: (result) => onComplete(result),
+            onSuccess: (result: PaymentResponse) => {
+              // 페이게이트 성공 마킹
+              const apilogInput = document.createElement('input');
+              apilogInput.type = 'hidden';
+              apilogInput.name = 'apilog';
+              apilogInput.value = '100';
+              form.appendChild(apilogInput);
+
+              if (typeof (window as any).verifyReceived === 'function') {
+                (window as any).verifyReceived();
+              }
+              onComplete(result);
+            },
             onError: () => setIsSubmitting(false),
           }
         );
@@ -204,7 +207,7 @@ export const Step3Payment = ({
         });
       }
     };
-  }, [createPayment, selectedOptionIds, quantities, accompanyingPersons, exhibitorBadges, waitlistedOptionIds, iabseId, birthDate, appliedCodeEntity, onComplete, passportFirstName, passportLastName, passportNumber]);
+  }, [completePayment, onComplete]);
 
   const handleFreeRegistration = () => {
     if (isSubmitting || isPending) return;
@@ -230,13 +233,11 @@ export const Step3Payment = ({
 
     setIsSubmitting(true);
 
-    createPayment(
+    initiatePayment(
       {
         selectedOptionIds,
         quantities: Object.keys(quantities).length > 0 ? quantities : undefined,
         paymentMethod: 'CARD',
-        tid: undefined,
-        replycode: '0000',
         accompanyingPersons: accompanyingPersons.length > 0 ? accompanyingPersons : undefined,
         exhibitorBadges: exhibitorBadges.length > 0 ? exhibitorBadges : undefined,
         waitlistedOptionIds: waitlistedOptionIds.length > 0 ? waitlistedOptionIds : undefined,
@@ -248,7 +249,19 @@ export const Step3Payment = ({
         passportNumber: passportNumber || undefined,
       },
       {
-        onSuccess: (result) => onComplete(result),
+        onSuccess: (initiated) => {
+          completePayment(
+            {
+              registrationNumber: initiated.registrationNumber,
+              tid: 'FREE_' + initiated.registrationNumber,
+              replycode: '0000',
+            },
+            {
+              onSuccess: (result: PaymentResponse) => onComplete(result),
+              onError: () => setIsSubmitting(false),
+            }
+          );
+        },
         onError: () => setIsSubmitting(false),
       }
     );
@@ -284,45 +297,68 @@ export const Step3Payment = ({
     if (typeof (window as any).doTransaction === 'function') {
       setIsSubmitting(true);
 
-      // React의 내부 속성(__reactFiber 등)이 PG 스크립트에 의해 직렬화되는 것을 방지하기 위해 순수 DOM으로 폼 생성
-      let form = document.forms.namedItem('PGIOForm') as HTMLFormElement;
-      if (form) {
-        form.remove(); // 기존 폼 제거
-      }
+      initiatePayment(
+        {
+          selectedOptionIds,
+          quantities: Object.keys(quantities).length > 0 ? quantities : undefined,
+          paymentMethod: 'CARD',
+          accompanyingPersons: accompanyingPersons.length > 0 ? accompanyingPersons : undefined,
+          exhibitorBadges: exhibitorBadges.length > 0 ? exhibitorBadges : undefined,
+          waitlistedOptionIds: waitlistedOptionIds.length > 0 ? waitlistedOptionIds : undefined,
+          iabseId: iabseId || undefined,
+          birthDate: birthDate || undefined,
+          appliedDiscountCode: appliedCodeEntity?.code || undefined,
+          passportFirstName: passportFirstName || undefined,
+          passportLastName: passportLastName || undefined,
+          passportNumber: passportNumber || undefined,
+        },
+        {
+          onSuccess: (initiated) => {
+            // React의 내부 속성(__reactFiber 등)이 PG 스크립트에 의해 직렬화되는 것을 방지하기 위해 순수 DOM으로 폼 생성
+            let form = document.forms.namedItem('PGIOForm') as HTMLFormElement;
+            if (form) {
+              form.remove(); // 기존 폼 제거
+            }
 
-      form = document.createElement('form');
-      form.name = 'PGIOForm';
-      form.style.display = 'none';
+            form = document.createElement('form');
+            form.name = 'PGIOForm';
+            form.style.display = 'none';
 
-      const addInput = (name: string, value: string) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-      };
+            const addInput = (name: string, value: string) => {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = name;
+              input.value = value;
+              form.appendChild(input);
+            };
 
-      addInput('mid', mid);
-      addInput('paymethod', paymethod);
-      addInput('goodname', 'IABSE 2026 Registration');
-      addInput('unitprice', String(unitprice));
-      addInput('goodcurrency', goodcurrency);
-      addInput('langcode', domestic ? 'KR' : 'US');
-      addInput('cardquota', '00');
-      addInput('replycode', '');
-      addInput('replyMsg', '');
-      addInput('tid', '');
-      addInput('cardauthcode', '');
-      addInput('cardtype', '');
-      addInput('cardnumber', '');
+            addInput('mid', mid);
+            addInput('paymethod', paymethod);
+            addInput('goodname', 'IABSE 2026 Registration');
+            addInput('unitprice', String(unitprice));
+            addInput('goodcurrency', goodcurrency);
+            addInput('langcode', domestic ? 'KR' : 'US');
+            addInput('cardquota', '00');
+            addInput('replycode', '');
+            addInput('replyMsg', '');
+            addInput('tid', '');
+            addInput('cardauthcode', '');
+            addInput('cardtype', '');
+            addInput('cardnumber', '');
+            // Failsafe 주문 식별을 위한 주문번호 mb_serial_no 매핑
+            addInput('mb_serial_no', initiated.registrationNumber);
 
-      if (user) {
-        addInput('receipttoname', `${user.firstName || ''} ${user.lastName || ''}`.trim());
-        addInput('receipttoemail', user.email);
-      }
+            if (user) {
+              addInput('receipttoname', `${user.firstName || ''} ${user.lastName || ''}`.trim());
+              addInput('receipttoemail', user.email);
+            }
 
-      document.body.appendChild(form);
-      (window as any).doTransaction(form);
+            document.body.appendChild(form);
+            (window as any).doTransaction(form);
+          },
+          onError: () => setIsSubmitting(false),
+        }
+      );
     } else {
       setPgError("Payment module is not loaded. Please refresh the page and try again.");
     }

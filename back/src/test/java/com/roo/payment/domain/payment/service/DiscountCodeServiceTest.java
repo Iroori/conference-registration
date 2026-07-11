@@ -4,7 +4,8 @@ import com.roo.payment.common.exception.BusinessException;
 import com.roo.payment.common.exception.ErrorCode;
 import com.roo.payment.domain.option.entity.ConferenceOption;
 import com.roo.payment.domain.option.repository.ConferenceOptionRepository;
-import com.roo.payment.domain.payment.dto.PaymentRequest;
+import com.roo.payment.domain.payment.dto.InitiatePaymentRequest;
+import com.roo.payment.domain.payment.dto.CompletePaymentRequest;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
 import com.roo.payment.domain.payment.entity.DiscountCode;
 import com.roo.payment.domain.payment.entity.PaymentMethod;
@@ -127,19 +128,14 @@ class DiscountCodeServiceTest {
                 "OPT-ACCOMP-PRE", 2
         );
 
-        PaymentRequest.AccompanyingPersonInfo p1 = new PaymentRequest.AccompanyingPersonInfo("Hong", "Gildong");
-        PaymentRequest.AccompanyingPersonInfo p2 = new PaymentRequest.AccompanyingPersonInfo("Kim", "Chulsoo");
-
-        PaymentRequest request = new PaymentRequest(
+        InitiatePaymentRequest request = new InitiatePaymentRequest(
                 optionIds,
                 quantities,
                 PaymentMethod.CARD,
-                null, // Passing null tid to bypass real HttpURLConnection call
-                "0000",
-                List.of(p1, p2),
                 null,
                 null,
                 null,
+                null, // iabseId
                 LocalDate.of(1990, 5, 15),
                 discountCode.getCode(),
                 null,
@@ -147,7 +143,8 @@ class DiscountCodeServiceTest {
                 null
         );
 
-        PaymentResponse response = paymentService.createPayment(testUser.getEmail(), request);
+        PaymentResponse initiated = paymentService.initiatePayment(testUser.getEmail(), request);
+        PaymentResponse response = paymentService.completePayment(testUser.getEmail(), new CompletePaymentRequest(initiated.registrationNumber(), "TID-XYZ-12345", "0000"));
 
         assertNotNull(response);
         assertEquals(1050000L, response.totalAmount()); // 2,350,000 - 1,300,000 = 1,050,000 KRW
@@ -181,17 +178,14 @@ class DiscountCodeServiceTest {
                 "OPT-GALA-DINNER", 1
         );
 
-        // PG tid가 null/blank여도 finalAmount = 0 이므로 PG 검증을 건너뛰고 정상 처리되어야 함.
-        PaymentRequest request = new PaymentRequest(
+        InitiatePaymentRequest request = new InitiatePaymentRequest(
                 optionIds,
                 quantities,
                 PaymentMethod.CARD,
                 null,
-                "0000",
                 null,
                 null,
-                null,
-                null,
+                null, // iabseId
                 LocalDate.of(1990, 5, 15),
                 discountCode.getCode(),
                 null,
@@ -199,7 +193,8 @@ class DiscountCodeServiceTest {
                 null
         );
 
-        PaymentResponse response = paymentService.createPayment(testUser.getEmail(), request);
+        PaymentResponse initiated = paymentService.initiatePayment(testUser.getEmail(), request);
+        PaymentResponse response = paymentService.completePayment(testUser.getEmail(), new CompletePaymentRequest(initiated.registrationNumber(), "FREE_" + initiated.registrationNumber(), "0000"));
 
         assertNotNull(response);
         assertEquals(0, response.totalAmount());
@@ -218,8 +213,23 @@ class DiscountCodeServiceTest {
         assertTrue(codeAfterUse.isUsed());
 
         // Try using the code again, should throw ALREADY_USED error
-        assertThrows(BusinessException.class, () ->
-                paymentService.createPayment(testUser.getEmail(), request)
-        );
+        assertThrows(BusinessException.class, () -> {
+            InitiatePaymentRequest requestAgain = new InitiatePaymentRequest(
+                    optionIds,
+                    quantities,
+                    PaymentMethod.CARD,
+                    null,
+                    null,
+                    null,
+                    null, // iabseId
+                    LocalDate.of(1990, 5, 15),
+                    discountCode.getCode(),
+                    null,
+                    null,
+                    null
+            );
+            PaymentResponse initAgain = paymentService.initiatePayment(testUser.getEmail(), requestAgain);
+            paymentService.completePayment(testUser.getEmail(), new CompletePaymentRequest(initAgain.registrationNumber(), "TID_TEST_456", "0000"));
+        });
     }
 }

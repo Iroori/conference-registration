@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useCreatePayment, usePaymentHistory } from '../hooks/useRegistration';
+import { useInitiatePayment, useCompletePayment, usePaymentHistory } from '../hooks/useRegistration';
 import { PaymentHistoryTab } from '../components/PaymentHistory';
 import { MyProfileTab } from './RegistrationPage';
 import { SectionLabel, formatKRW } from '../components/Shared';
@@ -53,7 +53,9 @@ export const PreWorkshopPage = () => {
   const [paymentResult, setPaymentResult] = useState<PaymentResponse | null>(null);
 
   const { data: payments } = usePaymentHistory();
-  const { mutate: createPayment, isPending, error: serverError } = useCreatePayment();
+  const { mutate: initiatePayment, isPending: isInitiatePending } = useInitiatePayment();
+  const { mutate: completePayment, isPending: isCompletePending, error: serverError } = useCompletePayment();
+  const isPending = isInitiatePending || isCompletePending;
 
   // Check if user has already paid for pre-workshop
   const alreadyPaidPreWorkshop = useMemo(() => {
@@ -110,15 +112,24 @@ export const PreWorkshopPage = () => {
       const replyMsg = (form.elements.namedItem('replyMsg') as HTMLInputElement)?.value;
 
       if (replycode === '0000' || replycode === 'NPS000' || replycode === 'NPS016') {
-        createPayment(
+        completePayment(
           {
-            selectedOptionIds: [selectedOptionId],
-            paymentMethod: 'CARD',
+            registrationNumber: (form.elements.namedItem('mb_serial_no') as HTMLInputElement)?.value,
             tid: (form.elements.namedItem('tid') as HTMLInputElement)?.value,
             replycode: replycode,
           },
           {
-            onSuccess: (result) => {
+            onSuccess: (result: PaymentResponse) => {
+              // 페이게이트 성공 마킹
+              const apilogInput = document.createElement('input');
+              apilogInput.type = 'hidden';
+              apilogInput.name = 'apilog';
+              apilogInput.value = '100';
+              form.appendChild(apilogInput);
+
+              if (typeof (window as any).verifyReceived === 'function') {
+                (window as any).verifyReceived();
+              }
               setPaymentResult(result);
               setCurrentStep('COMPLETE');
               setIsSubmitting(false);
@@ -136,7 +147,7 @@ export const PreWorkshopPage = () => {
         });
       }
     };
-  }, [createPayment, selectedOptionId]);
+  }, [completePayment]);
 
   const handlePay = () => {
     if (isSubmitting || isPending) return;
@@ -149,44 +160,57 @@ export const PreWorkshopPage = () => {
     if (typeof (window as any).doTransaction === 'function') {
       setIsSubmitting(true);
 
-      let form = document.forms.namedItem('PGIOForm') as HTMLFormElement;
-      if (form) {
-        form.remove();
-      }
+      initiatePayment(
+        {
+          selectedOptionIds: [selectedOptionId],
+          paymentMethod: 'CARD',
+        },
+        {
+          onSuccess: (initiated) => {
+            let form = document.forms.namedItem('PGIOForm') as HTMLFormElement;
+            if (form) {
+              form.remove();
+            }
 
-      form = document.createElement('form');
-      form.name = 'PGIOForm';
-      form.style.display = 'none';
+            form = document.createElement('form');
+            form.name = 'PGIOForm';
+            form.style.display = 'none';
 
-      const addInput = (name: string, value: string) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-      };
+            const addInput = (name: string, value: string) => {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = name;
+              input.value = value;
+              form.appendChild(input);
+            };
 
-      addInput('mid', mid);
-      addInput('paymethod', paymethod);
-      addInput('goodname', 'IABSE 2026 Pre-workshop');
-      addInput('unitprice', String(unitprice));
-      addInput('goodcurrency', goodcurrency);
-      addInput('langcode', domestic ? 'KR' : 'US');
-      addInput('cardquota', '00');
-      addInput('replycode', '');
-      addInput('replyMsg', '');
-      addInput('tid', '');
-      addInput('cardauthcode', '');
-      addInput('cardtype', '');
-      addInput('cardnumber', '');
+            addInput('mid', mid);
+            addInput('paymethod', paymethod);
+            addInput('goodname', 'IABSE 2026 Pre-workshop');
+            addInput('unitprice', String(unitprice));
+            addInput('goodcurrency', goodcurrency);
+            addInput('langcode', domestic ? 'KR' : 'US');
+            addInput('cardquota', '00');
+            addInput('replycode', '');
+            addInput('replyMsg', '');
+            addInput('tid', '');
+            addInput('cardauthcode', '');
+            addInput('cardtype', '');
+            addInput('cardnumber', '');
+            // Failsafe 주문 식별을 위한 주문번호 mb_serial_no 매핑
+            addInput('mb_serial_no', initiated.registrationNumber);
 
-      if (user) {
-        addInput('receipttoname', `${user.firstName || ''} ${user.lastName || ''}`.trim());
-        addInput('receipttoemail', user.email);
-      }
+            if (user) {
+              addInput('receipttoname', `${user.firstName || ''} ${user.lastName || ''}`.trim());
+              addInput('receipttoemail', user.email);
+            }
 
-      document.body.appendChild(form);
-      (window as any).doTransaction(form);
+            document.body.appendChild(form);
+            (window as any).doTransaction(form);
+          },
+          onError: () => setIsSubmitting(false),
+        }
+      );
     } else {
       setPgError('Payment module is not loaded. Please refresh the page and try again.');
     }

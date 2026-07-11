@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   apiFetchOptions,
-  apiCreatePayment,
+  apiInitiatePayment,
+  apiCompletePayment,
   apiFetchMyPayments,
   apiFetchRegistrationPeriods,
 } from '../lib/api';
-import type { MemberType, PaymentRequest } from '../types';
+import type { MemberType, PaymentRequest, CompletePaymentRequest } from '../types';
 
 export const QUERY_KEYS = {
   options: (memberType: MemberType) => ['options', memberType] as const,
@@ -28,10 +29,16 @@ export const useConferenceOptions = (memberType: MemberType | null) =>
     staleTime: 5 * 60 * 1000,
   });
 
-export const useCreatePayment = () => {
+export const useInitiatePayment = () => {
+  return useMutation({
+    mutationFn: (req: PaymentRequest) => apiInitiatePayment(req),
+  });
+};
+
+export const useCompletePayment = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (req: PaymentRequest) => apiCreatePayment(req),
+    mutationFn: (req: CompletePaymentRequest) => apiCompletePayment(req),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.paymentHistory });
     },

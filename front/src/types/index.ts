@@ -303,6 +303,12 @@ export interface PaymentRequest {
   passportNumber?: string;
 }
 
+export interface CompletePaymentRequest {
+  registrationNumber: string;
+  tid: string;
+  replycode: string;
+}
+
 export interface PaymentResponse {
   id: number;
   registrationNumber: string;
