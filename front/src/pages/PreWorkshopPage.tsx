@@ -21,8 +21,8 @@ const OPTIONS_CONFIG = {
   },
   SHM: {
     title: 'Structural Health Monitoring',
-    brochureUrl: '/api/pre-workshop/download?fileName=StructuralHealthMonitoring.png',
-    brochureName: 'StructuralHealthMonitoring.png',
+    brochureUrl: '/api/pre-workshop/download?fileName=Syllabus_SHM_PreWorkshop_IABSE2026.pdf',
+    brochureName: 'Syllabus_SHM_PreWorkshop_IABSE2026.pdf',
     stdId: 'OPT-PRE-SHM-STD',
     stuId: 'OPT-PRE-SHM-STU',
   },
@@ -362,7 +362,7 @@ export const PreWorkshopPage = () => {
                   {/* Forensic Option Card */}
                   <div
                      onClick={() => setSelectedProgram('FORENSIC')}
-                     className={`cursor-pointer rounded-xl border p-5 transition flex flex-col justify-between h-32 hover:border-gold-hover hover:shadow-sm select-none ${
+                     className={`cursor-pointer rounded-xl border p-5 transition flex flex-col justify-between h-full hover:border-gold-hover hover:shadow-sm select-none ${
                        selectedProgram === 'FORENSIC'
                          ? 'border-gold bg-gold-tint/20 ring-1 ring-gold'
                          : 'border-slate-150 bg-white'
@@ -380,6 +380,9 @@ export const PreWorkshopPage = () => {
                            className="text-gold focus:ring-gold h-4 w-4"
                          />
                        </div>
+                       <p className="mt-3 text-xs text-slate-500 leading-relaxed font-normal">
+                         This workshop introduces the principles and practice of forensic structural engineering through lectures and real-world case studies. Participants will learn practical investigation methodologies, analyze the causes of structural failures, and develop engineering judgment through an interactive case-study session.
+                       </p>
                      </div>
                      <div className="mt-4 pt-4 border-t border-slate-100">
                        <a
@@ -399,7 +402,7 @@ export const PreWorkshopPage = () => {
                    {/* SHM Option Card */}
                    <div
                      onClick={() => setSelectedProgram('SHM')}
-                     className={`cursor-pointer rounded-xl border p-5 transition flex flex-col justify-between h-32 hover:border-gold-hover hover:shadow-sm select-none ${
+                     className={`cursor-pointer rounded-xl border p-5 transition flex flex-col justify-between h-full hover:border-gold-hover hover:shadow-sm select-none ${
                        selectedProgram === 'SHM'
                          ? 'border-gold bg-gold-tint/20 ring-1 ring-gold'
                          : 'border-slate-150 bg-white'
@@ -417,6 +420,9 @@ export const PreWorkshopPage = () => {
                            className="text-gold focus:ring-gold h-4 w-4"
                          />
                        </div>
+                       <p className="mt-3 text-xs text-slate-500 leading-relaxed font-normal">
+                         This blended short course combines online and in-person sessions to present the latest developments in structural health monitoring. Topics include sensing technologies, data acquisition, machine learning, digital twins, and risk-informed infrastructure management, with a focus on practical applications for bridges and other civil infrastructure.
+                       </p>
                      </div>
                      <div className="mt-4 pt-4 border-t border-slate-100">
                        <a
@@ -428,7 +434,7 @@ export const PreWorkshopPage = () => {
                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                          </svg>
-                         Download Brochure (PNG)
+                         Download Syllabus (PDF)
                        </a>
                      </div>
                    </div>

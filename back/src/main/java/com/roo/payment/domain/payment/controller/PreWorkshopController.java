@@ -19,7 +19,8 @@ public class PreWorkshopController {
     @GetMapping("/download/{fileName}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
         // 경로 탐색 공격(Path Traversal) 방지를 위한 파일 이름 검증
-        if (!"ForensicEngineeringPractice.pdf".equals(fileName) && !"StructuralHealthMonitoring.png".equals(fileName)) {
+        if (!"ForensicEngineeringPractice.pdf".equals(fileName) &&
+            !"Syllabus_SHM_PreWorkshop_IABSE2026.pdf".equals(fileName)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
@@ -29,7 +30,7 @@ public class PreWorkshopController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
 
-            String contentType = fileName.endsWith(".pdf") ? "application/pdf" : "image/png";
+            String contentType = "application/pdf";
 
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
