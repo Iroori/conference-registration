@@ -255,17 +255,16 @@ export const PreWorkshopPage = () => {
                       navigate('/', { state: { tab } });
                     }
                   }}
-                  className={`rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-[0.1em] transition ${
-                    navTab === tab ? 'bg-gold text-navy' : 'text-white/70 hover:text-white'
-                  }`}
+                  className={`rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-[0.1em] transition ${navTab === tab ? 'bg-gold text-navy' : 'text-white/70 hover:text-white'
+                    }`}
                 >
                   {tab === 'REGISTER'
                     ? 'Registration'
                     : tab === 'PRE_WORKSHOP'
-                    ? 'Pre-workshop'
-                    : tab === 'HISTORY'
-                    ? 'My Payments'
-                    : 'My Profile'}
+                      ? 'Pre-workshop'
+                      : tab === 'HISTORY'
+                        ? 'My Payments'
+                        : 'My Profile'}
                 </button>
               ))}
             </div>
@@ -361,83 +360,87 @@ export const PreWorkshopPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Forensic Option Card */}
                   <div
-                     onClick={() => setSelectedProgram('FORENSIC')}
-                     className={`cursor-pointer rounded-xl border p-5 transition flex flex-col justify-between h-full hover:border-gold-hover hover:shadow-sm select-none ${
-                       selectedProgram === 'FORENSIC'
-                         ? 'border-gold bg-gold-tint/20 ring-1 ring-gold'
-                         : 'border-slate-150 bg-white'
-                     }`}
-                   >
-                     <div>
-                       <div className="flex justify-between items-start gap-2">
-                         <h3 className="font-bold text-navy text-base leading-snug">
-                           {OPTIONS_CONFIG.FORENSIC.title}
-                         </h3>
-                         <input
-                           type="radio"
-                           checked={selectedProgram === 'FORENSIC'}
-                           readOnly
-                           className="text-gold focus:ring-gold h-4 w-4"
-                         />
-                       </div>
-                       <p className="mt-3 text-xs text-slate-500 leading-relaxed font-normal">
-                         This workshop introduces the principles and practice of forensic structural engineering through lectures and real-world case studies. Participants will learn practical investigation methodologies, analyze the causes of structural failures, and develop engineering judgment through an interactive case-study session.
-                       </p>
-                     </div>
-                     <div className="mt-4 pt-4 border-t border-slate-100">
-                       <a
-                         href={OPTIONS_CONFIG.FORENSIC.brochureUrl}
-                         download={OPTIONS_CONFIG.FORENSIC.brochureName}
-                         onClick={(e) => e.stopPropagation()}
-                         className="inline-flex items-center gap-1.5 text-xs text-gold font-semibold uppercase tracking-wider hover:text-gold-hover transition"
-                       >
-                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                         </svg>
-                         Download Syllabus (PDF)
-                       </a>
-                     </div>
-                   </div>
- 
-                   {/* SHM Option Card */}
-                   <div
-                     onClick={() => setSelectedProgram('SHM')}
-                     className={`cursor-pointer rounded-xl border p-5 transition flex flex-col justify-between h-full hover:border-gold-hover hover:shadow-sm select-none ${
-                       selectedProgram === 'SHM'
-                         ? 'border-gold bg-gold-tint/20 ring-1 ring-gold'
-                         : 'border-slate-150 bg-white'
-                     }`}
-                   >
-                     <div>
-                       <div className="flex justify-between items-start gap-2">
-                         <h3 className="font-bold text-navy text-base leading-snug">
-                           {OPTIONS_CONFIG.SHM.title}
-                         </h3>
-                         <input
-                           type="radio"
-                           checked={selectedProgram === 'SHM'}
-                           readOnly
-                           className="text-gold focus:ring-gold h-4 w-4"
-                         />
-                       </div>
-                       <p className="mt-3 text-xs text-slate-500 leading-relaxed font-normal">
-                         This blended short course combines online and in-person sessions to present the latest developments in structural health monitoring. Topics include sensing technologies, data acquisition, machine learning, digital twins, and risk-informed infrastructure management, with a focus on practical applications for bridges and other civil infrastructure.
-                       </p>
-                     </div>
-                     <div className="mt-4 pt-4 border-t border-slate-100">
-                       <a
-                         href={OPTIONS_CONFIG.SHM.brochureUrl}
-                         download={OPTIONS_CONFIG.SHM.brochureName}
-                         onClick={(e) => e.stopPropagation()}
-                         className="inline-flex items-center gap-1.5 text-xs text-gold font-semibold uppercase tracking-wider hover:text-gold-hover transition"
-                       >
-                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                         </svg>
-                         Download Syllabus (PDF)
-                       </a>
-                     </div>
-                   </div>
+                    onClick={() => setSelectedProgram('FORENSIC')}
+                    className={`cursor-pointer rounded-xl border overflow-hidden transition flex flex-col justify-between h-full hover:border-gold-hover hover:shadow-sm select-none ${selectedProgram === 'FORENSIC'
+                        ? 'border-gold bg-gold-tint/10 ring-1 ring-gold'
+                        : 'border-slate-150 bg-white'
+                      }`}
+                  >
+                    <div className={`px-5 py-4 border-b flex justify-between items-center gap-4 transition ${selectedProgram === 'FORENSIC'
+                        ? 'bg-gold-tint/30 border-gold/20'
+                        : 'bg-slate-50/60 border-slate-100'
+                      }`}>
+                      <h3 className="font-extrabold text-navy text-base sm:text-lg leading-snug">
+                        {OPTIONS_CONFIG.FORENSIC.title}
+                      </h3>
+                      <input
+                        type="radio"
+                        checked={selectedProgram === 'FORENSIC'}
+                        readOnly
+                        className="text-gold focus:ring-gold h-5 w-5 flex-shrink-0"
+                      />
+                    </div>
+                    <div className="p-5 flex-grow flex flex-col justify-between">
+                      <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
+                        This workshop introduces the principles and practice of forensic structural engineering through lectures and real-world case studies. Participants will learn practical investigation methodologies, analyze the causes of structural failures, and develop engineering judgment through an interactive case-study session.
+                      </p>
+                      <div className="mt-5 pt-4 border-t border-slate-100">
+                        <a
+                          href={OPTIONS_CONFIG.FORENSIC.brochureUrl}
+                          download={OPTIONS_CONFIG.FORENSIC.brochureName}
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-1.5 text-xs text-gold font-semibold uppercase tracking-wider hover:text-gold-hover transition"
+                        >
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          Download Syllabus (PDF)
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SHM Option Card */}
+                  <div
+                    onClick={() => setSelectedProgram('SHM')}
+                    className={`cursor-pointer rounded-xl border overflow-hidden transition flex flex-col justify-between h-full hover:border-gold-hover hover:shadow-sm select-none ${selectedProgram === 'SHM'
+                        ? 'border-gold bg-gold-tint/10 ring-1 ring-gold'
+                        : 'border-slate-150 bg-white'
+                      }`}
+                  >
+                    <div className={`px-5 py-4 border-b flex justify-between items-center gap-4 transition ${selectedProgram === 'SHM'
+                        ? 'bg-gold-tint/30 border-gold/20'
+                        : 'bg-slate-50/60 border-slate-100'
+                      }`}>
+                      <h3 className="font-extrabold text-navy text-base sm:text-lg leading-snug">
+                        {OPTIONS_CONFIG.SHM.title}
+                      </h3>
+                      <input
+                        type="radio"
+                        checked={selectedProgram === 'SHM'}
+                        readOnly
+                        className="text-gold focus:ring-gold h-5 w-5 flex-shrink-0"
+                      />
+                    </div>
+                    <div className="p-5 flex-grow flex flex-col justify-between">
+                      <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
+                        This blended short course combines online and in-person sessions to present the latest developments in structural health monitoring. Topics include sensing technologies, data acquisition, machine learning, digital twins, and risk-informed infrastructure management, with a focus on practical applications for bridges and other civil infrastructure.
+                      </p>
+                      <div className="mt-5 pt-4 border-t border-slate-100">
+                        <a
+                          href={OPTIONS_CONFIG.SHM.brochureUrl}
+                          download={OPTIONS_CONFIG.SHM.brochureName}
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-1.5 text-xs text-gold font-semibold uppercase tracking-wider hover:text-gold-hover transition"
+                        >
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          Download Syllabus (PDF)
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="mt-8 flex justify-end">
@@ -468,11 +471,10 @@ export const PreWorkshopPage = () => {
                   {/* Standard Fee Card */}
                   <div
                     onClick={() => setFeeType('STANDARD')}
-                    className={`cursor-pointer rounded-xl border p-5 transition flex flex-col justify-between h-32 hover:border-gold-hover hover:shadow-sm select-none ${
-                      feeType === 'STANDARD'
+                    className={`cursor-pointer rounded-xl border p-5 transition flex flex-col justify-between h-32 hover:border-gold-hover hover:shadow-sm select-none ${feeType === 'STANDARD'
                         ? 'border-gold bg-gold-tint/20 ring-1 ring-gold'
                         : 'border-slate-150 bg-white'
-                    }`}
+                      }`}
                   >
                     <div className="flex justify-between items-start">
                       <div>
@@ -494,11 +496,10 @@ export const PreWorkshopPage = () => {
                   {/* Student Fee Card */}
                   <div
                     onClick={() => setFeeType('STUDENT')}
-                    className={`cursor-pointer rounded-xl border p-5 transition flex flex-col justify-between h-32 hover:border-gold-hover hover:shadow-sm select-none ${
-                      feeType === 'STUDENT'
+                    className={`cursor-pointer rounded-xl border p-5 transition flex flex-col justify-between h-32 hover:border-gold-hover hover:shadow-sm select-none ${feeType === 'STUDENT'
                         ? 'border-gold bg-gold-tint/20 ring-1 ring-gold'
                         : 'border-slate-150 bg-white'
-                    }`}
+                      }`}
                   >
                     <div className="flex justify-between items-start">
                       <div>
@@ -558,96 +559,96 @@ export const PreWorkshopPage = () => {
             {currentStep === 'CONFIRM_PAY' && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] border-t border-slate-100">
-                <div className="p-6 space-y-6 md:border-r border-slate-100">
-                  <SectionLabel>Cancellation &amp; Refund Policy</SectionLabel>
+                  <div className="p-6 space-y-6 md:border-r border-slate-100">
+                    <SectionLabel>Cancellation &amp; Refund Policy</SectionLabel>
 
-                  <div className="prose prose-sm max-h-40 overflow-y-auto rounded-lg border border-slate-150 p-4 text-xs text-slate-650 bg-slate-50/20 leading-relaxed space-y-2">
-                    <p className="font-bold text-navy mb-1 text-[11px] uppercase tracking-wider">
-                      Cancellation Policy &amp; Minimum Enrollment Warning
-                    </p>
-                    <p>
-                      Please note that the workshop is subject to cancellation if the total number of
-                      registrants is fewer than 30 by 31 July 2026. If the minimum enrollment
-                      requirement is not met by this date, the workshop will be cancelled, and all
-                      pre-registered participants will receive a 100% refund of their registration
-                      fee.
-                    </p>
+                    <div className="prose prose-sm max-h-40 overflow-y-auto rounded-lg border border-slate-150 p-4 text-xs text-slate-650 bg-slate-50/20 leading-relaxed space-y-2">
+                      <p className="font-bold text-navy mb-1 text-[11px] uppercase tracking-wider">
+                        Cancellation Policy &amp; Minimum Enrollment Warning
+                      </p>
+                      <p>
+                        Please note that the workshop is subject to cancellation if the total number of
+                        registrants is fewer than 30 by 31 July 2026. If the minimum enrollment
+                        requirement is not met by this date, the workshop will be cancelled, and all
+                        pre-registered participants will receive a 100% refund of their registration
+                        fee.
+                      </p>
+                    </div>
+
+                    <label className="flex items-start gap-2.5 select-none cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={policyAgreed}
+                        onChange={(e) => setPolicyAgreed(e.target.checked)}
+                        className="rounded text-gold focus:ring-gold h-4 w-4 mt-0.5"
+                      />
+                      <span className="text-xs font-semibold text-slate-800">
+                        I have read and agree to the Cancellation and Refund Policy.
+                      </span>
+                    </label>
+
+                    {errMsg && (
+                      <div className="rounded-lg bg-red-50 border border-red-100 p-3.5">
+                        <p className="text-xs font-semibold text-red-600 leading-normal">{errMsg}</p>
+                      </div>
+                    )}
+
+                    <div className="pt-4 border-t border-slate-100 flex justify-between gap-4">
+                      <button
+                        onClick={() => setCurrentStep('PRICE_SELECT')}
+                        className="btn-secondary w-32 py-3"
+                        disabled={isSubmitting || isPending}
+                      >
+                        Back
+                      </button>
+                      <button
+                        disabled={isSubmitting || isPending || !policyAgreed}
+                        onClick={handlePay}
+                        className="btn-primary w-full md:w-auto md:px-8 py-3"
+                      >
+                        {isPending ? 'Processing…' : isSubmitting ? 'Opening payment window…' : 'Confirm & Pay'}
+                      </button>
+                    </div>
                   </div>
 
-                  <label className="flex items-start gap-2.5 select-none cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={policyAgreed}
-                      onChange={(e) => setPolicyAgreed(e.target.checked)}
-                      className="rounded text-gold focus:ring-gold h-4 w-4 mt-0.5"
-                    />
-                    <span className="text-xs font-semibold text-slate-800">
-                      I have read and agree to the Cancellation and Refund Policy.
-                    </span>
-                  </label>
+                  {/* Sidebar calculation breakdown */}
+                  <div className="p-6 bg-slate-50/50 space-y-5">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      Order Summary
+                    </h4>
+                    <div className="space-y-3.5">
+                      <div className="text-xs">
+                        <span className="block text-slate-400 uppercase font-bold text-[9px]">
+                          Program Option
+                        </span>
+                        <span className="font-semibold text-navy leading-tight block mt-1">
+                          {selectedTitle}
+                        </span>
+                      </div>
 
-                  {errMsg && (
-                    <div className="rounded-lg bg-red-50 border border-red-100 p-3.5">
-                      <p className="text-xs font-semibold text-red-600 leading-normal">{errMsg}</p>
+                      <div className="text-xs">
+                        <span className="block text-slate-400 uppercase font-bold text-[9px]">
+                          Fee Category
+                        </span>
+                        <span className="font-semibold text-slate-700 block mt-1 capitalize">
+                          {feeType?.toLowerCase()} Fee
+                        </span>
+                      </div>
+
+                      <div className="border-t border-slate-200/60 my-4"></div>
+
+                      <div className="flex justify-between items-baseline">
+                        <span className="text-xs font-bold text-slate-800">Total Price:</span>
+                        <span className="font-mono text-gold font-bold text-lg">
+                          {formatKRW(selectedPrice)}
+                        </span>
+                      </div>
                     </div>
-                  )}
-
-                  <div className="pt-4 border-t border-slate-100 flex justify-between gap-4">
-                    <button
-                      onClick={() => setCurrentStep('PRICE_SELECT')}
-                      className="btn-secondary w-32 py-3"
-                      disabled={isSubmitting || isPending}
-                    >
-                      Back
-                    </button>
-                    <button
-                      disabled={isSubmitting || isPending || !policyAgreed}
-                      onClick={handlePay}
-                      className="btn-primary w-full md:w-auto md:px-8 py-3"
-                    >
-                      {isPending ? 'Processing…' : isSubmitting ? 'Opening payment window…' : 'Confirm & Pay'}
-                    </button>
                   </div>
                 </div>
-
-                {/* Sidebar calculation breakdown */}
-                <div className="p-6 bg-slate-50/50 space-y-5">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Order Summary
-                  </h4>
-                  <div className="space-y-3.5">
-                    <div className="text-xs">
-                      <span className="block text-slate-400 uppercase font-bold text-[9px]">
-                        Program Option
-                      </span>
-                      <span className="font-semibold text-navy leading-tight block mt-1">
-                        {selectedTitle}
-                      </span>
-                    </div>
-
-                    <div className="text-xs">
-                      <span className="block text-slate-400 uppercase font-bold text-[9px]">
-                        Fee Category
-                      </span>
-                      <span className="font-semibold text-slate-700 block mt-1 capitalize">
-                        {feeType?.toLowerCase()} Fee
-                      </span>
-                    </div>
-
-                    <div className="border-t border-slate-200/60 my-4"></div>
-
-                    <div className="flex justify-between items-baseline">
-                      <span className="text-xs font-bold text-slate-800">Total Price:</span>
-                      <span className="font-mono text-gold font-bold text-lg">
-                        {formatKRW(selectedPrice)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div id="PGIOscreen" className="mt-4 w-full flex justify-center"></div>
-            </>
-          )}
+                <div id="PGIOscreen" className="mt-4 w-full flex justify-center"></div>
+              </>
+            )}
 
             {/* Step 4: Complete screen */}
             {currentStep === 'COMPLETE' && paymentResult && (

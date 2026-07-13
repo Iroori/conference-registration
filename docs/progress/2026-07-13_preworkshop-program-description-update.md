@@ -11,8 +11,8 @@
   - `[MODIFIED]` [PreWorkshopPage.tsx](file:///Users/rrlee/ETC/conference-registration/front/src/pages/PreWorkshopPage.tsx)
   - `[MODIFIED]` [PreWorkshopController.java](file:///Users/rrlee/ETC/conference-registration/back/src/main/java/com/roo/payment/domain/payment/controller/PreWorkshopController.java)
 - **Details:**
-  - Replaced the hardcoded card height `h-32` with `h-full` to prevent overflowing and align both program cards dynamically.
-  - Added the English description paragraphs inside both program selection cards.
+  - Redesigned selection cards into a split header/body layout (with `overflow-hidden` outer container, shaded `bg-slate-50/60` or `bg-gold-tint/30` header, and a `p-5` body container) to clearly demarcate the title and description.
+  - Increased title size and weight to `font-extrabold text-base sm:text-lg` and description font size to `text-xs sm:text-sm` with higher contrast `text-slate-600` color to greatly improve readability.
   - Updated the SHM brochure download URL parameter and download filename to `Syllabus_SHM_PreWorkshop_IABSE2026.pdf` and changed the label text to "Download Syllabus (PDF)".
   - Updated the path traversal file name validation in `PreWorkshopController.java` to whitelist `Syllabus_SHM_PreWorkshop_IABSE2026.pdf` and completely remove `StructuralHealthMonitoring.png` from the allowed download list.
   - Confirmed the frontend and backend applications build successfully.
