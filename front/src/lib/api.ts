@@ -14,6 +14,9 @@ import type {
   UpdateProfileRequest,
   DiscountCode,
   PaginatedUsersResponse,
+  WaitlistSummary,
+  WaitlistOptionDetail,
+  WaitlistOffer,
 } from '../types';
 
 // ─── Password hashing ────────────────────────────────────────────────────────
@@ -217,5 +220,53 @@ export const apiDeleteAdminDiscountCode = async (id: number): Promise<void> => {
 
 export const apiVerifyDiscountCode = async (code: string): Promise<DiscountCode> => {
   const res = await apiClient.get<{ data: DiscountCode }>(`/payments/discount-code/verify?code=${encodeURIComponent(code)}`);
+  return res.data.data;
+};
+
+// ─── Waitlist — Admin ──────────────────────────────────────────────────────────
+export const apiGetWaitlistSummary = async (): Promise<WaitlistSummary[]> => {
+  const res = await apiClient.get<{ data: WaitlistSummary[] }>('/admin/waitlists/summary');
+  return res.data.data;
+};
+
+export const apiGetWaitlistByOption = async (optionId: string): Promise<WaitlistOptionDetail> => {
+  const res = await apiClient.get<{ data: WaitlistOptionDetail }>(
+    `/admin/waitlists?optionId=${encodeURIComponent(optionId)}`
+  );
+  return res.data.data;
+};
+
+export const apiOfferWaitlist = async (
+  waitlistId: number,
+  quantity: number,
+  force: boolean
+): Promise<void> => {
+  await apiClient.post(`/admin/waitlists/${waitlistId}/offer?quantity=${quantity}&force=${force}`);
+};
+
+export const apiRevokeWaitlist = async (waitlistId: number): Promise<void> => {
+  await apiClient.post(`/admin/waitlists/${waitlistId}/revoke`);
+};
+
+export const apiGrantWaitlist = async (payload: {
+  email: string;
+  optionId: string;
+  quantity: number;
+  force: boolean;
+}): Promise<void> => {
+  await apiClient.post('/admin/waitlists/grant', payload);
+};
+
+// ─── Waitlist — User (offer payment) ───────────────────────────────────────────
+export const apiFetchMyWaitlistOffers = async (): Promise<WaitlistOffer[]> => {
+  const res = await apiClient.get<{ data: WaitlistOffer[] }>('/payments/waitlist/offers');
+  return res.data.data;
+};
+
+export const apiInitiateWaitlistPayment = async (waitlistId: number): Promise<PaymentResponse> => {
+  const res = await apiClient.post<{ data: PaymentResponse }>(
+    `/payments/waitlist/${waitlistId}/initiate`,
+    {}
+  );
   return res.data.data;
 };

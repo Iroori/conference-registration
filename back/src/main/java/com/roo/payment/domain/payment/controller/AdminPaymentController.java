@@ -5,8 +5,11 @@ import com.roo.payment.config.AppProperties;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
 import com.roo.payment.domain.payment.entity.Payment;
 import com.roo.payment.domain.payment.entity.PaymentStatus;
+import com.roo.payment.domain.payment.entity.PaymentType;
+import com.roo.payment.domain.payment.entity.OptionWaitlist;
 import com.roo.payment.domain.payment.repository.PaymentRepository;
 import com.roo.payment.domain.payment.repository.DiscountCodeRepository;
+import com.roo.payment.domain.payment.repository.OptionWaitlistRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +33,14 @@ public class AdminPaymentController {
 
     private final PaymentRepository paymentRepository;
     private final DiscountCodeRepository discountCodeRepository;
+    private final OptionWaitlistRepository optionWaitlistRepository;
     private final AppProperties appProperties;
 
-    public AdminPaymentController(PaymentRepository paymentRepository, DiscountCodeRepository discountCodeRepository, AppProperties appProperties) {
+    public AdminPaymentController(PaymentRepository paymentRepository, DiscountCodeRepository discountCodeRepository,
+                                  OptionWaitlistRepository optionWaitlistRepository, AppProperties appProperties) {
         this.paymentRepository = paymentRepository;
         this.discountCodeRepository = discountCodeRepository;
+        this.optionWaitlistRepository = optionWaitlistRepository;
         this.appProperties = appProperties;
     }
 
@@ -125,10 +131,27 @@ public class AdminPaymentController {
 
         // 1. COMPLETED 결제 건에 대해서 옵션 정원 복원
         if (payment.getStatus() == PaymentStatus.COMPLETED) {
-            payment.getSelectedOptions().forEach(o -> {
-                o.decreaseCount();
-                log.info("[ADMIN] Restored option count for '{}' due to payment deletion", o.getNameEn());
-            });
+            if (payment.getPaymentType() == PaymentType.WAITLIST) {
+                // WAITLIST 결제 — 오퍼 수량만큼 복원하고 대기건을 다시 대기열로 되돌림
+                optionWaitlistRepository.findByFulfilledPaymentId(payment.getId()).ifPresent(w -> {
+                    w.getOption().decreaseCount(w.getOfferedQuantity());
+                    w.revertFulfillment();
+                    optionWaitlistRepository.save(w);
+                    log.info("[ADMIN] Reverted waitlist fulfillment id={}, restored {} seat(s)", w.getId(), w.getOfferedQuantity());
+                });
+            } else {
+                payment.getSelectedOptions().forEach(o -> {
+                    o.decreaseCount();
+                    log.info("[ADMIN] Restored option count for '{}' due to payment deletion", o.getNameEn());
+                });
+            }
+        }
+
+        // 1-2. 이 결제에 매달린 대기자(intake) 행 삭제 — FK 무결성 보장
+        java.util.List<OptionWaitlist> intakeWaitlists = optionWaitlistRepository.findByPaymentId(payment.getId());
+        if (!intakeWaitlists.isEmpty()) {
+            optionWaitlistRepository.deleteAll(intakeWaitlists);
+            log.info("[ADMIN] Deleted {} waitlist intake row(s) for payment id={}", intakeWaitlists.size(), payment.getId());
         }
 
         // 2. 할인 코드를 사용한 결제 건의 경우, 할인 코드 미사용으로 상태 복원

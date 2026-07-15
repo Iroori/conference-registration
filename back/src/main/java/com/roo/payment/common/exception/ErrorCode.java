@@ -37,6 +37,13 @@ public enum ErrorCode {
     OPTION_CAPACITY_EXCEEDED(HttpStatus.BAD_REQUEST, "The selected program's capacity has been exceeded."),
     ACCOMPANYING_NAME_REQUIRED(HttpStatus.BAD_REQUEST, "Accompanying person's name (First/Last) is required."),
 
+    // Waitlist
+    WAITLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "Waitlist entry not found."),
+    WAITLIST_NOT_OFFERED(HttpStatus.BAD_REQUEST, "This waitlist item is not available for payment."),
+    WAITLIST_OFFER_EXPIRED(HttpStatus.BAD_REQUEST, "This waitlist offer has expired."),
+    WAITLIST_FORBIDDEN(HttpStatus.FORBIDDEN, "You do not have access to this waitlist offer."),
+    WAITLIST_CAPACITY_FULL(HttpStatus.CONFLICT, "No seats available. Confirm the over-capacity offer to proceed."),
+
     // Discount Code
     DISCOUNT_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "Discount code not found or inactive."),
     DISCOUNT_CODE_ALREADY_USED(HttpStatus.BAD_REQUEST, "This discount code has already been used."),

@@ -226,6 +226,24 @@ public class EmailService {
                 buildPaymentConfirmationHtml(fullName, registrationNumber, totalAmount, paidAt));
     }
 
+    /**
+     * 대기자 오퍼 알림 — 매진 옵션에 자리가 나 결제 가능해졌음을 안내한다.
+     * 보안상 결제 권한 토큰은 포함하지 않는다. 유저는 로그인 후 오퍼 페이지에서 결제한다.
+     */
+    @Async
+    public void sendWaitlistOffer(String to, String fullName, String optionName,
+                                  long price, int quantity, String deadline) {
+        long total = price * quantity;
+        String link = buildWaitlistPaymentLink();
+        if (appProperties.isDevMode()) {
+            log.info("[DEV] Waitlist Offer → {} | {} x{} | ₩{} | pay by {} | link={}",
+                    to, optionName, quantity, String.format("%,d", total), deadline, link);
+            return;
+        }
+        sendHtmlMail(to, "[IABSE Congress Incheon 2026] A waitlist seat is now available",
+                buildWaitlistOfferHtml(fullName, optionName, quantity, total, deadline, link));
+    }
+
     // ─── private helpers ─────────────────────────────────────────────────
 
     private void sendHtmlMail(String to, String subject, String htmlBody) {
@@ -288,6 +306,46 @@ public class EmailService {
                   </div>
                 </body></html>
                 """.formatted(fullName, registrationNumber, totalAmount, paidAt);
+    }
+
+    private String buildWaitlistPaymentLink() {
+        String[] origins = appProperties.getCors().getAllowedOriginsArray();
+        String base = (origins.length > 0 && origins[0] != null && !origins[0].isBlank())
+                ? origins[0].trim() : "";
+        return base + appProperties.getWaitlist().getPaymentPath();
+    }
+
+    private String buildWaitlistOfferHtml(String fullName, String optionName, int quantity,
+                                          long total, String deadline, String link) {
+        return """
+                <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head>
+                <body style="font-family:'Segoe UI',sans-serif;background:#f8fafc;padding:40px 0">
+                  <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
+                    <div style="background:#1e293b;padding:24px 32px">
+                      <p style="color:#2dd4bf;font-size:12px;font-weight:600;letter-spacing:3px;margin:0">IABSE Congress Incheon 2026</p>
+                      <h1 style="color:#fff;font-size:20px;margin:4px 0 0">A Waitlist Seat Is Available</h1>
+                    </div>
+                    <div style="padding:32px">
+                      <p style="color:#1e293b;margin:0 0 4px">Dear %s,</p>
+                      <p style="color:#475569;margin:0 0 24px">A seat has opened up for an item you were waitlisted for. You can now complete your payment for the item below.</p>
+                      <div style="background:#f8fafc;border-radius:12px;padding:20px;margin:0 0 24px">
+                        <table style="width:100%%;border-collapse:collapse">
+                          <tr><td style="color:#94a3b8;font-size:13px;padding:6px 0">Item</td>
+                              <td style="color:#1e293b;font-weight:600;font-size:13px;text-align:right">%s</td></tr>
+                          <tr><td style="color:#94a3b8;font-size:13px;padding:6px 0">Quantity</td>
+                              <td style="color:#1e293b;font-weight:600;font-size:13px;text-align:right">%d</td></tr>
+                          <tr><td style="color:#94a3b8;font-size:13px;padding:6px 0">Amount</td>
+                              <td style="color:#1e293b;font-weight:600;font-size:13px;text-align:right">&#8361;%,d</td></tr>
+                          <tr><td style="color:#94a3b8;font-size:13px;padding:6px 0">Pay By</td>
+                              <td style="color:#dc2626;font-weight:600;font-size:13px;text-align:right">%s</td></tr>
+                        </table>
+                      </div>
+                      <a href="%s" style="display:inline-block;background:#14b8a6;color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 28px;border-radius:10px">Log in &amp; Complete Payment</a>
+                      <p style="color:#94a3b8;font-size:12px;margin:24px 0 0">This offer is reserved for you until the deadline above. Please log in to your account to pay. Inquiries: iabse2026@kibse.or.kr</p>
+                    </div>
+                  </div>
+                </body></html>
+                """.formatted(fullName, optionName, quantity, total, deadline, link);
     }
 
     // ─── Inner record ────────────────────────────────────────────────────

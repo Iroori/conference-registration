@@ -40,6 +40,19 @@ public class Payment extends BaseEntity {
     @Column(nullable = false, length = 20)
     private PaymentMethod paymentMethod;
 
+    /** 결제 유형 — 기본 PRIMARY, 대기자 오퍼 추가 결제는 WAITLIST */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private PaymentType paymentType = PaymentType.PRIMARY;
+
+    /** WAITLIST 결제일 때, 충족하는 대기자(offer) ID */
+    @Column(name = "waitlist_id")
+    private Long waitlistId;
+
+    /** WAITLIST 결제일 때, 원 등록 결제의 등록번호 (표시용) */
+    @Column(name = "origin_registration_number", length = 30)
+    private String originRegistrationNumber;
+
     @Column(nullable = false)
     private long subtotal;
 
@@ -134,6 +147,13 @@ public class Payment extends BaseEntity {
         this.status = PaymentStatus.FAILED;
     }
 
+    /** 이 결제를 대기자 오퍼 추가 결제(WAITLIST)로 표시한다. */
+    public void markAsWaitlist(Long waitlistId, String originRegistrationNumber) {
+        this.paymentType = PaymentType.WAITLIST;
+        this.waitlistId = waitlistId;
+        this.originRegistrationNumber = originRegistrationNumber;
+    }
+
     public void addAccompanyingPerson(String lastName, String firstName) {
         this.accompanyingPersons.add(new AccompanyingPerson(this, lastName, firstName));
     }
@@ -205,6 +225,10 @@ public class Payment extends BaseEntity {
     public List<ExhibitorBadge> getExhibitorBadges() {
         return exhibitorBadges;
     }
+
+    public PaymentType getPaymentType() { return paymentType; }
+    public Long getWaitlistId() { return waitlistId; }
+    public String getOriginRegistrationNumber() { return originRegistrationNumber; }
 
     public String getAppliedDiscountCode() { return appliedDiscountCode; }
     public long getDiscountTotalAmount() { return discountTotalAmount != null ? discountTotalAmount : 0L; }

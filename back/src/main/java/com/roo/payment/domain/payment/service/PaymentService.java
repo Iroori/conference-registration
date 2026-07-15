@@ -10,7 +10,9 @@ import com.roo.payment.domain.payment.dto.CompletePaymentRequest;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
 import com.roo.payment.domain.payment.entity.DiscountCode;
 import com.roo.payment.domain.payment.entity.Payment;
+import com.roo.payment.domain.payment.entity.PaymentMethod;
 import com.roo.payment.domain.payment.entity.PaymentStatus;
+import com.roo.payment.domain.payment.entity.PaymentType;
 import com.roo.payment.domain.payment.entity.OptionWaitlist;
 import com.roo.payment.domain.payment.repository.PaymentRepository;
 import com.roo.payment.domain.payment.repository.OptionWaitlistRepository;
@@ -280,15 +282,16 @@ public class PaymentService {
             }
         }
 
-        // 대기자 정보 저장
+        paymentRepository.save(payment);
+
+        // 대기자 정보 저장 — payment를 먼저 영속화한 뒤 저장해야 FK 무결성이 보장된다
+        // (OptionWaitlist.payment 는 non-null FK이며 Payment로부터 cascade되지 않음)
         if (!waitlistedOptions.isEmpty()) {
             for (var opt : waitlistedOptions) {
                 OptionWaitlist waitlist = new OptionWaitlist(payment, opt);
                 optionWaitlistRepository.save(waitlist);
             }
         }
-
-        paymentRepository.save(payment);
 
         log.info("[PAYMENT] Payment initiated — email={} regNo={} amount={}",
                 maskEmail(email), regNumber, payment.getTotalAmount());
@@ -326,10 +329,8 @@ public class PaymentService {
             discount.markAsUsed();
         }
 
-        // 활성 옵션 정원 카운터 증가
-        payment.getSelectedOptions().forEach(o -> {
-            o.increaseCount();
-        });
+        // 정원 카운터 증가 — WAITLIST 결제는 오퍼 수량만큼 증가 + 대기건 충족 처리
+        increaseCapacityCounts(payment);
 
         paymentRepository.save(payment);
 
@@ -375,9 +376,7 @@ public class PaymentService {
                 discount.markAsUsed();
             }
 
-            payment.getSelectedOptions().forEach(o -> {
-                o.increaseCount();
-            });
+            increaseCapacityCounts(payment);
 
             paymentRepository.save(payment);
 
@@ -396,6 +395,57 @@ public class PaymentService {
             payment.fail();
             paymentRepository.save(payment);
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 대기자 오퍼 추가 결제 (WAITLIST)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * 대기자 오퍼 결제 개시 — 오퍼된 옵션/수량/정가만으로 새 WAITLIST 결제를 생성한다.
+     * 공개 정원 체크는 우회한다 (오퍼 자체가 결제 권한). 완료 시점에 오퍼 수량만큼 카운트업.
+     */
+    @Transactional
+    public PaymentResponse initiateWaitlistPayment(String email, Long waitlistId) {
+        User user = userRepository.findByEmailAndActiveTrue(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        OptionWaitlist w = optionWaitlistRepository.findById(waitlistId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.WAITLIST_NOT_FOUND));
+
+        // 소유권 검증 — 오퍼 소유자 본인만 결제 가능
+        if (!w.getUser().getEmail().equalsIgnoreCase(email)) {
+            log.warn("[WAITLIST_PAY] Ownership mismatch — email={} waitlistId={}", maskEmail(email), waitlistId);
+            throw new BusinessException(ErrorCode.WAITLIST_FORBIDDEN);
+        }
+        // 상태/만료 검증
+        if (w.getStatus() != OptionWaitlist.WaitlistStatus.OFFERED) {
+            throw new BusinessException(ErrorCode.WAITLIST_NOT_OFFERED);
+        }
+        if (w.isOfferExpired()) {
+            w.expire();
+            optionWaitlistRepository.save(w);
+            throw new BusinessException(ErrorCode.WAITLIST_OFFER_EXPIRED);
+        }
+
+        ConferenceOption option = w.getOption();
+        int qty = w.getOfferedQuantity();
+        long subtotal = option.getPrice() * qty;   // 정원 체크 우회 — 오퍼가 권한
+        long tax = 0;
+
+        String regNumber = generateRegistrationNumber();
+        Payment payment = new Payment(
+                regNumber, user, user.getMemberType(),
+                PaymentMethod.CARD, subtotal, tax, List.of(option));
+        String originRegNo = w.getPayment() != null ? w.getPayment().getRegistrationNumber() : null;
+        payment.markAsWaitlist(w.getId(), originRegNo);
+
+        paymentRepository.save(payment);
+
+        log.info("[WAITLIST_PAY] Initiated — email={} waitlistId={} regNo={} qty={} amount={}",
+                maskEmail(email), waitlistId, regNumber, qty, payment.getTotalAmount());
+
+        return PaymentResponse.from(payment);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -452,6 +502,37 @@ public class PaymentService {
     // ─────────────────────────────────────────────────────────────────────────
     // 헬퍼 메서드
     // ─────────────────────────────────────────────────────────────────────────
+
+    /** 결제 완료 시 정원 카운터 증가. WAITLIST는 오퍼 수량만큼, PRIMARY는 옵션당 1씩(기존 동작). */
+    private void increaseCapacityCounts(Payment payment) {
+        if (payment.getPaymentType() == PaymentType.WAITLIST) {
+            fulfillWaitlist(payment);
+        } else {
+            payment.getSelectedOptions().forEach(ConferenceOption::increaseCount);
+        }
+    }
+
+    /** WAITLIST 결제 확정 — 연결된 대기건을 COMPLETED로 전환하고 오퍼 수량만큼 정원 증가 (멱등). */
+    private void fulfillWaitlist(Payment payment) {
+        Long waitlistId = payment.getWaitlistId();
+        if (waitlistId == null) {
+            // 방어적 폴백 — 링크가 없으면 선택 옵션 기준 1씩 증가
+            payment.getSelectedOptions().forEach(ConferenceOption::increaseCount);
+            return;
+        }
+        OptionWaitlist w = optionWaitlistRepository.findById(waitlistId).orElse(null);
+        if (w == null) {
+            payment.getSelectedOptions().forEach(ConferenceOption::increaseCount);
+            return;
+        }
+        // 멱등성 — 이미 충족된 오퍼는 중복 카운트하지 않음
+        if (w.getStatus() == OptionWaitlist.WaitlistStatus.COMPLETED) {
+            return;
+        }
+        w.getOption().increaseCount(w.getOfferedQuantity());
+        w.fulfill(payment.getId());
+        optionWaitlistRepository.save(w);
+    }
 
     private String generateRegistrationNumber() {
         int seq = ThreadLocalRandom.current().nextInt(10_000_000, 99_999_999);

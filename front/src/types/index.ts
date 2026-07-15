@@ -336,6 +336,59 @@ export interface PaymentResponse {
   passportLastName?: string | null;
   passportNumber?: string | null;
   birthDate?: string | null;
+  paymentType?: 'PRIMARY' | 'WAITLIST';
+  originRegistrationNumber?: string | null;
+}
+
+// ─── Waitlist (대기자 오퍼) ──────────────────────────────────────────────────
+export type WaitlistStatus = 'WAITING' | 'OFFERED' | 'COMPLETED' | 'EXPIRED' | 'CANCELLED';
+
+/** 관리자 요약 — 대기자가 존재하는 옵션별 집계 */
+export interface WaitlistSummary {
+  optionId: string;
+  optionName: string;
+  maxCapacity: number | null;
+  currentCount: number;
+  availableSeats: number;
+  waitingCount: number;
+  offeredCount: number;
+}
+
+/** 관리자 상세 — 개별 대기자 */
+export interface WaitlistEntry {
+  waitlistId: number;
+  position: number;
+  userEmail: string;
+  userName: string;
+  requestedAt: string | null;
+  status: WaitlistStatus;
+  parentPaymentStatus: PaymentStatus | string;
+  offeredQuantity: number;
+  offeredAt: string | null;
+  offerExpiresAt: string | null;
+  offerExpired: boolean;
+}
+
+/** 관리자 상세 — 옵션 좌석 현황 + 대기자 목록 */
+export interface WaitlistOptionDetail {
+  optionId: string;
+  optionName: string;
+  maxCapacity: number | null;
+  currentCount: number;
+  availableSeats: number;
+  price: number;
+  entries: WaitlistEntry[];
+}
+
+/** 유저가 받은 유효 오퍼 (전용 결제 페이지용) */
+export interface WaitlistOffer {
+  waitlistId: number;
+  optionId: string;
+  optionName: string;
+  price: number;
+  quantity: number;
+  totalAmount: number;
+  offerExpiresAt: string | null;
 }
 
 // ─── Pricing (프론트엔드 계산용) ─────────────────────────────────────────────
