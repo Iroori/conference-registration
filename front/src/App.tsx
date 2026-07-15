@@ -5,6 +5,7 @@ import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { RegistrationPage } from './pages/RegistrationPage';
 import { PreWorkshopPage } from './pages/PreWorkshopPage';
+import { WaitlistOfferPage } from './pages/WaitlistOfferPage';
 import type { ReactNode } from 'react';
 
 const queryClient = new QueryClient({
@@ -51,6 +52,14 @@ const App = () => (
             element={
               <ProtectedRoute isPreWorkshop>
                 <PreWorkshopPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/waitlist/pay"
+            element={
+              <ProtectedRoute>
+                <WaitlistOfferPage />
               </ProtectedRoute>
             }
           />

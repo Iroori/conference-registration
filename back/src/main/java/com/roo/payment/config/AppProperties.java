@@ -13,6 +13,7 @@ public class AppProperties {
     private Admin admin = new Admin();
     private Registration registration = new Registration();
     private Paygate paygate = new Paygate();
+    private Waitlist waitlist = new Waitlist();
     private boolean devMode = false;
 
     public Jwt getJwt() {
@@ -37,6 +38,10 @@ public class AppProperties {
 
     public Paygate getPaygate() {
         return paygate;
+    }
+
+    public Waitlist getWaitlist() {
+        return waitlist;
     }
 
     public boolean isDevMode() {
@@ -170,6 +175,32 @@ public class AppProperties {
 
         public void setEventDate(String eventDate) {
             this.eventDate = eventDate;
+        }
+    }
+
+    /**
+     * 대기자 오퍼 설정.
+     * app.waitlist.offer-window-hours — 오퍼 발송 후 결제 마감까지 유효 시간 (기본 48h)
+     * app.waitlist.payment-path — 오퍼 알림 메일의 결제 페이지 경로 (CORS origin 뒤에 붙음)
+     */
+    public static class Waitlist {
+        private int offerWindowHours = 48;
+        private String paymentPath = "/waitlist/pay";
+
+        public int getOfferWindowHours() {
+            return offerWindowHours;
+        }
+
+        public void setOfferWindowHours(int offerWindowHours) {
+            this.offerWindowHours = offerWindowHours;
+        }
+
+        public String getPaymentPath() {
+            return paymentPath;
+        }
+
+        public void setPaymentPath(String paymentPath) {
+            this.paymentPath = paymentPath;
         }
     }
 

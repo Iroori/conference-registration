@@ -106,6 +106,16 @@ public class ConferenceOption extends BaseEntity {
         if (this.currentCount > 0) this.currentCount--;
     }
 
+    /** 수량 단위 증가 — 대기자 오퍼 추가 결제(수량 지정)에 사용 */
+    public void increaseCount(int amount) {
+        if (amount > 0) this.currentCount += amount;
+    }
+
+    /** 수량 단위 감소 — 수량 지정 결제 삭제 시 정원 복원 */
+    public void decreaseCount(int amount) {
+        if (amount > 0) this.currentCount = Math.max(0, this.currentCount - amount);
+    }
+
     public String getId() { return id; }
     public OptionCategory getCategory() { return category; }
     public String getNameKr() { return nameKr; }

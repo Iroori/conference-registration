@@ -16,8 +16,10 @@ import {
   apiDeleteAdminPayment,
 } from '../lib/api';
 import type { MemberType } from '../types';
+import { AdminWaitlistTab } from './AdminWaitlistTab';
+import { GrantPaymentButton } from './GrantPaymentButton';
 
-type SubTab = 'USERS' | 'IABSE' | 'PAYMENTS' | 'OPTIONS' | 'DISCOUNT_CODES';
+type SubTab = 'USERS' | 'IABSE' | 'PAYMENTS' | 'OPTIONS' | 'WAITLIST' | 'DISCOUNT_CODES';
 
 const OptionInventoryRow = ({
   option,
@@ -556,7 +558,7 @@ export const AdminDashboardPage = () => {
 
         {/* Sub-tabs switch */}
         <div className="flex bg-slate-900/50 p-0.5 rounded-xl border border-slate-700/50 flex-wrap">
-          {(['USERS', 'IABSE', 'PAYMENTS', 'OPTIONS', 'DISCOUNT_CODES'] as SubTab[]).map((tab) => (
+          {(['USERS', 'IABSE', 'PAYMENTS', 'OPTIONS', 'WAITLIST', 'DISCOUNT_CODES'] as SubTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -574,6 +576,8 @@ export const AdminDashboardPage = () => {
                 ? 'Total Payments'
                 : tab === 'OPTIONS'
                 ? 'Ticket Inventory'
+                : tab === 'WAITLIST'
+                ? 'Waitlist'
                 : 'Discount Codes'}
             </button>
           ))}
@@ -779,7 +783,8 @@ export const AdminDashboardPage = () => {
                             <td className="px-4 py-3.5 text-slate-500 font-medium">
                               {formatDate(u.createdAt)}
                             </td>
-                            <td className="px-4 py-3.5 text-center" onClick={(e) => e.stopPropagation()}>
+                            <td className="px-4 py-3.5 text-center whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                              <GrantPaymentButton email={u.email} userName={`${u.firstName} ${u.lastName}`} />
                               <button
                                 onClick={() => handleDeleteUser(u.id, `${u.firstName} ${u.lastName}`)}
                                 disabled={u.admin || deleteUserMutation.isPending}
@@ -1683,6 +1688,9 @@ export const AdminDashboardPage = () => {
             )}
           </div>
         )}
+
+        {/* TAB: Waitlist */}
+        {activeTab === 'WAITLIST' && <AdminWaitlistTab />}
 
         {/* TAB 5: Discount Codes */}
         {activeTab === 'DISCOUNT_CODES' && (

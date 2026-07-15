@@ -37,7 +37,9 @@ public record PaymentResponse(
         String passportLastName,
         String passportNumber,
         String birthDate,
-        String paperInfo
+        String paperInfo,
+        String paymentType,               // PRIMARY / WAITLIST
+        String originRegistrationNumber   // WAITLIST 결제일 때 원 등록 등록번호
 ) {
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -90,7 +92,9 @@ public record PaymentResponse(
                 payment.getUser().getPassportLastName(),
                 payment.getUser().getPassportNumber(),
                 payment.getUser().getBirthDate() != null ? payment.getUser().getBirthDate().toString() : null,
-                payment.getUser().getPaperInfo()
+                payment.getUser().getPaperInfo(),
+                payment.getPaymentType() != null ? payment.getPaymentType().name() : "PRIMARY",
+                payment.getOriginRegistrationNumber()
         );
     }
 }

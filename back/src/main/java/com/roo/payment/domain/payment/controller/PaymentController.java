@@ -5,7 +5,9 @@ import com.roo.payment.domain.payment.dto.PaymentFailureRequest;
 import com.roo.payment.domain.payment.dto.InitiatePaymentRequest;
 import com.roo.payment.domain.payment.dto.CompletePaymentRequest;
 import com.roo.payment.domain.payment.dto.PaymentResponse;
+import com.roo.payment.domain.payment.dto.WaitlistOfferResponse;
 import com.roo.payment.domain.payment.service.PaymentService;
+import com.roo.payment.domain.payment.service.WaitlistService;
 import com.roo.payment.domain.payment.dto.DiscountCodeResponse;
 import com.roo.payment.domain.payment.entity.DiscountCode;
 import com.roo.payment.domain.payment.service.DiscountCodeService;
@@ -26,10 +28,13 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final DiscountCodeService discountCodeService;
+    private final WaitlistService waitlistService;
 
-    public PaymentController(PaymentService paymentService, DiscountCodeService discountCodeService) {
+    public PaymentController(PaymentService paymentService, DiscountCodeService discountCodeService,
+                            WaitlistService waitlistService) {
         this.paymentService = paymentService;
         this.discountCodeService = discountCodeService;
+        this.waitlistService = waitlistService;
     }
 
     /**
@@ -103,6 +108,30 @@ public class PaymentController {
     }
 
 
+
+    /**
+     * List my active (non-expired) waitlist offers
+     * GET /api/payments/waitlist/offers
+     */
+    @GetMapping("/waitlist/offers")
+    public ResponseEntity<ApiResponse<List<WaitlistOfferResponse>>> myWaitlistOffers(
+            @AuthenticationPrincipal String email) {
+        List<WaitlistOfferResponse> offers = waitlistService.myOffers(email);
+        return ResponseEntity.ok(ApiResponse.ok(offers));
+    }
+
+    /**
+     * Initiate an additional payment for an offered waitlist item (pre-PG registration)
+     * POST /api/payments/waitlist/{waitlistId}/initiate
+     */
+    @PostMapping("/waitlist/{waitlistId}/initiate")
+    public ResponseEntity<ApiResponse<PaymentResponse>> initiateWaitlistPayment(
+            @AuthenticationPrincipal String email,
+            @PathVariable Long waitlistId) {
+        log.info("[PAYMENT_CTRL] Waitlist initiate request — email={} waitlistId={}", email, waitlistId);
+        PaymentResponse response = paymentService.initiateWaitlistPayment(email, waitlistId);
+        return ResponseEntity.ok(ApiResponse.ok("Waitlist payment initiated. Please proceed to checkout.", response));
+    }
 
     /**
      * Receive payment failure event from frontend (PayGate popup failure)
