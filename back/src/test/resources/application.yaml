@@ -38,7 +38,7 @@ app:
   registration:
     pre-registration:
       start-date: 2026-05-01
-      end-date:   2026-06-30
+      end-date:   2026-08-26
     early-bird:
       start-date: 2026-07-01
       end-date:   2026-08-31

@@ -29,7 +29,18 @@ interface StepRegistrationTypeProps {
   onNext: () => void;
 }
 
-/** 서버에서 받은 기간 기반으로 현재 활성 티어 판정 */
+/**
+ * 활성 등록 티어는 'PRE_REGISTRATION' 슬롯 하나로 고정한다. (의도된 동작 — 변경 금지)
+ *
+ * 2026-06-15 요금 단일화 이후 Early Bird / On-site 티어는 폐기되었고, 이 슬롯 하나에
+ * 현행 Regular 요율(OPT-REG-PRE-*)이 들어있다. 따라서 날짜로 티어를 판정해서는 안 된다.
+ * app.registration.*.end-date 값은 화면의 "Deadline ..." 문구를 만드는 표시 전용이며,
+ * 그 날짜가 지나도 티어와 금액은 절대 바뀌지 않는다.
+ *
+ * 여기에 날짜 비교를 넣으면 마감일 다음 날부터 EARLY_BIRD 티어의 폐기된 옵션 ID
+ * (OPT-REG-EARLY-*, DB에서 비활성 상태)를 조회하게 되어 요금이 조회되지 않는다.
+ * 요율 변경이 필요하면 DataInitializer의 시드 금액을 직접 수정할 것.
+ */
 function getCurrentTier(): RegistrationTierKey {
   return 'PRE_REGISTRATION';
 }
@@ -180,7 +191,7 @@ export const StepRegistrationType = ({
       <div className="border-b border-slate-100 p-6 lg:border-b-0 lg:border-r">
         <div className="mb-5 flex flex-wrap items-center gap-2.5">
           <p className="text-xs font-semibold text-ink-muted">
-            Early Bird Registration Deadline: 30 June 2026
+            Regular Registration Deadline: 26 August 2026
           </p>
         </div>
 

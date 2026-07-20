@@ -399,6 +399,7 @@ docs/
 | 2026-05-30 | [signup-paper-info-and-refund-policy-wording.md](docs/progress/2026-05-30_signup-paper-info-and-refund-policy-wording.md) | 회원가입 시 논문 번호/제목 수집 추가 및 취소정책 2항 6/30 이전 환불 안내 문구 간소화 개정 |
 | 2026-06-10 | [international-paymethod-101.md](docs/progress/2026-06-10_international-paymethod-101.md) | 해외 카드 결제 실패 대응을 위한 PayGate paymethod 101 변경 |
 | 2026-07-15 | [waitlist-offer-payment.md](docs/progress/2026-07-15_waitlist-offer-payment.md) | 대기자 오퍼 & 추가 결제(관리자 수동 오퍼·수량 지정·초과 허용, 로그인 기반 전용 결제 페이지, WAITLIST 결제 레코드) + 대기자 저장 순서 버그 수정 + 결제삭제 FK 처리 + prod CHECK 제약 마이그레이션([SQL](docs/migrations/2026-07-15_waitlist_offer.sql)) |
+| 2026-07-20 | [regular-fee-and-pechakucha-disable.md](docs/progress/2026-07-20_regular-fee-and-pechakucha-disable.md) | 등록비 단일 활성 요율을 Regular 기준으로 일괄 상향(Member 1,450,000 / NM 1,550,000 / NMP 1,650,000 / YE 900,000, 옵션 ID 유지) + 티어 라벨 "Regular" 및 마감일 8/26 반영 + Young Engineer Programme 내 PechaKucha 신청 선택칸 주석 처리(시드 유지) |
 
 
 > 새 세션에서 기능을 추가·변경할 때마다 해당 날짜의 progress 파일을 생성하거나 업데이트합니다.

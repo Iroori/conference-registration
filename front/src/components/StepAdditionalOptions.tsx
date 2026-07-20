@@ -311,13 +311,17 @@ export const StepAdditionalOptions = ({
                           label="I will attent the Young Engineer Programme social networking event."
                           onToggle={() => onQuantityChange('OPT-YE-PROGRAM', checkedEvent ? 0 : 1)}
                         />
+                        {/* PechaKucha 신청 선택칸만 비활성화 (2026-07-20) — 화면에서 숨김.
+                            하단 안내 문구와 옵션 시드(OPT-PECHAKUCHA), 기존 신청 데이터는 유지된다.
                         <CheckRow
                           checked={checkedPecha}
                           label="I would like to present in the Pechakucha session."
                           onToggle={() => onQuantityChange('OPT-PECHAKUCHA', checkedPecha ? 0 : 1)}
                         />
+                        */}
                       </div>
 
+                      {/* 선택칸만 숨기고 PechaKucha 안내 문구는 계속 노출한다. */}
                       <div className="mt-3.5 space-y-1 text-[11px] text-ink-faint leading-relaxed font-normal">
                         <p>Please note that participants for the PechaKucha session will be selected through a separate process.</p>
                         <p>Further details will be provided by email in due course.</p>

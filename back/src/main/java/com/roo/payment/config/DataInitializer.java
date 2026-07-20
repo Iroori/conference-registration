@@ -114,19 +114,19 @@ public class DataInitializer implements ApplicationRunner {
      */
     private List<ConferenceOption> desiredOptions() {
         return List.of(
-                // ── 등록비: 사전등록 고정요율 (Early Bird 요율) ────────────────────
+                // ── 등록비: 단일 고정요율 (Regular 요율, ~2026-08-26) ──────────────
                 reg("OPT-REG-PRE-MEMBER",
-                        "얼리버드 (IABSE 회원)", "Early Bird — IABSE Member", 1_300_000L),
+                        "정규등록 (IABSE 회원)", "Regular — IABSE Member", 1_450_000L),
                 reg("OPT-REG-PRE-NM",
-                        "얼리버드 (비IABSE 회원)", "Early Bird — Non-IABSE Member", 1_400_000L),
+                        "정규등록 (비IABSE 회원)", "Regular — Non-IABSE Member", 1_550_000L),
                 reg("OPT-REG-PRE-NMP",
-                        "얼리버드 (비회원 Plus, 1년 IABSE 회원권 포함)",
-                        "Early Bird — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_500_000L),
+                        "정규등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
+                        "Regular — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_650_000L),
                 reg("OPT-REG-PRE-YE",
-                        "얼리버드 (Young Engineer)", "Early Bird — Young Engineer", 800_000L),
+                        "정규등록 (Young Engineer)", "Regular — Young Engineer", 900_000L),
                 reg("OPT-REG-PRE-EXH",
-                        "얼리버드 (전시자 추가 배지)",
-                        "Early Bird — Additional Badge for Exhibitors", 500_000L),
+                        "정규등록 (전시자 추가 배지)",
+                        "Regular — Additional Badge for Exhibitors", 500_000L),
 
                 new ConferenceOption(
                         "OPT-WELCOME", OptionCategory.PROGRAM,
@@ -164,10 +164,10 @@ public class DataInitializer implements ApplicationRunner {
                         "I would like to attend the Underground Complex Site at Yeongdong-daero tour",
                         90_000L, false, false, false, null, 40),
 
-                // ── 옵션비: 동반자 등록 (사전등록요율 고정) ───────────────────────
+                // ── 옵션비: 동반자 등록 (Regular 요율 고정, Early Bird와 동일 400,000) ──
                 new ConferenceOption(
                         "OPT-ACCOMP-PRE", OptionCategory.PROGRAM,
-                        "동반자 등록 (사전등록)", "Accompanying Person",
+                        "동반자 등록 (정규등록)", "Accompanying Person",
                         "I would like to register an accompanying person",
                         400_000L, false, false, false, null, null),
 

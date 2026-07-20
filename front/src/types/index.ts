@@ -172,8 +172,8 @@ export interface RegistrationTierConfig {
  */
 export const REG_TIER_CONFIG: Record<RegistrationTierKey, RegistrationTierConfig> = {
   PRE_REGISTRATION: {
-    label: 'Early Bird',
-    subtitle: 'Best rates — limited availability',
+    label: 'Regular',
+    subtitle: 'Standard registration rate',
     color: 'teal',
     optionIds: {
       MEMBER: 'OPT-REG-PRE-MEMBER',

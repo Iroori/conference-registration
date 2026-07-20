@@ -119,7 +119,7 @@ class DiscountCodeServiceTest {
                 50, 0, true, true, false
         );
 
-        // Select options: 얼리버드 IABSE Member 등록비(1,300,000 KRW), Gala Dinner (250,000 KRW), Accompanying (400,000 KRW) 2개 신청
+        // Select options: 정규등록 IABSE Member 등록비(1,450,000 KRW), Gala Dinner (250,000 KRW), Accompanying (400,000 KRW) 2개 신청
         // 2개 신청이므로 Accompanying 총 금액은 800,000 KRW가 된다. 할인 적용 후 1명(400,000 KRW)만 차감되어야 한다.
         List<String> optionIds = List.of("OPT-REG-PRE-MEMBER", "OPT-GALA-DINNER", "OPT-ACCOMP-PRE");
         Map<String, Integer> quantities = Map.of(
@@ -147,13 +147,13 @@ class DiscountCodeServiceTest {
         PaymentResponse response = paymentService.completePayment(testUser.getEmail(), new CompletePaymentRequest(initiated.registrationNumber(), "TID-XYZ-12345", "0000"));
 
         assertNotNull(response);
-        assertEquals(1050000L, response.totalAmount()); // 2,350,000 - 1,300,000 = 1,050,000 KRW
+        assertEquals(1125000L, response.totalAmount()); // 2,500,000 - 1,375,000 = 1,125,000 KRW
         assertEquals(PaymentMethod.CARD, response.paymentMethod());
         assertEquals(discountCode.getCode(), response.appliedDiscountCode());
 
         // Verify discount calculations in database
-        assertEquals(1300000L, response.discountTotalAmount());
-        assertEquals(650000L, response.discountRegAmount()); // 1,300,000 * 50%
+        assertEquals(1375000L, response.discountTotalAmount());
+        assertEquals(725000L, response.discountRegAmount()); // 1,450,000 * 50%
         assertEquals(250000L, response.discountGalaAmount()); // Gala dinner price
         assertEquals(400000L, response.discountAccompAmount()); // 1 accompanying person free (price: 400,000)
         assertEquals(0L, response.discountTourAmount());
@@ -171,7 +171,7 @@ class DiscountCodeServiceTest {
                 100, 100, true, false, false
         );
 
-        // IABSE Member 등록비(1,300,000 KRW), Gala Dinner (250,000 KRW)
+        // IABSE Member 등록비(1,450,000 KRW), Gala Dinner (250,000 KRW)
         List<String> optionIds = List.of("OPT-REG-PRE-MEMBER", "OPT-GALA-DINNER");
         Map<String, Integer> quantities = Map.of(
                 "OPT-REG-PRE-MEMBER", 1,
@@ -202,8 +202,8 @@ class DiscountCodeServiceTest {
         assertEquals(discountCode.getCode(), response.appliedDiscountCode());
 
         // Verify discount calculations in database
-        assertEquals(1300000L + 250000L, response.discountTotalAmount());
-        assertEquals(1300000L, response.discountRegAmount());
+        assertEquals(1450000L + 250000L, response.discountTotalAmount());
+        assertEquals(1450000L, response.discountRegAmount());
         assertEquals(250000L, response.discountGalaAmount());
         assertEquals(0L, response.discountAccompAmount());
         assertEquals(0L, response.discountTourAmount());
