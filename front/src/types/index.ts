@@ -166,9 +166,11 @@ export interface RegistrationTierConfig {
   optionIds: Record<RegistrationCategory, string>;
 }
 
+/** Regular Registration 마감일 — 화면 표시 전용 상수. 날짜 변경 시 이 값만 수정하면 됨 (백엔드/재기동 불필요). */
+export const REGISTRATION_DEADLINE_LABEL = '26 August 2026';
+
 /**
  * 각 티어의 optionId 매핑 + 스타일 메타데이터.
- * 기간(deadline)은 서버 /api/config/registration-periods 응답으로 관리된다.
  */
 export const REG_TIER_CONFIG: Record<RegistrationTierKey, RegistrationTierConfig> = {
   PRE_REGISTRATION: {

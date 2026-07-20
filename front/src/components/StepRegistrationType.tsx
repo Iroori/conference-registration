@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useState } from 'react';
-import { useConferenceOptions, useRegistrationPeriods } from '../hooks/useRegistration';
+import { useConferenceOptions } from '../hooks/useRegistration';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner, LoadingSpinner, SectionLabel, formatKRW } from './Shared';
 import { apiVerifyIabseId } from '../lib/api';
@@ -8,7 +8,7 @@ import type {
   RegistrationTierKey,
   RegistrationCategory,
 } from '../types';
-import { REG_TIER_CONFIG, REGISTRATION_CATEGORIES } from '../types';
+import { REG_TIER_CONFIG, REGISTRATION_CATEGORIES, REGISTRATION_DEADLINE_LABEL } from '../types';
 
 interface StepRegistrationTypeProps {
   memberType: MemberType;
@@ -34,7 +34,7 @@ interface StepRegistrationTypeProps {
  *
  * 2026-06-15 요금 단일화 이후 Early Bird / On-site 티어는 폐기되었고, 이 슬롯 하나에
  * 현행 Regular 요율(OPT-REG-PRE-*)이 들어있다. 따라서 날짜로 티어를 판정해서는 안 된다.
- * app.registration.*.end-date 값은 화면의 "Deadline ..." 문구를 만드는 표시 전용이며,
+ * 화면의 "Deadline ..." 문구는 REGISTRATION_DEADLINE_LABEL 상수(프론트 전용)로 표시하며,
  * 그 날짜가 지나도 티어와 금액은 절대 바뀌지 않는다.
  *
  * 여기에 날짜 비교를 넣으면 마감일 다음 날부터 EARLY_BIRD 티어의 폐기된 옵션 ID
@@ -43,12 +43,6 @@ interface StepRegistrationTypeProps {
  */
 function getCurrentTier(): RegistrationTierKey {
   return 'PRE_REGISTRATION';
-}
-
-function deadlineLabel(p: { endDate: string | null }): string {
-  if (!p.endDate) return 'TBD';
-  const d = new Date(p.endDate + 'T00:00:00');
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
 }
 
 export const StepRegistrationType = ({
@@ -67,18 +61,12 @@ export const StepRegistrationType = ({
 }: StepRegistrationTypeProps) => {
   const { user } = useAuth();
   const { data: options, isLoading: isOptionsLoading, error, refetch } = useConferenceOptions(memberType);
-  const { data: periods, isLoading: isPeriodsLoading } = useRegistrationPeriods();
   const currentTier = getCurrentTier();
   const tierCfg = REG_TIER_CONFIG[currentTier];
-  const isLoading = isOptionsLoading || isPeriodsLoading || !periods;
+  const isLoading = isOptionsLoading;
 
   const [isValidating, setIsValidating] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const periodByKey: Record<RegistrationTierKey, { endDate: string | null }> = {
-    PRE_REGISTRATION: periods?.preRegistration ?? { endDate: null },
-    EARLY_BIRD:       periods?.earlyBird        ?? { endDate: null },
-    REGULAR:          periods?.regular          ?? { endDate: null },
-  };
 
   const [localYear, setLocalYear] = useState('');
   const [localMonth, setLocalMonth] = useState('');
@@ -191,7 +179,7 @@ export const StepRegistrationType = ({
       <div className="border-b border-slate-100 p-6 lg:border-b-0 lg:border-r">
         <div className="mb-5 flex flex-wrap items-center gap-2.5">
           <p className="text-xs font-semibold text-ink-muted">
-            Regular Registration Deadline: 26 August 2026
+            Regular Registration Deadline: {REGISTRATION_DEADLINE_LABEL}
           </p>
         </div>
 
@@ -493,7 +481,7 @@ export const StepRegistrationType = ({
                 {REGISTRATION_CATEGORIES.find((c) => c.key === selectedCategory)?.label}
               </p>
               <p className="text-xs text-ink-faint mt-0.5">
-                {tierCfg.label} · {selectedCategory === 'EXHIBITOR' ? `Qty: ${exhibitorQuantity}` : `Deadline ${deadlineLabel(periodByKey[currentTier])}`}
+                {tierCfg.label} · {selectedCategory === 'EXHIBITOR' ? `Qty: ${exhibitorQuantity}` : `Deadline ${REGISTRATION_DEADLINE_LABEL}`}
               </p>
               {selectedPrice !== undefined && (
                 <p className="amount-total mt-2">

@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
-import { useConferenceOptions, useRegistrationPeriods } from '../hooks/useRegistration';
+import { useConferenceOptions } from '../hooks/useRegistration';
 import { ErrorBanner, LoadingSpinner, SectionLabel, formatKRW } from './Shared';
 import type {
   MemberType,
   ConferenceOption,
   RegistrationTierKey,
   RegistrationCategory,
-  RegistrationPeriods,
   AccompanyingPersonInfo,
 } from '../types';
 import {
@@ -14,6 +13,7 @@ import {
   isAccompanyingOption,
   REGISTRATION_CATEGORIES,
   REG_TIER_CONFIG,
+  REGISTRATION_DEADLINE_LABEL,
 } from '../types';
 
 interface StepAdditionalOptionsProps {
@@ -29,18 +29,6 @@ interface StepAdditionalOptionsProps {
   onWaitlistChange: (ids: string[]) => void;
   onNext: () => void;
   onBack: () => void;
-}
-
-function deadlineLabel(periods: RegistrationPeriods | undefined, tier: RegistrationTierKey): string {
-  const p =
-    tier === 'PRE_REGISTRATION'
-      ? periods?.preRegistration
-      : tier === 'EARLY_BIRD'
-      ? periods?.earlyBird
-      : periods?.regular;
-  if (!p?.endDate) return 'TBD';
-  const d = new Date(p.endDate + 'T00:00:00');
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
 }
 
 interface CheckRowProps {
@@ -90,7 +78,6 @@ export const StepAdditionalOptions = ({
   onBack,
 }: StepAdditionalOptionsProps) => {
   const { data: options, isLoading, error, refetch } = useConferenceOptions(memberType);
-  const { data: periods } = useRegistrationPeriods();
   const tierCfg = REG_TIER_CONFIG[selectedTier];
 
   const registrationOption = useMemo(
@@ -585,7 +572,7 @@ export const StepAdditionalOptions = ({
             <div>
               <p className="text-sm font-semibold text-ink">{categoryLabel}</p>
               <p className="text-xs text-ink-faint mt-0.5">
-                {tierCfg.label} · Deadline {deadlineLabel(periods, selectedTier)}
+                {tierCfg.label} · Deadline {REGISTRATION_DEADLINE_LABEL}
               </p>
               <div className="mt-2 flex justify-between items-baseline">
                 <span className="text-[11px] text-ink font-semibold">Registration fee</span>
