@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface OptionWaitlistRepository extends JpaRepository<OptionWaitlist, Long> {
     List<OptionWaitlist> findByPaymentId(Long paymentId);
+    List<OptionWaitlist> findByUserId(Long userId);
     List<OptionWaitlist> findByOptionIdAndStatusOrderByCreatedAtAsc(String optionId, OptionWaitlist.WaitlistStatus status);
 
     /** 관리자 리스트 — 옵션별 전체 대기자 (유저 fetch, 결제는 LEFT JOIN — 직접 오퍼는 결제 null 가능, FIFO 정렬) */
