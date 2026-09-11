@@ -168,21 +168,6 @@ export const StepTechnicalTour = ({
             const selected = activeTourId === opt.id;
             const isSoldOut = opt.available === false;
 
-            const handleToggleWaitlist = (checked: boolean) => {
-              if (checked) {
-                // Reset all other tours to 0
-                TECH_TOUR_OPTION_IDS.forEach((id) => {
-                  onQuantityChange(id, id === opt.id ? 1 : 0);
-                });
-                // Add only this tour to waitlistedOptionIds, removing other tech tours
-                const filteredWaitlist = waitlistedOptionIds.filter((id) => !(TECH_TOUR_OPTION_IDS as readonly string[]).includes(id));
-                onWaitlistChange([...filteredWaitlist, opt.id]);
-              } else {
-                onQuantityChange(opt.id, 0);
-                onWaitlistChange(waitlistedOptionIds.filter((id) => id !== opt.id));
-              }
-            };
-
             const CardElement = isSoldOut ? 'div' : 'button';
 
             return (
@@ -237,24 +222,9 @@ export const StepTechnicalTour = ({
 
                 {isSoldOut && (
                   <div className="mt-3 pt-3 border-t border-slate-150">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleWaitlist(!waitlisted)}
-                      className="inline-flex items-center gap-1.5 font-semibold text-gold"
-                    >
-                      <span
-                        className={`inline-block h-3.5 w-3.5 rounded border transition ${
-                          waitlisted ? 'bg-gold border-gold' : 'border-slate-300 bg-white'
-                        }`}
-                      >
-                        {waitlisted && (
-                          <svg className="h-2.5 w-2.5 text-white mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </span>
-                      <span className="text-xs">Please add me to the waitlist</span>
-                    </button>
+                    <p className="text-[11px] text-ink-faint">
+                      This tour is fully booked. Waitlist applications are currently closed for this item.
+                    </p>
                   </div>
                 )}
               </CardElement>

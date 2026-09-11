@@ -368,26 +368,7 @@ export const StepAdditionalOptions = ({
                       {isSoldOut ? (
                         <div className="mt-3">
                           <p className="text-xs text-ink-muted leading-relaxed">
-                            (All spots have been filled /{' '}
-                            <button
-                              type="button"
-                              onClick={() => handleToggleWaitlist(!waitlisted)}
-                              className="inline-flex items-center gap-1.5 font-semibold text-gold"
-                            >
-                              <span
-                                className={`inline-block h-3.5 w-3.5 rounded border transition ${
-                                  waitlisted ? 'bg-gold border-gold' : 'border-slate-300 bg-white'
-                                }`}
-                              >
-                                {waitlisted && (
-                                  <svg className="h-2.5 w-2.5 text-white mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                  </svg>
-                                )}
-                              </span>
-                              Please add me to the waitlist
-                            </button>
-                            )
+                            All spots have been filled. Waitlist applications are currently closed for this item.
                           </p>
                         </div>
                       ) : (

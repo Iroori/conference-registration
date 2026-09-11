@@ -116,17 +116,17 @@ public class DataInitializer implements ApplicationRunner {
         return List.of(
                 // ── 등록비: 단일 고정요율 (Regular 요율, ~2026-08-26) ──────────────
                 reg("OPT-REG-PRE-MEMBER",
-                        "정규등록 (IABSE 회원)", "Regular — IABSE Member", 1_450_000L),
+                        "정규등록 (IABSE 회원)", "Regular — IABSE Member", 1_600_000L),
                 reg("OPT-REG-PRE-NM",
-                        "정규등록 (비IABSE 회원)", "Regular — Non-IABSE Member", 1_550_000L),
+                        "정규등록 (비IABSE 회원)", "Regular — Non-IABSE Member", 1_700_000L),
                 reg("OPT-REG-PRE-NMP",
                         "정규등록 (비회원 Plus, 1년 IABSE 회원권 포함)",
-                        "Regular — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_650_000L),
+                        "Regular — IABSE-Non Member Plus (includes 1 year IABSE membership)", 1_800_000L),
                 reg("OPT-REG-PRE-YE",
-                        "정규등록 (Young Engineer)", "Regular — Young Engineer", 900_000L),
+                        "정규등록 (Young Engineer)", "Regular — Young Engineer", 1_000_000L),
                 reg("OPT-REG-PRE-EXH",
                         "정규등록 (전시자 추가 배지)",
-                        "Regular — Additional Badge for Exhibitors", 500_000L),
+                        "Regular — Additional Badge for Exhibitors", 600_000L),
 
                 new ConferenceOption(
                         "OPT-WELCOME", OptionCategory.PROGRAM,
@@ -169,7 +169,7 @@ public class DataInitializer implements ApplicationRunner {
                         "OPT-ACCOMP-PRE", OptionCategory.PROGRAM,
                         "동반자 등록 (정규등록)", "Accompanying Person",
                         "I would like to register an accompanying person",
-                        400_000L, false, false, false, null, null),
+                        450_000L, false, false, false, null, null),
 
                 // ── 행정 서비스 ──────────────────────────────────────────────────
                 new ConferenceOption(
